@@ -223,23 +223,25 @@ participacionIntranet.get('/eventos/:id/inscritos', requerirEquipo(...EVENTOS_RO
 
 // ---------- Noticias ----------
 participacionPublica.get('/noticias', (_req, res) => {
-  res.json(db.prepare('SELECT id, titulo, resumen, fecha FROM noticias WHERE publicada = 1 ORDER BY fecha DESC LIMIT 50').all());
+  res.json(db.prepare('SELECT id, titulo, resumen, imagen, fecha FROM noticias WHERE publicada = 1 ORDER BY fecha DESC LIMIT 50').all());
 });
 participacionPublica.get('/noticias/:id', (req, res) => {
-  const n = db.prepare('SELECT id, titulo, resumen, cuerpo, fecha FROM noticias WHERE id = ? AND publicada = 1').get(Number(req.params.id));
+  const n = db.prepare('SELECT id, titulo, resumen, cuerpo, imagen, fecha FROM noticias WHERE id = ? AND publicada = 1').get(Number(req.params.id));
   if (!n) return res.status(404).json({ error: 'Noticia no encontrada' });
   res.json(n);
 });
-participacionIntranet.get('/noticias', requerirEquipo(...MODERAN), (_req, res) => res.json(db.prepare('SELECT id, titulo, resumen, cuerpo, publicada, fecha FROM noticias ORDER BY fecha DESC').all()));
+participacionIntranet.get('/noticias', requerirEquipo(...MODERAN), (_req, res) => res.json(db.prepare('SELECT id, titulo, resumen, cuerpo, imagen, publicada, fecha FROM noticias ORDER BY fecha DESC').all()));
 function datosNoticia(b) {
   const titulo = limpio(b?.titulo, 150), cuerpo = String(b?.cuerpo ?? '').trim().slice(0, 20000);
   if (!titulo || !cuerpo) throw new Error('Faltan el título o el texto');
-  return { titulo, resumen: limpio(b?.resumen, 300) || null, cuerpo, publicada: b?.publicada ? 1 : 0 };
+  const imagen = b?.imagen ? String(b.imagen) : null;
+  if (imagen && !/^\/media\/[a-f0-9]{32}\.(png|jpg|webp)$/.test(imagen)) throw new Error('Imagen no válida');
+  return { titulo, resumen: limpio(b?.resumen, 300) || null, cuerpo, imagen, publicada: b?.publicada ? 1 : 0 };
 }
 participacionIntranet.post('/noticias', requerirEquipo(...MODERAN), (req, res) => {
   try {
     const d = datosNoticia(req.body);
-    const r = db.prepare('INSERT INTO noticias (titulo, resumen, cuerpo, publicada, autor_id) VALUES (?, ?, ?, ?, ?)').run(d.titulo, d.resumen, d.cuerpo, d.publicada, req.equipo.id);
+    const r = db.prepare('INSERT INTO noticias (titulo, resumen, cuerpo, imagen, publicada, autor_id) VALUES (?, ?, ?, ?, ?, ?)').run(d.titulo, d.resumen, d.cuerpo, d.imagen, d.publicada, req.equipo.id);
     auditar(req.equipo.id, 'crear_noticia', 'noticia', Number(r.lastInsertRowid));
     res.status(201).json({ ok: true, id: Number(r.lastInsertRowid) });
   } catch (e) { res.status(400).json({ error: e.message }); }
@@ -249,7 +251,7 @@ participacionIntranet.patch('/noticias/:id', requerirEquipo(...MODERAN), (req, r
   if (!n) return res.status(404).json({ error: 'No encontrada' });
   try {
     const d = datosNoticia({ ...n, ...req.body });
-    db.prepare('UPDATE noticias SET titulo = ?, resumen = ?, cuerpo = ?, publicada = ? WHERE id = ?').run(d.titulo, d.resumen, d.cuerpo, d.publicada, n.id);
+    db.prepare('UPDATE noticias SET titulo = ?, resumen = ?, cuerpo = ?, imagen = ?, publicada = ? WHERE id = ?').run(d.titulo, d.resumen, d.cuerpo, d.imagen, d.publicada, n.id);
     auditar(req.equipo.id, 'editar_noticia', 'noticia', n.id);
     res.json({ ok: true });
   } catch (e) { res.status(400).json({ error: e.message }); }

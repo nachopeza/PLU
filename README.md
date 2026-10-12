@@ -113,3 +113,11 @@ Lee los documentos de `docs/` en orden. El `09-decisiones-pendientes.md` recoge 
 - **Legal (borradores a revisar):** privacidad, términos, cookies, normas de participación, FAQ, contacto.
 - Intranet: secciones nuevas Ideas (moderación y denuncias), Agenda, Noticias, Voluntariado y editor de votaciones.
 - Quedan fuera por ahora: páginas por provincia, correo (necesita dominio) y donaciones.
+
+## Versión 0.5: contenido editable
+- **Editor visual** (como Elementor, versión sencilla): en la intranet → *Contenido web* eliges una página y se abre la propia web con `?editar=1`. Haces clic en cualquier texto para cambiarlo (negrita, cursiva, enlaces) y en *Cambiar foto* sobre cualquier imagen. *Guardar* publica al momento. Ctrl/Cmd+S también guarda.
+- Los cambios se guardan **aparte** del HTML original (tabla `contenidos`), con historial; *Restaurar* devuelve el texto original de un elemento o de toda la página. Cabecera y pie son globales (se cambian en todas las páginas a la vez).
+- Pueden editar administración y moderación. El HTML guardado se limpia en el servidor (solo negrita, cursiva, saltos de línea y enlaces seguros).
+- **Imágenes** subidas desde la intranet: PNG, JPG o WebP de hasta 6 MB (se valida el contenido real del archivo; no se admite SVG). Se sirven en `/media/…`.
+- **Noticias** con imagen de portada, gestionadas desde Intranet → Noticias.
+- Si cambias a mano un texto en `build_site.py` y reconstruyes, ese texto recibe una clave nueva y deja de aplicarse el cambio guardado desde el editor. Los textos editables se generan solos al ejecutar `python3 build_site.py`.

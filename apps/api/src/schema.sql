@@ -418,3 +418,30 @@ CREATE TABLE IF NOT EXISTS voluntarios (
   estado    TEXT NOT NULL DEFAULT 'nuevo' CHECK (estado IN ('nuevo','contactado','incorporado','descartado')),
   creada_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
+
+-- ============================================================
+-- Contenido editable de la web (textos e imágenes) y biblioteca de medios.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS contenidos (
+  pagina         TEXT NOT NULL,                  -- 'index', 'proyecto'… o 'global' (cabecera y pie)
+  clave          TEXT NOT NULL,
+  valor          TEXT NOT NULL,                  -- HTML ya limpiado (solo em, strong, b, i, br y enlaces) o /media/…
+  actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  usuario_id     INTEGER REFERENCES usuarios_intranet(id),
+  PRIMARY KEY (pagina, clave)
+);
+CREATE TABLE IF NOT EXISTS contenidos_historial (
+  id             INTEGER PRIMARY KEY,
+  pagina         TEXT NOT NULL,
+  clave          TEXT NOT NULL,
+  valor_anterior TEXT,
+  fecha          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  usuario_id     INTEGER REFERENCES usuarios_intranet(id)
+);
+CREATE TABLE IF NOT EXISTS medios (
+  id         TEXT PRIMARY KEY,                   -- 32 hex; el archivo es <id>.<ext>
+  ext        TEXT NOT NULL,
+  bytes      INTEGER NOT NULL,
+  subido_en  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  usuario_id INTEGER REFERENCES usuarios_intranet(id)
+);

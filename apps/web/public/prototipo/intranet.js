@@ -120,7 +120,7 @@
   });
   $('b-recuperacion').addEventListener('click', function () { limpiar($('codigos')); abrirPanel(usuario); });
   document.querySelectorAll('[data-volver]').forEach(function (b) { b.addEventListener('click', function () { ver('v-login'); }); });
-  $('b-salir').addEventListener('click', function () { api('/logout', {}).finally(function () { usuario = null; ver('v-login'); }); });
+  $('b-salir').addEventListener('click', function () { try { localStorage.removeItem('plu_editor'); } catch (e) { /* nada */ } api('/logout', {}).finally(function () { usuario = null; ver('v-login'); }); });
 
   // ---------- Panel y secciones por rol ----------
   var SECCIONES = [
@@ -131,6 +131,7 @@
     ['propuestas', 'Ideas', ['admin', 'moderador', 'auditor']],
     ['encuestas', 'Encuestas y votaciones', ['admin', 'moderador', 'auditor']],
     ['eventos', 'Agenda', ['admin', 'moderador', 'gestor']],
+    ['contenido', 'Contenido web', ['admin', 'moderador']],
     ['noticias', 'Noticias', ['admin', 'moderador']],
     ['voluntarios', 'Voluntariado', ['admin', 'moderador', 'gestor']],
     ['verificar', 'Verificar carné', ['admin', 'gestor', 'verificador']],
@@ -138,11 +139,12 @@
     ['equipo', 'Equipo', ['admin']],
     ['auditoria', 'Auditoría', ['admin', 'auditor']]
   ];
-  var VISTAS = { propuestas: sPropuestas, eventos: sEventos, noticias: sNoticias, voluntarios: sVoluntarios, resumen: sResumen, inscripciones: sInscripciones, personas: sPersonas, solicitudes: sSolicitudes, encuestas: sEncuestas, verificar: sVerificar, carne: sCarne, equipo: sEquipo, auditoria: sAuditoria };
+  var VISTAS = { contenido: sContenido, propuestas: sPropuestas, eventos: sEventos, noticias: sNoticias, voluntarios: sVoluntarios, resumen: sResumen, inscripciones: sInscripciones, personas: sPersonas, solicitudes: sSolicitudes, encuestas: sEncuestas, verificar: sVerificar, carne: sCarne, equipo: sEquipo, auditoria: sAuditoria };
   var detenerCamara = function () {};
 
   function abrirPanel(u) {
-    usuario = u; $('p-nombre').textContent = u.nombre; $('p-rol').textContent = ROLES[u.rol] || u.rol;
+    usuario = u; try { localStorage.setItem('plu_editor', (u.rol === 'admin' || u.rol === 'moderador') ? '1' : '0'); } catch (e) { /* sin almacenamiento */ }
+    $('p-nombre').textContent = u.nombre; $('p-rol').textContent = ROLES[u.rol] || u.rol;
     var tabs = limpiar($('p-tabs'));
     var propias = SECCIONES.filter(function (s) { return s[2].indexOf(u.rol) >= 0; });
     propias.forEach(function (s) { tabs.appendChild(h('button', { class: 'fbtn', type: 'button', 'data-s': s[0], 'aria-pressed': 'false', onclick: function () { irA(s[0]); } }, s[1])); });
@@ -542,6 +544,37 @@
   }
 
 
+
+  // --- Contenido web: editor visual de textos e imágenes ---
+  function subirImagen(archivo) {
+    return fetch('/api/intranet/medios', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': archivo.type }, body: archivo })
+      .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || 'No se pudo subir'); return d; }); });
+  }
+  function sContenido(c) {
+    c.appendChild(h('p', { class: 'muted' }, 'Elige una página y púlsa "Editar": se abre la propia web y haces clic en cualquier texto para cambiarlo, o en "Cambiar foto" sobre cualquier imagen. Lo que guardes se publica al momento y siempre se puede restaurar el original.'));
+    var lista = h('div', { class: 'rows' }); c.appendChild(lista);
+    fetch('paginas.json').then(function (r) { return r.json(); }).then(function (ps) {
+      ps.forEach(function (p) {
+        lista.appendChild(h('div', { class: 'audit-row' }, h('strong', null, p.titulo), h('span', { class: 'muted' }, p.archivo),
+          h('a', { class: 'btn btn-primary btn-sm', href: p.archivo + '?editar=1', target: '_blank', rel: 'noopener' }, 'Editar'), h('a', { class: 'btn btn-ghost btn-sm', href: p.archivo, target: '_blank', rel: 'noopener' }, 'Ver')));
+      });
+    }).catch(function () { lista.appendChild(h('p', { class: 'muted' }, 'No se pudo cargar la lista de páginas.')); });
+    c.appendChild(h('h3', { style: 'margin-top:28px' }, 'Cambios publicados'));
+    var cambios = h('div', { class: 'rows' }); c.appendChild(cambios);
+    function cargarCambios() {
+      limpiar(cambios);
+      api('/contenido').then(function (cs) {
+        if (!cs.length) cambios.appendChild(h('p', { class: 'muted' }, 'Todavía no has cambiado nada: la web muestra los textos originales.'));
+        cs.forEach(function (x) {
+          var esImg = x.clave.indexOf('img:') === 0;
+          cambios.appendChild(h('div', { class: 'audit-row' }, h('span', { class: 'tag' }, x.pagina), esImg ? h('img', { src: x.valor, alt: '', class: 'noticia-mini' }) : h('span', { style: 'flex:1;min-width:12rem' }, x.valor.replace(/<[^>]+>/g, ' ').slice(0, 140)), h('span', { class: 'muted' }, fecha(x.actualizado_en) + (x.username ? ' · @' + x.username : '')),
+            h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { if (confirmar('Se volverá al original de este elemento. ¿Continuar?')) api('/contenido', { pagina: x.pagina, clave: x.clave }, 'DELETE').then(cargarCambios).catch(function (e) { alert(e.message); }); } }, 'Restaurar original')));
+        });
+      }).catch(function (e) { errorSeccion(c, e); });
+    }
+    cargarCambios();
+  }
+
   // --- Ideas ciudadanas (moderación) ---
   var EST_PROP = [['recibida', 'Por revisar'], ['en_estudio', 'En estudio'], ['en_debate', 'En debate'], ['en_votacion', 'En votación'], ['aprobada', 'Aprobadas'], ['en_marcha', 'En marcha'], ['descartada', 'Descartadas'], ['rechazada', 'Rechazadas']];
   function sPropuestas(c) {
@@ -651,11 +684,15 @@
     }
     function editor(n) {
       limpiar(zona); var pub = h('input', { type: 'checkbox', id: 'nt-p' }); pub.checked = n ? !!n.publicada : false;
-      var f = h('form', { class: 'form-card', novalidate: true }, h('h2', null, n ? 'Editar noticia' : 'Nueva noticia'), campo('nt-t', 'Título', { value: n ? n.titulo : '', required: true }), campo('nt-r', 'Resumen (opcional)', { value: n ? n.resumen || '' : '' }), campo('nt-c', 'Texto', { rows: 10 }, 'textarea'),
+      var imagen = n ? n.imagen || '' : '', vista = h('img', { class: 'noticia-img', alt: '', hidden: !imagen, src: imagen || null }), estadoImg = h('span', { class: 'muted' });
+      var archivo = h('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp', id: 'nt-i' });
+      archivo.addEventListener('change', function () { if (!archivo.files[0]) return; estadoImg.textContent = 'Subiendo…'; subirImagen(archivo.files[0]).then(function (r) { imagen = r.url; vista.src = r.url; vista.hidden = false; estadoImg.textContent = 'Imagen lista'; }).catch(function (e) { estadoImg.textContent = e.message; }); });
+      var portada = h('div', { class: 'field' }, h('label', { for: 'nt-i' }, 'Imagen de portada (opcional, PNG/JPG/WebP hasta 6 MB)'), archivo, estadoImg, vista, h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { imagen = ''; vista.hidden = true; archivo.value = ''; } }, 'Quitar imagen'));
+      var f = h('form', { class: 'form-card', novalidate: true }, h('h2', null, n ? 'Editar noticia' : 'Nueva noticia'), campo('nt-t', 'Título', { value: n ? n.titulo : '', required: true }), campo('nt-r', 'Resumen (opcional)', { value: n ? n.resumen || '' : '' }), campo('nt-c', 'Texto (una línea en blanco separa párrafos)', { rows: 12 }, 'textarea'), portada,
         h('label', { class: 'consent', for: 'nt-p' }, pub, h('span', null, 'Publicada')), h('div', { class: 'row-btns' }, h('button', { class: 'btn btn-primary', type: 'submit' }, 'Guardar'), h('button', { class: 'btn btn-ghost', type: 'button', onclick: lista }, 'Cancelar')), h('p', { class: 'form-status err', role: 'alert' }));
       f.querySelector('#nt-c').value = n ? n.cuerpo : '';
       f.addEventListener('submit', function (ev) {
-        ev.preventDefault(); var cuerpo = { titulo: $('nt-t').value, resumen: $('nt-r').value, cuerpo: $('nt-c').value, publicada: pub.checked };
+        ev.preventDefault(); var cuerpo = { titulo: $('nt-t').value, resumen: $('nt-r').value, cuerpo: $('nt-c').value, imagen: imagen || null, publicada: pub.checked };
         (n ? api('/noticias/' + n.id, cuerpo, 'PATCH') : api('/noticias', cuerpo)).then(lista).catch(function (er) { msg(f, er.message); });
       });
       zona.appendChild(f);

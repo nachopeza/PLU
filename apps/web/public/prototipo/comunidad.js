@@ -151,12 +151,12 @@
     var nid = parametros.get('id');
     if (nid) {
       $('n-lista').hidden = true;
-      api('/noticias/' + encodeURIComponent(nid)).then(function (n) { $('n-detalle').hidden = false; document.title = n.titulo + ' · PLU'; $('n-fecha').textContent = fecha(n.fecha); $('n-titulo').textContent = n.titulo; $('n-cuerpo').textContent = n.cuerpo; $('n-compartir').addEventListener('click', function () { compartir(n.titulo, location.href); }); })
+      api('/noticias/' + encodeURIComponent(nid)).then(function (n) { $('n-detalle').hidden = false; document.title = n.titulo + ' · PLU'; $('n-fecha').textContent = fecha(n.fecha); if (n.imagen) { $('n-img').src = n.imagen; $('n-img').hidden = false; } $('n-titulo').textContent = n.titulo; $('n-cuerpo').textContent = n.cuerpo; $('n-compartir').addEventListener('click', function () { compartir(n.titulo, location.href); }); })
         .catch(function (e) { $('n-lista').hidden = false; vacioError($('n-lista'), e); });
     } else {
       api('/noticias').then(function (l) {
         $('n-vacio').hidden = l.length > 0;
-        l.forEach(function (n) { $('n-lista').appendChild(h('a', { class: 'rowitem', href: 'noticias.html?id=' + n.id, style: 'text-decoration:none;color:inherit' }, h('div', { style: 'padding:14px 18px;display:grid;gap:4px' }, h('span', { style: 'font:500 .72rem var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)' }, fecha(n.fecha)), h('h3', { style: 'font-size:1.15rem' }, n.titulo), n.resumen ? h('p', { class: 'muted' }, n.resumen) : null))); });
+        l.forEach(function (n) { $('n-lista').appendChild(h('a', { class: 'rowitem', href: 'noticias.html?id=' + n.id, style: 'text-decoration:none;color:inherit' }, h('div', { style: 'padding:14px 18px;display:grid;grid-template-columns:' + (n.imagen ? '96px ' : '') + 'minmax(0,1fr);gap:14px;align-items:center' }, n.imagen ? h('img', { src: n.imagen, alt: '', class: 'noticia-mini' }) : null, h('div', { style: 'display:grid;gap:4px' }, h('span', { style: 'font:500 .72rem var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)' }, fecha(n.fecha)), h('h3', { style: 'font-size:1.15rem' }, n.titulo), n.resumen ? h('p', { class: 'muted' }, n.resumen) : null)))); });
       }).catch(function (e) { vacioError($('n-lista'), e); });
     }
   }

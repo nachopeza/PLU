@@ -55,7 +55,7 @@ eventos = '''
 
 noticias = '''
 <section class="section"><div class="wrap" id="app-noticias" style="max-width:52rem"><div class="rows" id="n-lista"></div><p class="muted" id="n-vacio" hidden>Todavía no hay noticias.</p>
-<article id="n-detalle" hidden><p><a class="link" href="noticias.html">← Todas las noticias</a></p><span class="eyebrow" id="n-fecha"></span><h1 class="h2" id="n-titulo"></h1><div id="n-cuerpo" style="white-space:pre-wrap;font-size:1.1rem;margin-top:18px"></div><p style="margin-top:22px"><button class="btn btn-ghost btn-sm" type="button" id="n-compartir">Compartir</button></p></article></div></section>'''
+<article id="n-detalle" hidden><p><a class="link" href="noticias.html">← Todas las noticias</a></p><span class="eyebrow" id="n-fecha"></span><h1 class="h2" id="n-titulo"></h1><img id="n-img" class="noticia-img" alt="" hidden><div id="n-cuerpo" style="white-space:pre-wrap;font-size:1.1rem;margin-top:18px"></div><p style="margin-top:22px"><button class="btn btn-ghost btn-sm" type="button" id="n-compartir">Compartir</button></p></article></div></section>'''
 
 voluntariado = f'''
 <section class="section"><div class="wrap formwrap">

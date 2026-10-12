@@ -52,7 +52,7 @@ def page(fname, title, body, hero=''):
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="styles.css">
-<script>document.documentElement.classList.add("js")</script>
+<script>document.documentElement.classList.add("js","cms-pendiente");setTimeout(function(){{document.documentElement.classList.remove("cms-pendiente")}},1500)</script>
 </head>
 <body>
 <div id="progress" aria-hidden="true"></div><div class="glow" id="glow" aria-hidden="true"></div>
@@ -89,6 +89,7 @@ def page(fname, title, body, hero=''):
     <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
   </div>
 </footer>
+<script src="cms.js"></script>
 <script src="site.js"></script>
 <script src="comunidad.js"></script>
 </body>
@@ -560,8 +561,13 @@ PAGES = {
   'contacto.html': ('Contacto · PLU', contacto, ''),
   'encuesta.html': ('Encuesta · PLU', encuesta, ''),
 }
+exec(open(pathlib.Path(__file__).parent / 'cms_marcar.py').read())
 for f, (t, b, h) in PAGES.items():
-    (OUT / f).write_text(page(f, t, b, h))
+    html = page(f, t, b, h)
+    if f != 'intranet.html':
+        html = marcar(html, f[:-5])
+    (OUT / f).write_text(html)
+indice_paginas([(f, v[0]) for f, v in PAGES.items()], OUT / 'paginas.json')
 print('ok', len(PAGES))
 ids = sorted({v[0] for v in P.values()})
 sh = '#!/bin/bash\n# Descarga las fotos de Unsplash a la carpeta fotos/ (macOS o Linux). Ejecutar desde esta carpeta:\n#   cd apps/web/public/prototipo && bash descargar-fotos.sh\nset -e\nmkdir -p fotos\nfor id in ' + ' '.join(ids) + '; do\n  echo "Descargando $id"\n  curl -fsSL "https://images.unsplash.com/$id?auto=format&fit=crop&w=1800&q=75" -o "fotos/$id.jpg" || echo "  (no se pudo: $id)"\ndone\necho "Listo. Abre index.html"\n'

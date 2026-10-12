@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="styles.css">
-<script>document.documentElement.classList.add("js")</script>
+<script>document.documentElement.classList.add("js","cms-pendiente");setTimeout(function(){document.documentElement.classList.remove("cms-pendiente")},1500)</script>
 </head>
 <body>
 <div id="progress" aria-hidden="true"></div><div class="glow" id="glow" aria-hidden="true"></div>
@@ -19,8 +19,8 @@
       <nav class="nav-links" aria-label="Principal"><a href="proyecto.html">El proyecto</a><a href="propuestas.html">Propuestas</a><a href="ideas.html" aria-current="page">Ideas</a><a href="eventos.html">Agenda</a><a href="participa.html">Participa</a><a href="como-funciona.html">Transparencia</a></nav>
       <div class="nav-actions">
         <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
-        <a class="btn btn-ghost btn-sm hide-s" href="portal.html">Soy afiliado</a>
-        <a class="btn btn-primary btn-sm" href="afiliate.html">Únete</a>
+        <a class="btn btn-ghost btn-sm hide-s" href="portal.html" data-cms="g:ddd53342">Soy afiliado</a>
+        <a class="btn btn-primary btn-sm" href="afiliate.html" data-cms="g:38a48d75">Únete</a>
         <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
       </div>
     </div>
@@ -28,7 +28,7 @@
   </div>
 </header>
 <main>
-<section class="page-hero"><div class="ph duo "><img src="fotos/photo-1555069855-e580a9adbf43.jpg" alt="Círculo de personas sentadas sobre la hierba" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1555069855-e580a9adbf43?auto=format&fit=crop&w=1600&q=70'"></div><div class="wrap"><span class="eyebrow">Ideas ciudadanas</span><h1>Propón, apoya y <em>decide.</em></h1><p>Cualquiera puede proponer. Las personas afiliadas apoyan, comentan y votan.</p></div></section>
+<section class="page-hero"><div class="ph duo "><img src="fotos/photo-1555069855-e580a9adbf43.jpg" alt="Círculo de personas sentadas sobre la hierba" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1555069855-e580a9adbf43?auto=format&fit=crop&w=1600&q=70'" data-cmsimg="img:35407968"></div><div class="wrap"><span class="eyebrow" data-cms="ideas:6ecabdde">Ideas ciudadanas</span><h1 data-cms="ideas:268abcc3">Propón, apoya y <em>decide.</em></h1><p data-cms="ideas:dfde6086">Cualquiera puede proponer. Las personas afiliadas apoyan, comentan y votan.</p></div></section>
 <section class="section"><div class="wrap">
   <div class="toolbar" id="i-filtros">
     <div class="field"><label for="i-q">Buscar</label><input id="i-q" type="search" placeholder="Palabra clave"></div>
@@ -39,8 +39,8 @@
   <div class="rows" id="i-lista"></div><p class="muted" id="i-vacio" hidden>Todavía no hay ideas publicadas con estos filtros. ¡Sé la primera persona en proponer una!</p>
 </div></section>
 <section class="section alt" id="proponer"><div class="wrap formwrap">
-  <div style="display:grid;gap:18px;align-content:start"><div class="head" style="margin:0"><span class="eyebrow">Propón una idea</span><h2 class="h2" data-r>Cualquiera puede proponer. Todo el mundo ve qué pasa con ella.</h2></div>
-    <ol class="steps"><li><div><h3>La envías</h3><p>Sin cuenta: solo tu nombre y correo (el correo nunca se publica).</p></div></li><li><div><h3>La revisa el equipo</h3><p>Comprobamos que cumple las <a class="link" href="normas.html">normas de participación</a>. Si no, te decimos por qué.</p></div></li><li><div><h3>Se debate y se apoya</h3><p>Las personas afiliadas la apoyan y comentan.</p></div></li><li><div><h3>Se decide</h3><p>Puede pasar a votación. El resultado y el motivo son públicos.</p></div></li></ol></div>
+  <div style="display:grid;gap:18px;align-content:start"><div class="head" style="margin:0"><span class="eyebrow" data-cms="ideas:1eb6c33d">Propón una idea</span><h2 class="h2" data-r data-cms="ideas:49663e28">Cualquiera puede proponer. Todo el mundo ve qué pasa con ella.</h2></div>
+    <ol class="steps"><li><div><h3 data-cms="ideas:4ce98a85">La envías</h3><p data-cms="ideas:d94ae0b3">Sin cuenta: solo tu nombre y correo (el correo nunca se publica).</p></div></li><li><div><h3 data-cms="ideas:a0d0d8be">La revisa el equipo</h3><p data-cms="ideas:3e8ded48">Comprobamos que cumple las <a class="link" href="normas.html">normas de participación</a>. Si no, te decimos por qué.</p></div></li><li><div><h3 data-cms="ideas:463d1cba">Se debate y se apoya</h3><p data-cms="ideas:2d6ae0ba">Las personas afiliadas la apoyan y comentan.</p></div></li><li><div><h3 data-cms="ideas:0bf05e50">Se decide</h3><p data-cms="ideas:1088f5db">Puede pasar a votación. El resultado y el motivo son públicos.</p></div></li></ol></div>
   <form class="form-card" data-api="/api/propuestas" data-ok="¡Idea recibida!" novalidate>
     <h2>Proponer una idea</h2>
     <div class="field-pair"><div class="field"><label for="p-n">Nombre</label><input id="p-n" name="nombre" autocomplete="name" required maxlength="80"></div><div class="field"><label for="p-e">Correo (no se publica)</label><input id="p-e" name="email" type="email" autocomplete="email" required></div></div>
@@ -57,16 +57,17 @@
     <div class="footer-grid">
       <div>
         <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><img class="wordmark" src="brand/word.png" alt="PLU"></a>
-        <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
+        <p class="muted" style="margin-top:14px;max-width:26rem" data-cms="g:a966cd53">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
       </div>
-      <div><h3>Explora</h3><ul class="footer-links"><li><a href="proyecto.html">El proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Cómo participar</a></li><li><a href="como-funciona.html">Transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
-      <div><h3>Comunidad</h3><ul class="footer-links"><li><a href="ideas.html">Ideas ciudadanas</a></li><li><a href="consultas.html">Votaciones</a></li><li><a href="eventos.html">Agenda</a></li><li><a href="noticias.html">Noticias</a></li><li><a href="voluntariado.html">Voluntariado</a></li></ul></div>
-      <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Hazte simpatizante</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
-      <div><h3>Legal</h3><ul class="footer-links"><li><a href="privacidad.html">Privacidad</a></li><li><a href="terminos.html">Términos</a></li><li><a href="cookies.html">Cookies</a></li><li><a href="normas.html">Normas de participación</a></li><li><a href="faq.html">Preguntas frecuentes</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
+      <div><h3 data-cms="g:1b268e26">Explora</h3><ul class="footer-links"><li data-cms="g:7c920c7d"><a href="proyecto.html">El proyecto</a></li><li data-cms="g:500702e4"><a href="propuestas.html">Propuestas</a></li><li data-cms="g:b1972ce9"><a href="democracia.html">Cómo participar</a></li><li data-cms="g:325c8641"><a href="como-funciona.html">Transparencia</a></li><li data-cms="g:7cf5c3f3"><a href="debate.html">Debate abierto</a></li></ul></div>
+      <div><h3 data-cms="g:46439222">Comunidad</h3><ul class="footer-links"><li data-cms="g:14bce824"><a href="ideas.html">Ideas ciudadanas</a></li><li data-cms="g:0339df53"><a href="consultas.html">Votaciones</a></li><li data-cms="g:110f295f"><a href="eventos.html">Agenda</a></li><li data-cms="g:132e3c64"><a href="noticias.html">Noticias</a></li><li data-cms="g:7c5d35f7"><a href="voluntariado.html">Voluntariado</a></li></ul></div>
+      <div><h3 data-cms="g:1e3735e4">Acceso</h3><ul class="footer-links"><li data-cms="g:eb2d3741"><a href="participa.html">Hazte simpatizante</a></li><li data-cms="g:1f516645"><a href="afiliate.html">Afíliate</a></li><li data-cms="g:1697e992"><a href="portal.html">Portal del afiliado</a></li><li data-cms="g:482fa341"><a href="intranet.html">Acceso del equipo</a></li></ul></div>
+      <div><h3 data-cms="g:902c91d9">Legal</h3><ul class="footer-links"><li data-cms="g:de03b64c"><a href="privacidad.html">Privacidad</a></li><li data-cms="g:37b04e6d"><a href="terminos.html">Términos</a></li><li data-cms="g:a484b12d"><a href="cookies.html">Cookies</a></li><li data-cms="g:c91f51b7"><a href="normas.html">Normas de participación</a></li><li data-cms="g:fdec1f8b"><a href="faq.html">Preguntas frecuentes</a></li><li data-cms="g:ed7a22ff"><a href="contacto.html">Contacto</a></li></ul></div>
     </div>
-    <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
+    <p class="legal" data-cms="g:495008c3">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
   </div>
 </footer>
+<script src="cms.js"></script>
 <script src="site.js"></script>
 <script src="comunidad.js"></script>
 </body>

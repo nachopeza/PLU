@@ -11,6 +11,7 @@ import { intranet } from './rutas-intranet.js';
 import { gestion } from './rutas-gestion.js';
 import { encuestasIntranet, encuestasPublicas } from './rutas-encuestas.js';
 import { portal } from './rutas-portal.js';
+import { contenidoIntranet, contenidoPublico, medios } from './rutas-contenido.js';
 import { participacionIntranet, participacionPortal, participacionPublica } from './rutas-participacion.js';
 import { rutasCarne } from './rutas-carne.js';
 import { soloJson } from './sesion.js';
@@ -29,13 +30,13 @@ app.use((_req, res, next) => {
 });
 app.use(express.json({ limit: '100kb' }));
 // Solo la subida de la plantilla del carné es binaria (PDF); el resto de peticiones que cambian datos deben ser JSON
-app.use('/api', (req, res, next) => (req.method === 'POST' && req.path === '/intranet/plantillas' && req.is('application/pdf') ? next() : soloJson(req, res, next)));
+app.use('/api', (req, res, next) => (req.method === 'POST' && ((req.path === '/intranet/plantillas' && req.is('application/pdf')) || (req.path === '/intranet/medios' && req.is(['image/png', 'image/jpeg', 'image/webp']))) ? next() : soloJson(req, res, next)));
 // Los datos de la API nunca se guardan en caché
 app.use('/api', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
 
 app.get('/api/health', (_req, res) => {
   const { total } = db.prepare("SELECT COUNT(*) AS total FROM territorios WHERE tipo = 'provincia'").get();
-  res.json({ ok: true, servicio: 'plu-api', version: '0.4.0', provincias: total });
+  res.json({ ok: true, servicio: 'plu-api', version: '0.5.0', provincias: total });
 });
 
 // Lista de provincias con su comunidad (formulario de afiliación). El código INE va en el número de afiliado.
@@ -49,6 +50,7 @@ app.get('/api/provincias', (_req, res) => {
 
 app.use('/api', publicas);
 app.use('/api', encuestasPublicas);
+app.use('/api', contenidoPublico);
 app.use('/api', participacionPublica);
 app.use('/api/portal', participacionPortal);
 app.use('/api/portal', portal);
@@ -56,9 +58,11 @@ app.use('/api/intranet', intranet);
 app.use('/api/intranet', gestion);
 app.use('/api/intranet', encuestasIntranet);
 app.use('/api/intranet', rutasCarne);
+app.use('/api/intranet', contenidoIntranet);
 app.use('/api/intranet', participacionIntranet);
 app.use('/api', (_req, res) => res.status(404).json({ error: 'No existe' }));
 
+app.use(medios);
 // Web: el prototipo nuevo es la página de inicio
 app.use('/prototipo', express.static(join(publicDir, 'prototipo')));
 app.use(express.static(publicDir));

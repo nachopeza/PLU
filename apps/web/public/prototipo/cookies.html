@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="styles.css">
-<script>document.documentElement.classList.add("js")</script>
+<script>document.documentElement.classList.add("js","cms-pendiente");setTimeout(function(){document.documentElement.classList.remove("cms-pendiente")},1500)</script>
 </head>
 <body>
 <div id="progress" aria-hidden="true"></div><div class="glow" id="glow" aria-hidden="true"></div>
@@ -19,8 +19,8 @@
       <nav class="nav-links" aria-label="Principal"><a href="proyecto.html">El proyecto</a><a href="propuestas.html">Propuestas</a><a href="ideas.html">Ideas</a><a href="eventos.html">Agenda</a><a href="participa.html">Participa</a><a href="como-funciona.html">Transparencia</a></nav>
       <div class="nav-actions">
         <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
-        <a class="btn btn-ghost btn-sm hide-s" href="portal.html">Soy afiliado</a>
-        <a class="btn btn-primary btn-sm" href="afiliate.html">Únete</a>
+        <a class="btn btn-ghost btn-sm hide-s" href="portal.html" data-cms="g:ddd53342">Soy afiliado</a>
+        <a class="btn btn-primary btn-sm" href="afiliate.html" data-cms="g:38a48d75">Únete</a>
         <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
       </div>
     </div>
@@ -28,27 +28,28 @@
   </div>
 </header>
 <main>
-<section class="section"><div class="wrap" style="max-width:48rem"><div class="head"><span class="eyebrow">Legal</span><h1 class="h2" data-r>Cookies</h1></div><p class="proto-note">Borrador de trabajo: debe revisarlo una persona con formación jurídica antes del lanzamiento. Los datos entre corchetes están por definir.</p><div class="legal-text">
-<p>Esta plataforma usa solo <b>cookies técnicas</b>, imprescindibles para funcionar:</p>
-<ul><li><b>plu_persona</b> y <b>plu_equipo</b>: mantienen tu sesión iniciada en el portal o la intranet. Caducan solas.</li><li><b>Preferencia de tema</b> (claro/oscuro), guardada en tu navegador.</li></ul>
-<p>No usamos cookies de publicidad, ni de seguimiento, ni analítica de terceros. Si en el futuro se añaden, pediremos tu consentimiento antes.</p>
-<p>Las tipografías se cargan desde Google Fonts, lo que puede enviar tu dirección IP a ese proveedor. [Valorar alojarlas en nuestro propio servidor antes del lanzamiento.]</p></div></div></section>
+<section class="section"><div class="wrap" style="max-width:48rem"><div class="head"><span class="eyebrow" data-cms="cookies:902c91d9">Legal</span><h1 class="h2" data-r data-cms="cookies:524cf50b">Cookies</h1></div><p class="proto-note" data-cms="cookies:9ddb2c97">Borrador de trabajo: debe revisarlo una persona con formación jurídica antes del lanzamiento. Los datos entre corchetes están por definir.</p><div class="legal-text">
+<p data-cms="cookies:43d3e7f6">Esta plataforma usa solo <b>cookies técnicas</b>, imprescindibles para funcionar:</p>
+<ul><li data-cms="cookies:95fbb84e"><b>plu_persona</b> y <b>plu_equipo</b>: mantienen tu sesión iniciada en el portal o la intranet. Caducan solas.</li><li data-cms="cookies:97c94050"><b>Preferencia de tema</b> (claro/oscuro), guardada en tu navegador.</li></ul>
+<p data-cms="cookies:972b5d38">No usamos cookies de publicidad, ni de seguimiento, ni analítica de terceros. Si en el futuro se añaden, pediremos tu consentimiento antes.</p>
+<p data-cms="cookies:3f9455fc">Las tipografías se cargan desde Google Fonts, lo que puede enviar tu dirección IP a ese proveedor. [Valorar alojarlas en nuestro propio servidor antes del lanzamiento.]</p></div></div></section>
 </main>
 <footer class="site-footer">
   <div class="wrap">
     <div class="footer-grid">
       <div>
         <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><img class="wordmark" src="brand/word.png" alt="PLU"></a>
-        <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
+        <p class="muted" style="margin-top:14px;max-width:26rem" data-cms="g:a966cd53">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
       </div>
-      <div><h3>Explora</h3><ul class="footer-links"><li><a href="proyecto.html">El proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Cómo participar</a></li><li><a href="como-funciona.html">Transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
-      <div><h3>Comunidad</h3><ul class="footer-links"><li><a href="ideas.html">Ideas ciudadanas</a></li><li><a href="consultas.html">Votaciones</a></li><li><a href="eventos.html">Agenda</a></li><li><a href="noticias.html">Noticias</a></li><li><a href="voluntariado.html">Voluntariado</a></li></ul></div>
-      <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Hazte simpatizante</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
-      <div><h3>Legal</h3><ul class="footer-links"><li><a href="privacidad.html">Privacidad</a></li><li><a href="terminos.html">Términos</a></li><li><a href="cookies.html">Cookies</a></li><li><a href="normas.html">Normas de participación</a></li><li><a href="faq.html">Preguntas frecuentes</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
+      <div><h3 data-cms="g:1b268e26">Explora</h3><ul class="footer-links"><li data-cms="g:7c920c7d"><a href="proyecto.html">El proyecto</a></li><li data-cms="g:500702e4"><a href="propuestas.html">Propuestas</a></li><li data-cms="g:b1972ce9"><a href="democracia.html">Cómo participar</a></li><li data-cms="g:325c8641"><a href="como-funciona.html">Transparencia</a></li><li data-cms="g:7cf5c3f3"><a href="debate.html">Debate abierto</a></li></ul></div>
+      <div><h3 data-cms="g:46439222">Comunidad</h3><ul class="footer-links"><li data-cms="g:14bce824"><a href="ideas.html">Ideas ciudadanas</a></li><li data-cms="g:0339df53"><a href="consultas.html">Votaciones</a></li><li data-cms="g:110f295f"><a href="eventos.html">Agenda</a></li><li data-cms="g:132e3c64"><a href="noticias.html">Noticias</a></li><li data-cms="g:7c5d35f7"><a href="voluntariado.html">Voluntariado</a></li></ul></div>
+      <div><h3 data-cms="g:1e3735e4">Acceso</h3><ul class="footer-links"><li data-cms="g:eb2d3741"><a href="participa.html">Hazte simpatizante</a></li><li data-cms="g:1f516645"><a href="afiliate.html">Afíliate</a></li><li data-cms="g:1697e992"><a href="portal.html">Portal del afiliado</a></li><li data-cms="g:482fa341"><a href="intranet.html">Acceso del equipo</a></li></ul></div>
+      <div><h3 data-cms="g:902c91d9">Legal</h3><ul class="footer-links"><li data-cms="g:de03b64c"><a href="privacidad.html">Privacidad</a></li><li data-cms="g:37b04e6d"><a href="terminos.html">Términos</a></li><li data-cms="g:a484b12d"><a href="cookies.html">Cookies</a></li><li data-cms="g:c91f51b7"><a href="normas.html">Normas de participación</a></li><li data-cms="g:fdec1f8b"><a href="faq.html">Preguntas frecuentes</a></li><li data-cms="g:ed7a22ff"><a href="contacto.html">Contacto</a></li></ul></div>
     </div>
-    <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
+    <p class="legal" data-cms="g:495008c3">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
   </div>
 </footer>
+<script src="cms.js"></script>
 <script src="site.js"></script>
 <script src="comunidad.js"></script>
 </body>
