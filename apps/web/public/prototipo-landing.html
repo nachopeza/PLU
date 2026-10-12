@@ -49,7 +49,7 @@
 html { scroll-behavior: smooth; }
 body {
   background: var(--bg); color: var(--fg);
-  font-family: var(--font-body); font-size: 1rem; line-height: 1.6;
+  font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.65;
   -webkit-font-smoothing: antialiased;
 }
 h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
@@ -59,6 +59,7 @@ a { color: inherit; }
 
 .wrap { width: 100%; max-width: 1180px; margin-inline: auto; padding-inline: clamp(16px, 4vw, 32px); }
 .section { padding-block: clamp(56px, 9vw, 108px); scroll-margin-top: 70px; }
+.section.alt { background: var(--surface); }
 .section-head { display: grid; gap: 16px; max-width: 46rem; margin-bottom: clamp(32px, 5vw, 56px); }
 .eyebrow { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent-strong); }
 .h2 { font-size: clamp(1.9rem, 4.4vw, 3.2rem); font-weight: 700; letter-spacing: -.03em; line-height: 1.04; }
@@ -120,6 +121,8 @@ a { color: inherit; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes pulse { 50% { opacity: .35; } }
 
+.lema { margin-top: 36px; padding-top: 18px; border-top: 1px solid var(--line); font: 500 .8rem var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); max-width: 36rem; }
+
 /* Manifiesto */
 .manifesto { display: grid; gap: 32px; }
 @media (min-width: 900px) { .manifesto { grid-template-columns: 1fr 1.15fr; gap: 64px; align-items: start; } }
@@ -140,6 +143,8 @@ a { color: inherit; }
 .principles li { display: grid; gap: 6px; padding-block: 22px; border-top: 1px solid var(--line); align-content: start; }
 .principles h3 { font-size: 1.25rem; font-weight: 650; letter-spacing: -.01em; }
 .principles p { color: var(--muted); }
+.principles .practice { color: var(--fg); font-size: .95rem; }
+.principles .practice b { font-weight: 600; color: var(--accent-strong); }
 
 /* Democracia */
 .demo { display: grid; gap: 24px; }
@@ -255,6 +260,55 @@ a { color: inherit; }
 .consent input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--accent-strong); flex: none; }
 .form-status { min-height: 1.4em; font-weight: 500; color: var(--accent-strong); }
 
+/* Nuevos bloques */
+.state-legend { display: grid; gap: 10px; margin-bottom: 28px; }
+@media (min-width: 760px) { .state-legend { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; } }
+.state { display: grid; gap: 6px; align-content: start; padding: 16px 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg); }
+.state b { font: 500 .72rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent-strong); }
+.state.s2 { border-style: dashed; }
+.state.s3 { background: var(--soft); }
+.flow { list-style: none; margin: 28px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.flow li { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-weight: 500; font-size: .95rem; }
+.flow li + li::before { content: "→"; color: var(--accent-strong); margin-left: -2px; }
+.problems { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+@media (min-width: 760px) { .problems { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.problems li { display: grid; gap: 8px; align-content: start; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+.problems h3 { font-size: 1.25rem; font-weight: 700; letter-spacing: -.01em; }
+.problems p { color: var(--muted); }
+.problems .fix { color: var(--fg); font-weight: 500; }
+.promise { margin-top: 36px; font-family: var(--font-display); font-size: clamp(1.3rem, 2.6vw, 1.9rem); font-weight: 650; letter-spacing: -.02em; line-height: 1.2; max-width: 40rem; }
+.promise em { font-style: normal; color: var(--accent-strong); }
+.pillar-meta { display: grid; gap: 4px; margin-top: 4px; padding-top: 12px; border-top: 1px dashed var(--line); color: var(--muted); font-size: .92rem; }
+.pillar-meta b { color: var(--fg); font-weight: 600; }
+.status { display: inline-block; justify-self: start; padding: 4px 10px; border-radius: 999px; font: 500 .7rem var(--font-mono); letter-spacing: .1em; text-transform: uppercase; background: var(--surface-2); color: var(--muted); }
+.status.ok { background: var(--soft); color: var(--accent-strong); }
+.pcard { margin-top: 28px; background: var(--surface); border: 1px solid var(--fg); border-radius: 6px; box-shadow: 8px 8px 0 var(--soft); overflow: hidden; }
+.pcard-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 18px; background: var(--fg); color: var(--bg); font: 500 .72rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+.pcard-body { display: grid; }
+@media (min-width: 760px) { .pcard-body { grid-template-columns: repeat(4, minmax(0, 1fr)); } .pcard-body > div + div { border-left: 1px solid var(--line); } }
+.pcard-body > div { padding: 18px; display: grid; gap: 6px; align-content: start; border-top: 1px solid var(--line); }
+.pcard-body > div:first-child { border-top: 0; }
+@media (min-width: 760px) { .pcard-body > div { border-top: 0; } }
+.pcard-body h4 { margin: 0; font: 500 .72rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--accent-strong); }
+.pcard-body p { color: var(--muted); font-size: .95rem; }
+.pcard-foot { padding: 12px 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: .92rem; }
+.ladder { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.ladder li { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 14px; padding-block: 14px; border-top: 1px solid color-mix(in srgb, var(--on-band) 22%, transparent); }
+.ladder li::before { content: counter(l); counter-increment: l; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--hl); color: var(--hl); display: grid; place-items: center; font: 500 .85rem var(--font-mono); }
+.ladder { counter-reset: l; }
+.ladder b { display: block; font-weight: 650; }
+.ladder span { color: var(--band-muted); font-size: .95rem; }
+.ladder a { color: var(--hl); font-weight: 600; font-size: .92rem; }
+.choices { border: 0; padding: 0; margin: 0; display: grid; gap: 8px; }
+.choices legend { font: 500 .72rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: 0; margin-bottom: 8px; }
+.choice { display: flex; gap: 12px; align-items: center; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 14px; cursor: pointer; }
+.choice:has(input:checked) { border-color: var(--accent-strong); background: var(--soft); }
+.choice input { width: 18px; height: 18px; accent-color: var(--accent-strong); flex: none; }
+.field textarea { width: 100%; min-width: 0; border: 0; border-bottom: 2px solid var(--line); border-radius: 0; background: transparent; padding: 10px 0; font: 400 1.05rem var(--font-body); color: var(--fg); outline: none; resize: vertical; min-height: 84px; }
+.field textarea:focus { border-bottom-color: var(--accent-strong); box-shadow: 0 2px 0 var(--accent-strong); }
+.field textarea::placeholder { color: var(--muted); opacity: .7; }
+.promise-sub { color: var(--muted); max-width: 40rem; margin-top: 14px; }
+
 /* Pie */
 .site-footer { padding-block: 56px calc(56px + 76px); }
 @media (min-width: 760px) { .site-footer { padding-block: 56px; } }
@@ -284,31 +338,29 @@ a { color: inherit; }
         <span class="wordmark" role="img" aria-label="PLU"></span>
       </a>
       <nav class="nav-links" aria-label="Principal">
-        <a href="#manifiesto">Manifiesto</a>
-        <a href="#democracia">Democracia</a>
-        <a href="#territorio">Territorio</a>
-        <a href="#bienestar">Bienestar</a>
-        <a href="#dilemas">Tu opinión</a>
+        <a href="#propuestas">Propuestas</a>
+        <a href="#democracia">Democracia y participación</a>
+        <a href="#como-funciona">Cómo funciona PLU</a>
+        <a href="#dilemas">Debate</a>
       </nav>
       <div class="nav-actions">
         <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
         </button>
-        <a class="btn btn-primary btn-sm" href="#unete">Únete</a>
+        <a class="btn btn-primary btn-sm" href="#unete">Participa</a>
         <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
         </button>
       </div>
     </div>
     <nav class="menu" id="menu" aria-label="Menú móvil" hidden>
-      <a href="#manifiesto">Manifiesto</a>
-      <a href="#principios">Principios</a>
-      <a href="#democracia">Democracia</a>
-      <a href="#territorio">Territorio</a>
-      <a href="#bienestar">Bienestar</a>
-      <a href="#gobierno">Gobierno</a>
-      <a href="#dilemas">Tu opinión</a>
+      <a href="#problema">El proyecto</a>
+      <a href="#propuestas">Propuestas</a>
+      <a href="#democracia">Democracia y participación</a>
+      <a href="#como-funciona">Cómo funciona PLU</a>
+      <a href="#dilemas">Debate abierto</a>
       <a href="#camino">Hoja de ruta</a>
+      <a href="#unete">Participa</a>
     </nav>
   </div>
 </header>
@@ -319,15 +371,15 @@ a { color: inherit; }
       <div>
         <span class="badge">Versión de trabajo · Octubre de 2026</span>
         <h1>
-          <span class="line">La libertad de las <em>personas.</em></span>
-          <span class="line">La identidad de los <em>territorios.</em></span>
-          <span class="line">El bienestar de <em>todos.</em></span>
+          <span class="line">Una política que funcione para las <em>personas.</em></span>
         </h1>
-        <p class="hero-sub">Plataforma Liberal Unida es un movimiento que combina liberalismo cívico, democracia con participación real, economía de mercado y servicios esenciales al alcance de todos.</p>
+        <p class="hero-sub">Más libertad para decidir. Más claridad sobre quién responde. Más participación en las decisiones que afectan a tu vida.</p>
+        <p class="hero-sub" style="margin-top:14px">Queremos una España en la que las instituciones rindan cuentas, las oportunidades no dependan de dónde hayas nacido y la ciudadanía pueda influir más allá de las elecciones.</p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="#unete">Únete a la conversación</a>
-          <a class="btn btn-ghost" href="#manifiesto">Lee el manifiesto</a>
+          <a class="btn btn-primary" href="#propuestas">Conoce nuestras propuestas →</a>
+          <a class="btn btn-ghost" href="#unete">Participa en PLU</a>
         </div>
+        <p class="lema">La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
       </div>
       <div class="hero-art" aria-hidden="true">
         <div class="clover"></div>
@@ -335,12 +387,30 @@ a { color: inherit; }
     </div>
   </section>
 
-  <section class="section" id="manifiesto">
+  <section class="section" id="problema">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">El problema</span>
+        <h2 class="h2">La política debe resolver problemas reales</h2>
+        <p class="lede">Muchas personas sienten que votan cada cuatro años y poco más, que nadie responde cuando un servicio falla y que su origen pesa demasiado en sus oportunidades. PLU quiere cambiar cómo se toman las decisiones, cómo se gestionan los recursos y cómo se exige responsabilidad.</p>
+      </div>
+      <ul class="problems">
+        <li><h3>La ciudadanía participa muy poco</h3><p>Se vota, y después casi no hay cauces para proponer, deliberar o saber qué ocurre con lo que se promete.</p><p class="fix">Queremos explorar mecanismos con reglas claras: iniciativas, asambleas y consultas, diciendo siempre qué efecto tiene cada una.</p></li>
+        <li><h3>Cuesta saber quién responde</h3><p>Cuando algo falla, es difícil saber qué administración decide, quién financia y quién debe dar explicaciones.</p><p class="fix">Definir responsabilidades, presupuestos e indicadores para cada competencia.</p></li>
+        <li><h3>El poder necesita controles</h3><p>Sin información comprensible ni evaluación de resultados, es fácil confundir anunciar con conseguir.</p><p class="fix">Publicar información clara, justificar decisiones y evaluar resultados.</p></li>
+        <li><h3>Las oportunidades dependen del origen</h3><p>Vivienda, sanidad, educación y transporte condicionan si una persona puede construir su proyecto de vida donde quiere.</p><p class="fix">Tratar estos cuatro ámbitos juntos y con objetivos medibles.</p></li>
+      </ul>
+      <p class="promise">PLU no promete resolverlo todo. Promete <em>decidir de otra manera</em> y demostrarlo con propuestas que puedas examinar y cuestionar.</p>
+      <p class="promise-sub">El símbolo lo resume: cuatro pétalos para libertad individual, democracia y participación, oportunidades y servicios esenciales, y responsabilidad institucional. <span class="muted">(Significado provisional, a confirmar cuando se cierre la doctrina.)</span></p>
+    </div>
+  </section>
+
+  <section class="section alt" id="manifiesto">
     <div class="wrap">
       <div class="manifesto">
         <div class="section-head" style="margin-bottom:0">
-          <span class="eyebrow">Manifiesto fundacional</span>
-          <h2 class="h2">Una política al servicio de las personas</h2>
+          <span class="eyebrow">El proyecto</span>
+          <h2 class="h2">Una política al servicio de las personas, con tres compromisos</h2>
         </div>
         <p class="quote">La PLU nace de una convicción: la política debe estar al servicio de las personas y no las personas al servicio de la política.</p>
       </div>
@@ -377,14 +447,15 @@ a { color: inherit; }
     </div>
   </section>
 
-  <section class="section" id="principios" style="background:var(--surface)">
+  <section class="section" id="principios">
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">Principios</span>
-        <h2 class="h2">Diez ideas sobre las que se construye todo lo demás</h2>
+        <span class="eyebrow">Principios definidos</span>
+        <h2 class="h2">Los principios que guían PLU</h2>
+      <p class="lede">Diez principios, agrupados en cuatro familias: libertad, democracia, bienestar y responsabilidad. Son la dirección que PLU considera fundamental; las propuestas concretas se desarrollan aparte.</p>
       </div>
       <ul class="principles">
-        <li><h3>Libertad individual</h3><p>Cada persona desarrolla su proyecto de vida dentro del respeto a los derechos ajenos y a la ley. La intervención pública debe justificarse y ser proporcionada.</p></li>
+        <li><h3>Libertad individual</h3><p>Cada persona desarrolla su proyecto de vida dentro del respeto a los derechos ajenos y a la ley. La intervención pública debe justificarse y ser proporcionada.</p><p class="practice"><b>En la práctica:</b> decisiones públicas motivadas y mecanismos para recurrir los abusos.</p></li>
         <li><h3>Soberanía ciudadana</h3><p>La legitimidad procede de la ciudadanía: elige representantes, controla su actuación y exige explicaciones comprensibles.</p></li>
         <li><h3>Estado de derecho</h3><p>Todas las instituciones y personas con poder público están sometidas a la ley. Ninguna mayoría coyuntural puede quitar derechos fundamentales.</p></li>
         <li><h3>Pluralismo y convivencia</h3><p>Nadie impone una única forma de pensar, vivir o pertenecer. El desacuerdo pacífico es normal en democracia.</p></li>
@@ -398,26 +469,94 @@ a { color: inherit; }
     </div>
   </section>
 
+  <section class="section alt" id="propuestas">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Propuestas · Qué significa para tu vida</span>
+        <h2 class="h2">Cuatro pétalos, un mismo trébol: tu vida diaria</h2>
+        <p class="lede">Vivienda, sanidad, educación y transporte son las prioridades públicas de la PLU. Hoy se presentan como <strong>objetivos</strong>, no como promesas de resultado: las medidas, el coste y la forma de evaluarlas se están desarrollando.</p>
+      </div>
+      <div class="clover-grid">
+        <article class="pillar">
+          <h3>Vivienda</h3>
+          <p class="obj">Que acceder a una vivienda digna no sea una barrera insalvable para construir una vida independiente.</p>
+          <ul class="leaf-list">
+            <li>Construcción y disponibilidad de vivienda asequible</li>
+            <li>Vivienda pública y colaboración con proveedores privados</li>
+            <li>Rehabilitación y vivienda vacía cuando sea viable</li>
+          </ul>
+          <span class="status">En desarrollo</span>
+        </article>
+        <article class="pillar">
+          <h3>Sanidad</h3>
+          <p class="obj">Servicios accesibles, atención a tiempo y evaluación de la calidad asistencial.</p>
+          <ul class="leaf-list">
+            <li>Atención primaria y prevención</li>
+            <li>Transparencia sobre listas de espera</li>
+            <li>Coordinación sociosanitaria y continuidad asistencial</li>
+          </ul>
+          <span class="status">En desarrollo</span>
+        </article>
+        <article class="pillar">
+          <h3>Educación</h3>
+          <p class="obj">Más oportunidades para aprender y progresar con independencia de tu origen familiar o territorial.</p>
+          <ul class="leaf-list">
+            <li>Formación profesional y formación continua</li>
+            <li>Reducción del abandono educativo</li>
+            <li>Atención a distintas necesidades de aprendizaje</li>
+          </ul>
+          <span class="status">En desarrollo</span>
+        </article>
+        <article class="pillar">
+          <h3>Transporte</h3>
+          <p class="obj">Conexiones fiables y accesibles para estudiar, trabajar y llegar a los servicios.</p>
+          <ul class="leaf-list">
+            <li>Conexiones entre barrios, municipios y zonas rurales</li>
+            <li>Frecuencias útiles y tarifas integradas</li>
+            <li>Accesibilidad física y económica</li>
+          </ul>
+          <span class="status">En desarrollo</span>
+        </article>
+        <div class="hub" aria-hidden="true"><div class="clover"></div></div>
+      </div>
+
+      <div class="pcard">
+        <div class="pcard-head"><span>Así presentaremos cada propuesta</span><span>Ejemplo de estructura</span></div>
+        <div class="pcard-body">
+          <div><h4>El problema</h4><p>Qué dificultad se aborda, a quién afecta y qué datos muestran su magnitud.</p></div>
+          <div><h4>La medida</h4><p>Qué cambiaría, qué administración sería responsable y qué instrumentos legales se necesitarían.</p></div>
+          <div><h4>Coste y viabilidad</h4><p>Qué recursos requeriría, cómo se financiaría y qué alternativas se han estudiado.</p></div>
+          <div><h4>Cómo se medirá</h4><p>Indicadores, plazo de evaluación y la información que se publicará.</p></div>
+        </div>
+        <p class="pcard-foot"><span class="status">En desarrollo</span> &nbsp;Estructura de ejemplo, no propuesta aprobada. Cada ficha llevará fecha de última actualización e historial de cambios.</p>
+      </div>
+      <p class="note">Los cuatro ámbitos se analizan juntos. Una vivienda económica sin transporte suficiente puede no resolver las necesidades reales de una familia.</p>
+    </div>
+  </section>
+
   <section class="section" id="democracia">
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">Democracia mixta</span>
+        <span class="eyebrow">Democracia y participación</span>
         <h2 class="h2">Votar es el principio, no el final</h2>
-        <p class="lede">Representación, referéndums en ciertas materias y procesos deliberativos. Elige un mecanismo para ver cómo se plantea y qué queda por decidir.</p>
+        <p class="lede">«Participación» puede significar desde una encuesta sin consecuencias hasta un referéndum vinculante. Aquí distinguimos cada mecanismo, qué efecto tendría y qué queda por decidir.</p>
       </div>
       <div class="demo">
         <div class="tabs" id="tabs" role="tablist" aria-label="Mecanismos de participación"></div>
         <div class="panel" id="tabpanel" role="tabpanel" tabindex="0"></div>
       </div>
+      <ol class="flow" aria-label="Recorrido de una propuesta ciudadana">
+        <li>Propuesta ciudadana</li><li>Evaluación de viabilidad</li><li>Deliberación</li><li>Decisión</li><li>Publicación del resultado</li><li>Seguimiento</li>
+      </ol>
     </div>
   </section>
 
-  <section class="section" id="territorio" style="background:var(--surface)">
+  <section class="section alt" id="como-funciona">
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">Organización territorial</span>
-        <h2 class="h2">Saber quién hace qué, y poder exigírselo</h2>
-        <p class="lede">España como comunidad compartida: una persona puede sentirse vinculada a su municipio, a su comunidad y a su país a la vez. La propuesta no centraliza servicios, aclara responsabilidades.</p>
+        <span class="eyebrow">Cómo funcionaría · Competencias</span>
+        <h2 class="h2">Responsabilidades claras. Cuentas claras.</h2>
+        <p class="lede">España como comunidad compartida: una persona puede sentirse vinculada a su municipio, a su comunidad y a su país a la vez. La propuesta no centraliza servicios: aclara responsabilidades. Las competencias actuales dependen de la Constitución, las leyes y los estatutos de autonomía; lo que aquí se describe es el modelo que PLU propone, no el marco vigente.</p>
       </div>
       <div class="terr">
         <div>
@@ -442,61 +581,12 @@ a { color: inherit; }
     </div>
   </section>
 
-  <section class="section" id="bienestar">
+  <section class="section" id="gobierno">
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">Bienestar</span>
-        <h2 class="h2">Cuatro pétalos, un mismo trébol</h2>
-        <p class="lede">Vivienda, sanidad, educación y transporte son las prioridades públicas de la PLU. Las garantías concretas y su financiación todavía se están definiendo.</p>
-      </div>
-      <div class="clover-grid">
-        <article class="pillar">
-          <h3>Vivienda</h3>
-          <p class="obj">Acceso a una vivienda adecuada y asequible.</p>
-          <ul class="leaf-list">
-            <li>Construcción y disponibilidad de vivienda asequible</li>
-            <li>Vivienda pública y colaboración con proveedores privados</li>
-            <li>Rehabilitación y vivienda vacía cuando sea viable</li>
-          </ul>
-        </article>
-        <article class="pillar">
-          <h3>Sanidad</h3>
-          <p class="obj">Atención sanitaria adecuada y a tiempo.</p>
-          <ul class="leaf-list">
-            <li>Atención primaria y prevención</li>
-            <li>Transparencia sobre listas de espera</li>
-            <li>Coordinación sociosanitaria y continuidad asistencial</li>
-          </ul>
-        </article>
-        <article class="pillar">
-          <h3>Educación</h3>
-          <p class="obj">Que el origen familiar o territorial no decida las oportunidades.</p>
-          <ul class="leaf-list">
-            <li>Formación profesional y formación continua</li>
-            <li>Reducción del abandono educativo</li>
-            <li>Atención a distintas necesidades de aprendizaje</li>
-          </ul>
-        </article>
-        <article class="pillar">
-          <h3>Transporte</h3>
-          <p class="obj">Llegar al trabajo, a clase, al médico y a la vida social.</p>
-          <ul class="leaf-list">
-            <li>Conexiones entre barrios, municipios y zonas rurales</li>
-            <li>Frecuencias útiles y tarifas integradas</li>
-            <li>Accesibilidad física y económica</li>
-          </ul>
-        </article>
-        <div class="hub" aria-hidden="true"><div class="clover"></div></div>
-      </div>
-      <p class="note">Los cuatro ámbitos se analizan juntos. Una vivienda económica sin transporte suficiente puede no resolver las necesidades reales de una familia.</p>
-    </div>
-  </section>
-
-  <section class="section" id="gobierno" style="background:var(--surface)">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="eyebrow">Gobierno profesionalizado</span>
-        <h2 class="h2">Profesionales al frente, con mandato democrático</h2>
+        <span class="eyebrow">Cómo funcionaría · Responsables públicos</span>
+        <h2 class="h2">Experiencia para gestionar. Democracia para decidir.</h2>
+        <p class="lede">Quien ocupa responsabilidades públicas debe tener capacidades adecuadas, integridad y rendir cuentas. La experiencia técnica mejora las decisiones democráticas; no sustituye la legitimidad de las urnas. Lo que proponemos es un procedimiento transparente, con criterios públicos y controles.</p>
       </div>
       <div class="gov">
         <ol class="steps">
@@ -532,11 +622,11 @@ a { color: inherit; }
     </div>
   </section>
 
-  <section class="section" id="organizacion">
+  <section class="section alt" id="organizacion">
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">Organización interna</span>
-        <h2 class="h2">La PLU se exige lo mismo que pide</h2>
+        <span class="eyebrow">Transparencia · Garantías</span>
+        <h2 class="h2">Las reglas también se aplican a PLU</h2>
         <p class="lede">La estructura interna debe reflejar los principios del movimiento y evitar la concentración de poder: cuentas auditables, elecciones internas transparentes y protección del pluralismo.</p>
       </div>
       <ul class="orgs">
@@ -547,30 +637,36 @@ a { color: inherit; }
         <li><h3>Comisión de Garantías</h3><p>Protege los derechos de los miembros, con independencia de la dirección.</p></li>
         <li><h3>Órgano de control económico</h3><p>Supervisa cuentas y procedimientos y publica informes.</p></li>
       </ul>
+      <p class="note"><span class="status">Compromiso</span> &nbsp;Estas garantías son lo que PLU se compromete a implantar; todavía no existen como órganos en funcionamiento. Se publicará aquí qué está operativo y qué no, junto con las cuentas y fuentes de financiación, las declaraciones de intereses, un canal de reclamaciones y un informe periódico de compromisos cumplidos y pendientes.</p>
       <p class="note">La estructura definitiva debe ajustarse a la legislación de partidos y asociaciones políticas aplicable.</p>
     </div>
   </section>
 
-  <section class="section" id="dilemas" style="background:var(--surface)">
+  <section class="section" id="dilemas">
     <div class="wrap">
       <div class="section-head">
-        <span class="eyebrow">Tu opinión</span>
-        <h2 class="h2">Lo que todavía no está decidido</h2>
-        <p class="lede">El documento fundacional reconoce siete tensiones que la PLU tiene que resolver. Mueve cada control hacia el lado que te parezca más importante. Por ahora es una demostración: tu respuesta no se guarda ni se envía.</p>
+        <span class="eyebrow">Debate abierto</span>
+        <h2 class="h2">Un proyecto abierto al debate</h2>
+        <p class="lede">No todo está decidido, y lo decimos. Distinguimos tres estados para que sepas qué es firme y qué está en discusión. Mueve cada control hacia el lado que te parezca más importante: por ahora es una demostración, tu respuesta no se guarda ni se envía ni es una votación.</p>
+      </div>
+      <div class="state-legend">
+        <div class="state"><b>Principio definido</b><span class="muted">La dirección que PLU considera fundamental, como el respeto a los derechos o la responsabilidad pública.</span></div>
+        <div class="state s2"><b>Propuesta en desarrollo</b><span class="muted">Una opción en estudio que necesita diseño institucional, viabilidad o evaluación económica.</span></div>
+        <div class="state s3"><b>Decisión abierta a debate</b><span class="muted">Sin posición definitiva: se buscan aportaciones y una decisión conforme a las reglas de PLU.</span></div>
       </div>
       <div class="dilemas" id="dilemas-list"></div>
       <div class="dilemas-foot">
         <button class="btn btn-ghost btn-sm" type="button" id="resetDilemas">Reiniciar</button>
-        <span>La doctrina no debe fingir que todos los objetivos pueden maximizarse a la vez.</span>
+        <a class="btn btn-primary btn-sm" href="#unete">Aportar mi opinión</a><span>La doctrina no debe fingir que todos los objetivos pueden maximizarse a la vez.</span>
       </div>
     </div>
   </section>
 
-  <section class="section" id="camino">
+  <section class="section alt" id="camino">
     <div class="wrap">
       <div class="section-head">
         <span class="eyebrow">Hoja de ruta</span>
-        <h2 class="h2">Del primer principio a la constitución legal</h2>
+        <h2 class="h2">De las ideas a una organización abierta y responsable</h2>
       </div>
       <ol class="road">
         <li class="now"><span class="phase">Estamos aquí</span><h3>Definición doctrinal</h3><p>Las propuestas se debaten y contrastan antes de convertirse en compromisos.</p></li>
@@ -588,25 +684,32 @@ a { color: inherit; }
   <section class="section band" id="unete">
     <div class="wrap join">
       <div class="join-copy">
-        <span class="eyebrow">Novedades</span>
-        <h2 class="h2">Entra en la conversación desde el principio</h2>
-        <p class="lede">Lo importante, cuando pase. Déjanos tus datos y te avisaremos cuando haya algo que debatir.</p>
-        <p class="proto-note">Este formulario es un prototipo de la plataforma. Todavía no guarda ni envía ningún dato.</p>
+        <span class="eyebrow">Participa</span>
+        <h2 class="h2">Ayúdanos a construir el proyecto</h2>
+        <p class="lede">No hace falta afiliarse para participar. Elige hasta dónde quieres llegar; cada paso tiene una consecuencia real.</p>
+        <ol class="ladder">
+          <li><div><b>Entender PLU</b><span>Lee las propuestas desarrolladas.</span> <a href="#propuestas">Conocer PLU</a></div></li>
+          <li><div><b>Dar una opinión</b><span>Valora una propuesta o plantea un problema. Publicaremos las aportaciones y qué ocurre con ellas.</span> <a href="#participa-form">Aportar una idea</a></div></li>
+          <li><div><b>Seguir el proyecto</b><span>Un boletín con avances, propuestas nuevas y decisiones tomadas.</span> <a href="#participa-form">Recibir novedades</a></div></li>
+          <li><div><b>Colaborar</b><span>Grupos de trabajo, reuniones o revisión de propuestas.</span> <a href="#participa-form">Quiero colaborar</a></div></li>
+          <li><div><b>Incorporarte formalmente</b><span>Cuando el procedimiento esté definido: derechos, obligaciones y protección de datos. Gratuito, con 16 años o más y residiendo en España.</span> <a href="#participa-form">Cómo formar parte de PLU</a></div></li>
+        </ol>
+        <p class="proto-note">Prototipo: el formulario todavía no guarda ni envía ningún dato.</p>
       </div>
       <form class="form-card" id="joinForm" novalidate>
-        <h3>Recibe las novedades de la PLU</h3>
-        <div class="field-pair">
-          <div class="field"><label for="f-nombre">Nombre</label><input id="f-nombre" name="nombre" type="text" autocomplete="given-name" required></div>
-          <div class="field"><label for="f-apellidos">Apellidos</label><input id="f-apellidos" name="apellidos" type="text" autocomplete="family-name" required></div>
-        </div>
-        <div class="field"><label for="f-correo">Correo</label><input id="f-correo" name="correo" type="email" autocomplete="email" required></div>
-        <div class="field"><label for="f-telefono">Teléfono</label><input id="f-telefono" name="telefono" type="tel" autocomplete="tel" placeholder="Opcional"></div>
-        <div class="field-pair">
-          <div class="field"><label for="f-pais">País</label><input id="f-pais" name="pais" type="text" value="España" autocomplete="country-name"></div>
-          <div class="field"><label for="f-cp">Código postal y población</label><input id="f-cp" name="cp" type="text" autocomplete="postal-code"></div>
-        </div>
-        <label class="consent" for="f-consent"><input id="f-consent" name="consent" type="checkbox" required><span>Acepto que la PLU use estos datos para enviarme novedades. La política de privacidad está pendiente de redactar.</span></label>
-        <button class="btn btn-primary" type="submit">Apuntarme</button>
+        <h3 id="participa-form">Construyamos PLU entre todos</h3>
+        <p class="muted">Queremos saber qué cambiarías y qué esperas de una política más responsable y participativa. Solo pedimos lo necesario.</p>
+        <fieldset class="choices">
+          <legend>¿Cómo te gustaría participar?</legend>
+          <label class="choice"><input type="radio" name="modo" value="idea" checked><span>Compartir una idea o propuesta</span></label>
+          <label class="choice"><input type="radio" name="modo" value="opinion"><span>Opinar sobre una cuestión abierta</span></label>
+          <label class="choice"><input type="radio" name="modo" value="novedades"><span>Recibir novedades de PLU</span></label>
+          <label class="choice"><input type="radio" name="modo" value="colaborar"><span>Colaborar en el desarrollo del proyecto</span></label>
+        </fieldset>
+        <div class="field"><label for="f-aporte">¿Qué te gustaría aportar?</label><textarea id="f-aporte" name="aporte" placeholder="Opcional"></textarea></div>
+        <div class="field"><label for="f-correo">Correo electrónico</label><input id="f-correo" name="correo" type="email" autocomplete="email" required></div>
+        <label class="consent" for="f-consent"><input id="f-consent" name="consent" type="checkbox" required><span>Acepto que PLU use mi correo para responderme y enviarme novedades. Puedo darme de baja cuando quiera. La política de privacidad está pendiente de redactar.</span></label>
+        <button class="btn btn-primary" type="submit">Enviar</button>
         <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
       </form>
     </div>
@@ -637,8 +740,8 @@ a { color: inherit; }
 </footer>
 
 <div class="float-cta" id="floatCta">
-  <a class="btn btn-primary btn-sm" href="#unete">Únete</a>
-  <a class="btn btn-ghost btn-sm" href="#dilemas">Opina</a>
+  <a class="btn btn-primary btn-sm" href="#unete">Participa</a>
+  <a class="btn btn-ghost btn-sm" href="#propuestas">Propuestas</a>
 </div>
 
 <script>
@@ -760,7 +863,7 @@ a { color: inherit; }
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     if (!form.checkValidity()) { form.reportValidity(); status.textContent = ''; return; }
-    status.textContent = 'Es un prototipo: tus datos no se han enviado ni guardado.';
+    status.textContent = 'Es un prototipo: nada se ha enviado ni guardado. En la web real recibirás confirmación y sabrás qué ocurre con tu aportación.';
   });
 
   /* Barra flotante: se oculta al llegar al formulario */
