@@ -1,0 +1,10 @@
+{
+  // Despliegue de la web estática de PLU en Cloudflare (Workers con ficheros estáticos).
+  // Solo sirve la web visual; la API y la intranet con datos no corren aquí.
+  "name": "plu-web",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./apps/web/public/prototipo",
+    "not_found_handling": "404-page"
+  }
+}
