@@ -84,7 +84,7 @@ def page(fname, title, body, hero=''):
       <div><h3>Explora</h3><ul class="footer-links"><li><a href="proyecto.html">El proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Cómo participar</a></li><li><a href="como-funciona.html">Transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
       <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Participa</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
     </div>
-    <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Prototipo: ningún formulario envía ni guarda datos.</p>
+    <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
   </div>
 </footer>
 <script src="site.js"></script>
@@ -410,20 +410,63 @@ afiliate = f'''
 </div></section>'''
 
 # ================= PORTAL / INTRANET =================
-portal = f'''
-<section class="section login-page"><div class="wrap formwrap" style="align-items:center">
-  <div style="display:grid;gap:18px"><span class="eyebrow">Portal del afiliado</span><h1 class="h2">Tu carné, tus encuestas, tus solicitudes.</h1>
-    <p class="lede">Entra con tu correo y la contraseña que te enviamos. La primera vez te pediremos que elijas una nueva.</p>
-    <p class="muted">¿Todavía no eres afiliado? <a class="link" href="afiliate.html">Afíliate →</a></p></div>
-  <form class="form-card" data-demo="Prototipo: aquí se validaría tu cuenta." novalidate>
-    <h2>Entrar</h2>
-    <div class="field"><label for="p-c">Correo</label><input id="p-c" type="email" autocomplete="username" required></div>
-    <div class="field"><label for="p-p">Contraseña</label><input id="p-p" type="password" autocomplete="current-password" required></div>
-    <button class="btn btn-primary" type="submit">Entrar</button><p class="form-status" role="status" aria-live="polite"></p>
-    <a class="link" href="#" onclick="return false">He olvidado mi contraseña</a>
-    <p class="proto-note">Prototipo. No hay verificación pública de carnés: solo el equipo puede comprobarlos.</p>
-  </form>
-</div></section>'''
+portal = '''
+<section class="section login-page"><div class="wrap">
+  <div id="app-portal" class="intra">
+    <div id="w-login" class="intra-view">
+      <div class="formwrap" style="align-items:center">
+        <div style="display:grid;gap:18px"><span class="eyebrow">Portal del afiliado</span><h1 class="h2">Tu carné, tus encuestas, tus solicitudes.</h1>
+          <p class="lede">Entra con tu correo y la contraseña que te entregó la organización al aprobar tu afiliación. La primera vez elegirás una nueva.</p>
+          <p class="muted">¿Todavía no eres afiliado? <a class="link" href="afiliate.html">Afíliate →</a></p></div>
+        <form class="form-card" id="f-login" novalidate>
+          <h2>Entrar</h2>
+          <div class="field"><label for="p-c">Correo</label><input id="p-c" type="email" autocomplete="username" required></div>
+          <div class="field"><label for="p-p">Contraseña</label><input id="p-p" type="password" autocomplete="current-password" required></div>
+          <button class="btn btn-primary" type="submit">Entrar</button><p class="form-status err" role="alert"></p>
+          <p class="muted" style="font-size:.9rem">¿Has olvidado tu contraseña? Escribe a la organización y te daremos una nueva temporal. La recuperación automática por correo se activará con el dominio propio.</p>
+        </form>
+      </div>
+    </div>
+
+    <div id="w-cambio" class="intra-view" hidden>
+      <form class="form-card" id="f-cambio" style="max-width:32rem;margin-inline:auto" novalidate>
+        <h2>Elige tu contraseña</h2>
+        <p class="muted">La contraseña temporal solo sirve para este primer paso. Usa al menos 10 caracteres.</p>
+        <div class="field"><label for="c-a">Contraseña temporal</label><input id="c-a" type="password" autocomplete="current-password" required></div>
+        <div class="field"><label for="c-n">Nueva contraseña</label><input id="c-n" type="password" autocomplete="new-password" minlength="10" required></div>
+        <button class="btn btn-primary" type="submit">Guardar y entrar</button><p class="form-status err" role="alert"></p>
+      </form>
+    </div>
+
+    <div id="w-panel" class="intra-view" hidden>
+      <div class="panel-head"><div><span class="eyebrow" id="w-estado"></span><h1 class="h2" id="w-nombre"></h1></div><button class="btn btn-ghost btn-sm" type="button" id="w-salir">Cerrar sesión</button></div>
+      <div class="filters" role="group" aria-label="Secciones"><button class="fbtn" aria-pressed="true" data-w="carne">Mi carné</button><button class="fbtn" aria-pressed="false" data-w="encuestas">Encuestas</button><button class="fbtn" aria-pressed="false" data-w="solicitudes">Solicitudes</button><button class="fbtn" aria-pressed="false" data-w="historial">Historial</button></div>
+      <div id="w-sec"></div>
+    </div>
+  </div>
+</div></section>
+<script src="form-encuesta.js"></script>
+<script src="portal.js"></script>'''
+
+encuesta = '''
+<section class="section login-page"><div class="wrap">
+  <div id="app-encuesta" class="intra">
+    <div class="form-card" style="max-width:40rem;margin-inline:auto" id="e-caja">
+      <span class="eyebrow">Encuesta PLU</span>
+      <h1 class="h2" id="e-titulo">Cargando…</h1>
+      <p class="muted" id="e-desc"></p>
+      <p class="muted" id="e-anon" hidden></p>
+      <form id="e-form" novalidate hidden><div id="e-preguntas" style="display:grid;gap:26px"></div>
+        <button class="btn btn-primary" type="submit" style="margin-top:22px">Enviar respuestas</button><p class="form-status err" role="alert"></p></form>
+      <p id="e-fin" class="lede" hidden></p>
+    </div>
+  </div>
+</div></section>
+<script src="form-encuesta.js"></script>
+<script src="encuesta.js"></script>'''
+
+BARRA_SECCIONES = '''<div class="filters" id="p-tabs" role="group" aria-label="Secciones"></div>'''
+
 intranet = '''
 <section class="section login-page"><div class="wrap">
   <div id="app-intranet" class="intra">
@@ -438,6 +481,15 @@ intranet = '''
           <button class="btn btn-primary" type="submit">Continuar</button><p class="form-status err" role="alert"></p>
         </form>
       </div>
+    </div>
+
+    <div id="v-cambio" class="intra-view" hidden>
+      <form class="form-card" id="f-cambio" style="max-width:32rem;margin-inline:auto" novalidate>
+        <h2>Elige tu contraseña</h2>
+        <p class="muted">Tu cuenta es nueva o ha sido restablecida. Elige una contraseña propia de al menos 12 caracteres.</p>
+        <div class="field"><label for="i-n">Nueva contraseña</label><input id="i-n" type="password" autocomplete="new-password" minlength="12" required></div>
+        <button class="btn btn-primary" type="submit">Guardar y continuar</button><p class="form-status err" role="alert"></p>
+      </form>
     </div>
 
     <div id="v-codigo" class="intra-view" hidden>
@@ -472,11 +524,8 @@ intranet = '''
 
     <div id="v-panel" class="intra-view" hidden>
       <div class="panel-head"><div><span class="eyebrow" id="p-rol"></span><h1 class="h2" id="p-nombre"></h1></div><button class="btn btn-ghost btn-sm" type="button" id="b-salir">Cerrar sesión</button></div>
-      <div class="counters" id="contadores"></div>
-      <div class="filters" role="group" aria-label="Estado"><button class="fbtn" aria-pressed="true" data-e="pendiente">Pendientes</button><button class="fbtn" aria-pressed="false" data-e="activo">Aprobadas</button><button class="fbtn" aria-pressed="false" data-e="rechazado">Rechazadas</button></div>
-      <div class="rows" id="lista"></div>
-      <p class="muted" id="vacio" hidden>No hay solicitudes en este estado.</p>
-      <p class="proto-note" style="margin-top:22px">El envío del carné y de la contraseña temporal por correo se activará cuando PLU tenga dominio propio. Mientras tanto, al aprobar se asigna el número de afiliado.</p>
+      <div class="filters" id="p-tabs" role="group" aria-label="Secciones"></div>
+      <div id="sec"></div>
     </div>
   </div>
 </div></section>
@@ -493,6 +542,7 @@ PAGES = {
   'afiliate.html': ('Afíliate · PLU', afiliate, ''),
   'portal.html': ('Portal del afiliado · PLU', portal, ''),
   'intranet.html': ('Intranet · PLU', intranet, ''),
+  'encuesta.html': ('Encuesta · PLU', encuesta, ''),
 }
 for f, (t, b, h) in PAGES.items():
     (OUT / f).write_text(page(f, t, b, h))

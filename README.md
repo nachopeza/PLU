@@ -97,3 +97,11 @@ git push            # sube a GitHub
 ## Documentación
 
 Lee los documentos de `docs/` en orden. El `09-decisiones-pendientes.md` recoge lo ya decidido y las preguntas abiertas que condicionan el resto del diseño.
+
+
+## Qué incluye la versión 0.3 (base de gestión)
+- **Intranet** (`/intranet`): inscripciones, personas, solicitudes, encuestas (crear, abrir, cerrar, resultados, enlaces para simpatizantes), verificación de carné (móvil/QR), plantilla del carné, equipo y auditoría. Las secciones dependen del rol.
+- **Portal del afiliado** (`/portal`): entrada con contraseña temporal + cambio obligatorio, carné en PDF, encuestas, solicitudes e historial.
+- **Encuesta por enlace** (`/prototipo/encuesta.html?t=...`): para simpatizantes, un solo uso.
+- Sin correo todavía: al aprobar una afiliación o crear un usuario, la contraseña temporal se muestra **una sola vez** en pantalla.
+- Plantilla del carné: ver `docs/11-plantilla-carne.md`.

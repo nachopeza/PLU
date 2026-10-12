@@ -57,7 +57,7 @@ export async function generarCarnePdf(datos) {
     }
     try { form.getButton('qr').setImage(await pdf.embedPng(png)); } catch { /* sin campo qr */ }
     form.flatten();
-    return { bytes: await pdf.save(), plantillaId: plantilla.id };
+    return { bytes: await pdf.save({ useObjectStreams: false }), plantillaId: plantilla.id };
   }
   // Carné de prueba (85,6 × 54 mm) mientras no haya plantilla
   const mm = 72 / 25.4;
@@ -73,7 +73,7 @@ export async function generarCarnePdf(datos) {
   pg.drawRectangle({ x: 56 * mm, y: 8 * mm, width: 24 * mm, height: 24 * mm, color: rgb(1, 1, 1) });
   pg.drawImage(await pdf.embedPng(png), { x: 57.5 * mm, y: 9.5 * mm, width: 21 * mm, height: 21 * mm });
   pg.drawText('Carné de prueba (sin plantilla)', { x: 6 * mm, y: 3 * mm, size: 4.5, font: f, color: rgb(0.55, 0.55, 0.55) });
-  return { bytes: await pdf.save(), plantillaId: null };
+  return { bytes: await pdf.save({ useObjectStreams: false }), plantillaId: null };
 }
 
 export function guardarPlantilla(bytes) {
