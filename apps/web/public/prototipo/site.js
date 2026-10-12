@@ -9,7 +9,7 @@
   try { var saved = localStorage.getItem('plu-theme'); if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved); } catch (e) {}
   if (themeBtn) themeBtn.addEventListener('click', function () {
     var cur = root.getAttribute('data-theme');
-    if (!cur) cur = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    if (!cur) cur = 'dark';
     var next = cur === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
     try { localStorage.setItem('plu-theme', next); } catch (e) {}
@@ -110,5 +110,84 @@
       if (!form.checkValidity()) { form.reportValidity(); if (status) status.textContent = ''; return; }
       if (status) status.textContent = form.getAttribute('data-demo');
     });
+  });
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Titulares por líneas: envuelve el contenido para la máscara */
+  document.querySelectorAll('.split').forEach(function (el, i) { el.innerHTML = '<span>' + el.innerHTML + '</span>'; el.style.setProperty('--d', (i * 0.12) + 's'); });
+
+  /* Aparición al hacer scroll, con escalonado entre hermanos */
+  var targets = document.querySelectorAll('[data-r], .split');
+  targets.forEach(function (el) {
+    var sib = el.parentElement ? Array.prototype.indexOf.call(el.parentElement.children, el) : 0;
+    if (!el.classList.contains('split')) el.style.setProperty('--d', Math.min(sib, 6) * 0.08 + 's');
+  });
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    targets.forEach(function (el) { io.observe(el); });
+  } else { targets.forEach(function (el) { el.classList.add('in'); }); }
+
+  /* Barra de progreso, parallax y cabecera */
+  var bar = $('progress'), header = document.querySelector('.site-header');
+  var par = document.querySelectorAll('[data-parallax]');
+  var ticking = false;
+  function onScroll() {
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    if (bar) bar.style.transform = 'scaleX(' + (h > 0 ? window.scrollY / h : 0) + ')';
+    if (header) header.classList.toggle('scrolled', window.scrollY > 20);
+    if (!reduce) par.forEach(function (el) {
+      var r = el.getBoundingClientRect(), mid = r.top + r.height / 2 - window.innerHeight / 2;
+      el.style.setProperty('transform', 'translateY(' + (mid * parseFloat(el.dataset.parallax) / 100) + 'px) rotate(' + (window.scrollY * 0.03) + 'deg)');
+    });
+    ticking = false;
+  }
+  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+
+  /* Resplandor que sigue al cursor, inclinación 3D y botones magnéticos (solo con ratón) */
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduce) {
+    var glow = $('glow');
+    window.addEventListener('pointermove', function (e) {
+      if (glow) { glow.style.transform = 'translate(' + e.clientX + 'px,' + e.clientY + 'px)'; glow.classList.add('on'); }
+    }, { passive: true });
+    document.querySelectorAll('.tilt').forEach(function (el) {
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        el.style.transform = 'perspective(800px) rotateY(' + (x * 8) + 'deg) rotateX(' + (-y * 8) + 'deg) translateY(-4px)';
+      });
+      el.addEventListener('pointerleave', function () { el.style.transform = ''; });
+    });
+    document.querySelectorAll('.magnet').forEach(function (el) {
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        el.style.transform = 'translate(' + ((e.clientX - r.left - r.width / 2) * .22) + 'px,' + ((e.clientY - r.top - r.height / 2) * .3) + 'px)';
+      });
+      el.addEventListener('pointerleave', function () { el.style.transform = ''; });
+    });
+  }
+
+  /* Filtros (propuestas y debate) */
+  function filterable(listId, attr, def) {
+    var list = $(listId); if (!list) return;
+    var btns = document.querySelectorAll('.fbtn');
+    function apply(f) {
+      btns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.f === f)); });
+      list.querySelectorAll('.rowitem').forEach(function (r) {
+        var show = f === 'all' || r.dataset[attr] === f;
+        r.hidden = !show; if (show) { r.classList.add('in'); }
+      });
+    }
+    btns.forEach(function (b) { b.addEventListener('click', function () { apply(b.dataset.f); }); });
+    apply(def);
+    if (location.hash) { var t = document.querySelector(location.hash); if (t && t.classList.contains('rowitem')) { apply('all'); t.open = true; } }
+  }
+  filterable('filterlist', 'cat', 'all');
+  filterable('statelist', 'state', 'debate');
+  document.querySelectorAll('.rowitem input[type="range"]').forEach(function (inp) {
+    var out = inp.closest('.dilema').querySelector('.dilema-out'), poles = inp.closest('.dilema').querySelectorAll('.poles span');
+    inp.addEventListener('input', function () { var v = +inp.value; out.textContent = v < 35 ? 'Más hacia ' + poles[0].textContent : v > 65 ? 'Más hacia ' + poles[1].textContent : 'Equilibrio'; });
   });
 })();
