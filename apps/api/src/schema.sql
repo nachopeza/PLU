@@ -322,3 +322,99 @@ INSERT OR IGNORE INTO territorios (codigo, codigo_num, nombre, tipo, padre_id) V
   ('P50','50','Zaragoza','provincia',(SELECT id FROM territorios WHERE codigo='ARA')),
   ('P51','51','Ceuta','provincia',(SELECT id FROM territorios WHERE codigo='CEU')),
   ('P52','52','Melilla','provincia',(SELECT id FROM territorios WHERE codigo='MEL'));
+
+-- ============================================================
+-- Participación: propuestas ciudadanas, apoyos, comentarios, eventos, noticias y voluntariado.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS propuestas (
+  id              INTEGER PRIMARY KEY,
+  titulo          TEXT NOT NULL,
+  texto           TEXT NOT NULL,
+  area            TEXT,
+  autor_nombre    TEXT NOT NULL,
+  autor_email     TEXT NOT NULL,                 -- nunca se muestra en público
+  estado          TEXT NOT NULL DEFAULT 'recibida'
+                    CHECK (estado IN ('recibida','rechazada','en_estudio','en_debate','en_votacion','aprobada','descartada','en_marcha')),
+  motivo_rechazo  TEXT,
+  votacion_id     INTEGER REFERENCES encuestas(id),
+  creada_en       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  actualizada_en  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+CREATE INDEX IF NOT EXISTS idx_propuestas_estado ON propuestas(estado, creada_en);
+
+CREATE TABLE IF NOT EXISTS propuesta_historial (
+  id          INTEGER PRIMARY KEY,
+  propuesta_id INTEGER NOT NULL REFERENCES propuestas(id) ON DELETE CASCADE,
+  estado      TEXT NOT NULL,
+  nota        TEXT,                              -- visible en público
+  usuario_id  INTEGER REFERENCES usuarios_intranet(id),
+  fecha       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+
+CREATE TABLE IF NOT EXISTS propuesta_apoyos (
+  propuesta_id INTEGER NOT NULL REFERENCES propuestas(id) ON DELETE CASCADE,
+  persona_id   INTEGER NOT NULL REFERENCES personas(id),
+  fecha        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  PRIMARY KEY (propuesta_id, persona_id)
+);
+
+CREATE TABLE IF NOT EXISTS comentarios (
+  id           INTEGER PRIMARY KEY,
+  propuesta_id INTEGER NOT NULL REFERENCES propuestas(id) ON DELETE CASCADE,
+  persona_id   INTEGER NOT NULL REFERENCES personas(id),
+  texto        TEXT NOT NULL,
+  oculto       INTEGER NOT NULL DEFAULT 0,
+  creado_en    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+CREATE INDEX IF NOT EXISTS idx_comentarios_propuesta ON comentarios(propuesta_id, creado_en);
+
+CREATE TABLE IF NOT EXISTS denuncias (
+  id            INTEGER PRIMARY KEY,
+  comentario_id INTEGER NOT NULL REFERENCES comentarios(id) ON DELETE CASCADE,
+  persona_id    INTEGER NOT NULL REFERENCES personas(id),
+  motivo        TEXT,
+  resuelta      INTEGER NOT NULL DEFAULT 0,
+  creada_en     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  UNIQUE (comentario_id, persona_id)
+);
+
+CREATE TABLE IF NOT EXISTS eventos (
+  id          INTEGER PRIMARY KEY,
+  titulo      TEXT NOT NULL,
+  descripcion TEXT,
+  lugar       TEXT,
+  inicio      TEXT NOT NULL,
+  fin         TEXT,
+  aforo       INTEGER,                           -- NULL = sin límite
+  estado      TEXT NOT NULL DEFAULT 'borrador' CHECK (estado IN ('borrador','publicado','cancelado')),
+  creado_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+CREATE TABLE IF NOT EXISTS eventos_inscripciones (
+  id        INTEGER PRIMARY KEY,
+  evento_id INTEGER NOT NULL REFERENCES eventos(id) ON DELETE CASCADE,
+  nombre    TEXT NOT NULL,
+  email     TEXT NOT NULL,
+  creada_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  UNIQUE (evento_id, email)
+);
+
+CREATE TABLE IF NOT EXISTS noticias (
+  id        INTEGER PRIMARY KEY,
+  titulo    TEXT NOT NULL,
+  resumen   TEXT,
+  cuerpo    TEXT NOT NULL,
+  publicada INTEGER NOT NULL DEFAULT 0,
+  fecha     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  autor_id  INTEGER REFERENCES usuarios_intranet(id)
+);
+
+CREATE TABLE IF NOT EXISTS voluntarios (
+  id        INTEGER PRIMARY KEY,
+  nombre    TEXT NOT NULL,
+  email     TEXT NOT NULL,
+  telefono  TEXT,
+  area      TEXT NOT NULL,
+  mensaje   TEXT,
+  estado    TEXT NOT NULL DEFAULT 'nuevo' CHECK (estado IN ('nuevo','contactado','incorporado','descartado')),
+  creada_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);

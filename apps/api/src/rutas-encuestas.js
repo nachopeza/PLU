@@ -13,6 +13,12 @@ const GESTIONAN = ['admin', 'moderador'];
 const MINIMO_ANONIMA = 5; // por debajo de este número no se muestran resultados de una encuesta anónima
 
 // ---------- Validación y lectura ----------
+function validarVotacion(d, pr) {
+  if (d.tipo !== 'votacion') return;
+  if (pr.length !== 1 || pr[0].tipo !== 'opcion_unica') throw new Error('Una votación tiene una sola pregunta de opción única');
+  d.anonima = 1; d.solo_afiliados = 1;
+}
+
 function validarPreguntas(lista) {
   if (!Array.isArray(lista) || lista.length < 1 || lista.length > 30) throw new Error('La encuesta necesita entre 1 y 30 preguntas');
   return lista.map((q, i) => {
@@ -60,12 +66,17 @@ function datosEncuesta(body) {
   return {
     titulo, descripcion: limpio(body?.descripcion, 600) || null, ambito, cierra,
     solo_afiliados: body?.solo_afiliados === false ? 0 : 1, anonima: body?.anonima === false ? 0 : 1,
+    tipo: body?.tipo === 'votacion' ? 'votacion' : 'encuesta',
+    quorum: Number.isInteger(Number(body?.quorum)) && Number(body.quorum) > 0 ? Number(body.quorum) : null,
+    vinculante: body?.vinculante ? 1 : 0, resultados_publicos: body?.resultados_publicos ? 1 : 0,
+    propuesta_id: Number(body?.propuesta_id) > 0 ? Number(body.propuesta_id) : null,
   };
 }
 
 const resumenEncuesta = (e) => ({
   id: e.id, titulo: e.titulo, descripcion: e.descripcion, estado: e.estado, ambito_territorio_id: e.ambito_territorio_id,
   solo_afiliados: !!e.solo_afiliados, anonima: !!e.anonima, cierra_en: e.cierra_en, creada_en: e.creada_en,
+  tipo: e.tipo, quorum: e.quorum, vinculante: !!e.vinculante, resultados_publicos: !!e.resultados_publicos, propuesta_id: e.propuesta_id,
 });
 
 // ---------- Equipo ----------
@@ -83,9 +94,10 @@ encuestasIntranet.post('/encuestas', requerirEquipo(...GESTIONAN), (req, res) =>
   try {
     const d = datosEncuesta(req.body);
     const pr = validarPreguntas(req.body?.preguntas);
+    validarVotacion(d, pr);
     const id = transaccion(() => {
-      const r = db.prepare('INSERT INTO encuestas (titulo, descripcion, ambito_territorio_id, solo_afiliados, anonima, cierra_en, creada_por) VALUES (?, ?, ?, ?, ?, ?, ?)')
-        .run(d.titulo, d.descripcion, d.ambito, d.solo_afiliados, d.anonima, d.cierra, req.equipo.id);
+      const r = db.prepare('INSERT INTO encuestas (titulo, descripcion, ambito_territorio_id, solo_afiliados, anonima, cierra_en, creada_por, tipo, quorum, vinculante, resultados_publicos, propuesta_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        .run(d.titulo, d.descripcion, d.ambito, d.solo_afiliados, d.anonima, d.cierra, req.equipo.id, d.tipo, d.quorum, d.vinculante, d.resultados_publicos, d.propuesta_id);
       guardarPreguntas(Number(r.lastInsertRowid), pr);
       return Number(r.lastInsertRowid);
     });
@@ -107,9 +119,10 @@ encuestasIntranet.patch('/encuestas/:id', requerirEquipo(...GESTIONAN), (req, re
   try {
     const d = datosEncuesta(req.body);
     const pr = validarPreguntas(req.body?.preguntas);
+    validarVotacion(d, pr);
     transaccion(() => {
-      db.prepare('UPDATE encuestas SET titulo = ?, descripcion = ?, ambito_territorio_id = ?, solo_afiliados = ?, anonima = ?, cierra_en = ? WHERE id = ?')
-        .run(d.titulo, d.descripcion, d.ambito, d.solo_afiliados, d.anonima, d.cierra, e.id);
+      db.prepare('UPDATE encuestas SET titulo = ?, descripcion = ?, ambito_territorio_id = ?, solo_afiliados = ?, anonima = ?, cierra_en = ?, tipo = ?, quorum = ?, vinculante = ?, resultados_publicos = ?, propuesta_id = ? WHERE id = ?')
+        .run(d.titulo, d.descripcion, d.ambito, d.solo_afiliados, d.anonima, d.cierra, d.tipo, d.quorum, d.vinculante, d.resultados_publicos, d.propuesta_id, e.id);
       db.prepare('DELETE FROM preguntas WHERE encuesta_id = ?').run(e.id);
       guardarPreguntas(e.id, pr);
     });
@@ -140,14 +153,13 @@ encuestasIntranet.post('/encuestas/:id/estado', requerirEquipo(...GESTIONAN), (r
 
 function mezclar(a) { for (let i = a.length - 1; i > 0; i--) { const j = randomInt(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
-encuestasIntranet.get('/encuestas/:id/resultados', requerirEquipo(...GESTIONAN, 'auditor'), (req, res) => {
-  const e = db.prepare('SELECT * FROM encuestas WHERE id = ?').get(Number(req.params.id));
-  if (!e) return res.status(404).json({ error: 'No encontrada' });
+// Calcula los resultados de una encuesta respetando el anonimato (mínimo de participaciones).
+export function calcularResultados(e) {
   const total = db.prepare('SELECT COUNT(*) AS n FROM participaciones WHERE encuesta_id = ?').get(e.id).n;
   const directas = db.prepare('SELECT COUNT(*) AS n FROM enlaces_encuesta WHERE encuesta_id = ? AND usado_en IS NOT NULL').get(e.id).n;
-  const base = { ...resumenEncuesta(e), participaciones: total, de_enlaces: directas };
+  const base = { ...resumenEncuesta(e), participaciones: total, de_enlaces: directas, quorum_alcanzado: e.quorum ? total >= e.quorum : null };
   if (e.anonima && total < MINIMO_ANONIMA) {
-    return res.json({ ...base, ocultos: true, aviso: `Los resultados de una encuesta anónima se muestran a partir de ${MINIMO_ANONIMA} participaciones, para que nadie pueda deducir lo que votó una persona.` });
+    return { ...base, ocultos: true, aviso: `Los resultados de una encuesta anónima se muestran a partir de ${MINIMO_ANONIMA} participaciones, para que nadie pueda deducir lo que votó una persona.` };
   }
   const resultados = leerPreguntas(e.id).map((q) => {
     const filas = db.prepare('SELECT valor FROM respuestas WHERE pregunta_id = ?').all(q.id).map((r) => r.valor);
@@ -160,8 +172,15 @@ encuestasIntranet.get('/encuestas/:id/resultados', requerirEquipo(...GESTIONAN, 
     if (q.tipo === 'escala' && filas.length) out.media = Math.round((filas.reduce((s, v) => s + Number(v), 0) / filas.length) * 100) / 100;
     return out;
   });
-  auditar(req.equipo.id, 'ver_resultados_encuesta', 'encuesta', e.id);
-  res.json({ ...base, ocultos: false, resultados });
+  return { ...base, ocultos: false, resultados };
+}
+
+encuestasIntranet.get('/encuestas/:id/resultados', requerirEquipo(...GESTIONAN, 'auditor'), (req, res) => {
+  const e = db.prepare('SELECT * FROM encuestas WHERE id = ?').get(Number(req.params.id));
+  if (!e) return res.status(404).json({ error: 'No encontrada' });
+  const r = calcularResultados(e);
+  if (!r.ocultos) auditar(req.equipo.id, 'ver_resultados_encuesta', 'encuesta', e.id);
+  res.json(r);
 });
 
 // Enlaces de un solo uso para simpatizantes (no tienen portal). Se devuelven una sola vez; en la base solo queda el hash.

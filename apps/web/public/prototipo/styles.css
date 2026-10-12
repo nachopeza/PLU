@@ -507,3 +507,11 @@ code { font-family: var(--font-mono); background: var(--surface-2); padding: 2px
 .escala-op:has(input:focus-visible) { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
 .hist { list-style: none; padding: 0; display: grid; gap: 10px; }
 @media (max-width: 640px) { .barra { grid-template-columns: 1fr; gap: 4px; } }
+
+/* ---------- Comunidad y legal ---------- */
+@media (min-width: 900px) { .footer-grid { grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr; gap: 40px; } }
+.legal-text h2 { font-size: 1.25rem; margin: 26px 0 8px; }
+.legal-text ul { padding-left: 20px; display: grid; gap: 6px; }
+.legal-text p, .legal-text li { color: var(--muted); }
+a.rowitem { display: block; }
+[hidden] { display: none !important; }

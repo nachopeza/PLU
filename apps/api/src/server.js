@@ -11,6 +11,7 @@ import { intranet } from './rutas-intranet.js';
 import { gestion } from './rutas-gestion.js';
 import { encuestasIntranet, encuestasPublicas } from './rutas-encuestas.js';
 import { portal } from './rutas-portal.js';
+import { participacionIntranet, participacionPortal, participacionPublica } from './rutas-participacion.js';
 import { rutasCarne } from './rutas-carne.js';
 import { soloJson } from './sesion.js';
 
@@ -34,7 +35,7 @@ app.use('/api', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'
 
 app.get('/api/health', (_req, res) => {
   const { total } = db.prepare("SELECT COUNT(*) AS total FROM territorios WHERE tipo = 'provincia'").get();
-  res.json({ ok: true, servicio: 'plu-api', version: '0.3.0', provincias: total });
+  res.json({ ok: true, servicio: 'plu-api', version: '0.4.0', provincias: total });
 });
 
 // Lista de provincias con su comunidad (formulario de afiliación). El código INE va en el número de afiliado.
@@ -48,11 +49,14 @@ app.get('/api/provincias', (_req, res) => {
 
 app.use('/api', publicas);
 app.use('/api', encuestasPublicas);
+app.use('/api', participacionPublica);
+app.use('/api/portal', participacionPortal);
 app.use('/api/portal', portal);
 app.use('/api/intranet', intranet);
 app.use('/api/intranet', gestion);
 app.use('/api/intranet', encuestasIntranet);
 app.use('/api/intranet', rutasCarne);
+app.use('/api/intranet', participacionIntranet);
 app.use('/api', (_req, res) => res.status(404).json({ error: 'No existe' }));
 
 // Web: el prototipo nuevo es la página de inicio

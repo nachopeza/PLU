@@ -37,11 +37,11 @@ ICON0 = {
  'hands': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M15 14.5c3 0 6 1.5 6 5.5"/></svg>',
 }
 
-NAV = [('proyecto.html', 'El proyecto'), ('propuestas.html', 'Propuestas'), ('participa.html', 'Participa'), ('como-funciona.html', 'Transparencia')]
+NAV = [('proyecto.html', 'El proyecto'), ('propuestas.html', 'Propuestas'), ('ideas.html', 'Ideas'), ('eventos.html', 'Agenda'), ('participa.html', 'Participa'), ('como-funciona.html', 'Transparencia')]
 
 def page(fname, title, body, hero=''):
     links = ''.join(f'<a href="{h}"{" aria-current=\"page\"" if h == fname else ""}>{t}</a>' for h, t in NAV)
-    mlinks = ''.join(f'<a href="{h}">{t}</a>' for h, t in NAV) + '<a href="debate.html">Debate abierto</a><a href="portal.html">Portal del afiliado</a>'
+    mlinks = ''.join(f'<a href="{h}">{t}</a>' for h, t in NAV) + '<a href="debate.html">Debate abierto</a><a href="consultas.html">Votaciones</a><a href="noticias.html">Noticias</a><a href="voluntariado.html">Voluntariado</a><a href="portal.html">Portal del afiliado</a>'
     return f'''<!doctype html>
 <html lang="es">
 <head>
@@ -82,12 +82,15 @@ def page(fname, title, body, hero=''):
         <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
       </div>
       <div><h3>Explora</h3><ul class="footer-links"><li><a href="proyecto.html">El proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Cómo participar</a></li><li><a href="como-funciona.html">Transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
-      <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Participa</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
+      <div><h3>Comunidad</h3><ul class="footer-links"><li><a href="ideas.html">Ideas ciudadanas</a></li><li><a href="consultas.html">Votaciones</a></li><li><a href="eventos.html">Agenda</a></li><li><a href="noticias.html">Noticias</a></li><li><a href="voluntariado.html">Voluntariado</a></li></ul></div>
+      <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Hazte simpatizante</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
+      <div><h3>Legal</h3><ul class="footer-links"><li><a href="privacidad.html">Privacidad</a></li><li><a href="terminos.html">Términos</a></li><li><a href="cookies.html">Cookies</a></li><li><a href="normas.html">Normas de participación</a></li><li><a href="faq.html">Preguntas frecuentes</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
     </div>
     <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
   </div>
 </footer>
 <script src="site.js"></script>
+<script src="comunidad.js"></script>
 </body>
 </html>
 '''
@@ -346,10 +349,12 @@ participa = f'''
 <section class="section"><div class="wrap">
   <div class="head"><span class="eyebrow">Participa</span><h2 class="h2" data-r>Tu opinión, tu idea, tu compromiso.</h2><p class="lede">Hay muchas formas de formar parte de PLU.</p></div>
   <div class="optgrid">
-    <a class="opt tilt" href="proyecto.html" data-r>{ico('doc')}<span><b>Quiero conocer el proyecto</b><small>Lee, infórmate, hazte una idea.</small></span></a>
-    <a class="opt tilt" href="#participa-form" data-r>{ico('speech')}<span><b>Quiero dar mi opinión</b><small>Comparte tu punto de vista.</small></span></a>
-    <a class="opt tilt" href="#participa-form" data-r>{ico('mail')}<span><b>Quiero recibir novedades</b><small>Mantente al día del proyecto.</small></span></a>
-    <a class="opt tilt" href="#participa-form" data-r>{ico('group')}<span><b>Quiero colaborar</b><small>Únete a los grupos de trabajo.</small></span></a>
+    <a class="opt tilt" href="ideas.html#proponer" data-r>{ico('spark')}<span><b>Quiero proponer una idea</b><small>Sin cuenta. Todo el mundo ve qué pasa con ella.</small></span></a>
+    <a class="opt tilt" href="ideas.html" data-r>{ico('speech')}<span><b>Quiero apoyar y debatir</b><small>Apoya y comenta ideas desde el portal.</small></span></a>
+    <a class="opt tilt" href="consultas.html" data-r>{ico('ballot')}<span><b>Quiero ver las votaciones</b><small>Resultados, quórum y decisiones.</small></span></a>
+    <a class="opt tilt" href="eventos.html" data-r>{ico('people')}<span><b>Quiero ir a un acto</b><small>Agenda e inscripción.</small></span></a>
+    <a class="opt tilt" href="voluntariado.html" data-r>{ico('group')}<span><b>Quiero ayudar</b><small>Comunicación, diseño, tecnología, eventos…</small></span></a>
+    <a class="opt tilt" href="#participa-form" data-r>{ico('mail')}<span><b>Quiero recibir novedades</b><small>Hazte simpatizante con tu correo.</small></span></a>
   </div>
 </div></section>
 <section class="joinband">{ph('floor', 1800)}
@@ -360,17 +365,14 @@ participa = f'''
     <div class="head" style="margin:0"><span class="eyebrow">Escríbenos</span><h2 class="h2" data-r>Construyamos PLU entre todos.</h2></div>
     <ol class="steps"><li><div><h3>Dar tu opinión</h3><p>Publicaremos las aportaciones y qué pasa con ellas.</p></div></li><li><div><h3>Seguir el proyecto</h3><p>Un boletín con avances y decisiones.</p></div></li><li><div><h3>Colaborar</h3><p>Grupos de trabajo y revisión de propuestas.</p></div></li><li><div><h3>Incorporarte</h3><p><a class="link-arrow" href="afiliate.html">Cómo formar parte de PLU →</a></p></div></li></ol>
   </div>
-  <form class="form-card" data-demo="Prototipo: nada se ha enviado ni guardado." novalidate>
-    <h2>Participa</h2>
-    <fieldset class="choices"><legend>¿Cómo te gustaría participar?</legend>
-      <label class="choice"><input type="radio" name="modo" checked><span>Compartir una idea</span></label>
-      <label class="choice"><input type="radio" name="modo"><span>Opinar sobre una cuestión abierta</span></label>
-      <label class="choice"><input type="radio" name="modo"><span>Recibir novedades</span></label>
-      <label class="choice"><input type="radio" name="modo"><span>Colaborar en el proyecto</span></label></fieldset>
-    <div class="field"><label for="f-aporte">¿Qué te gustaría aportar?</label><textarea id="f-aporte" placeholder="Opcional"></textarea></div>
-    <div class="field"><label for="f-correo">Correo electrónico</label><input id="f-correo" type="email" autocomplete="email" required></div>
-    <label class="consent"><input type="checkbox" required><span>Acepto que PLU use mi correo para responderme y enviarme novedades. Puedo darme de baja cuando quiera. Política de privacidad pendiente.</span></label>
-    <button class="btn btn-primary" type="submit">Enviar</button><p class="form-status" role="status" aria-live="polite"></p>
+  <form class="form-card" data-api="/api/simpatizantes" data-ok="¡Listo, ya estás dentro!" novalidate>
+    <h2>Recibe novedades</h2>
+    <p class="muted">Hazte simpatizante: avisos de campañas, eventos y encuestas. Sin cuenta ni cuota.</p>
+    <div class="field"><label for="s-n">Nombre</label><input id="s-n" name="nombre" autocomplete="given-name" required maxlength="80"></div>
+    <div class="field"><label for="s-e">Correo electrónico</label><input id="s-e" name="email" type="email" autocomplete="email" required></div>
+    <div class="field"><label for="f-prov">Provincia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div>
+    <label class="consent"><input type="checkbox" name="consentimiento_avisos" required><span>Acepto recibir avisos de PLU por correo. Puedo darme de baja cuando quiera. <a class="link" href="privacidad.html">Privacidad</a>.</span></label>
+    <button class="btn btn-primary" type="submit">Quiero estar al día</button><p class="form-status" role="status" aria-live="polite"></p>
   </form>
 </div></section>'''
 # ================= AFÍLIATE =================
@@ -531,6 +533,8 @@ intranet = '''
 </div></section>
 <script src="intranet.js"></script>'''
 
+exec(open(pathlib.Path(__file__).parent / 'paginas_comunidad.py').read())
+como = transparencia_datos + como
 PAGES = {
   'index.html': ('PLU · Plataforma Liberal Unida', home, home_hero),
   'proyecto.html': ('El proyecto · PLU', proyecto, hero_page('bench', 'El proyecto', 'Una nueva forma de hacer <em>política.</em>', 'Más libre, más democrática y más cercana a la gente.')),
@@ -542,6 +546,18 @@ PAGES = {
   'afiliate.html': ('Afíliate · PLU', afiliate, ''),
   'portal.html': ('Portal del afiliado · PLU', portal, ''),
   'intranet.html': ('Intranet · PLU', intranet, ''),
+  'ideas.html': ('Ideas ciudadanas · PLU', ideas, hero_page('circle', 'Ideas ciudadanas', 'Propón, apoya y <em>decide.</em>', 'Cualquiera puede proponer. Las personas afiliadas apoyan, comentan y votan.')),
+  'idea.html': ('Idea · PLU', idea, ''),
+  'consultas.html': ('Votaciones y consultas · PLU', consultas, hero_page('meet', 'Votaciones y consultas', 'Cuando decidimos, <em>lo publicamos.</em>', 'Resultados, quórum y si la decisión es vinculante o consultiva.')),
+  'eventos.html': ('Agenda · PLU', eventos, hero_page('bench', 'Agenda', 'Actos, charlas y <em>quedadas.</em>', 'Inscríbete con tu nombre y tu correo.')),
+  'noticias.html': ('Noticias · PLU', noticias, hero_page('walk', 'Noticias', 'Lo que está <em>pasando.</em>')),
+  'voluntariado.html': ('Voluntariado · PLU', voluntariado, hero_page('floor', 'Voluntariado', '¿Cómo puedo <em>ayudar?</em>')),
+  'privacidad.html': ('Privacidad · PLU', privacidad, ''),
+  'terminos.html': ('Términos de uso · PLU', terminos, ''),
+  'cookies.html': ('Cookies · PLU', cookies, ''),
+  'normas.html': ('Normas de participación · PLU', normas, ''),
+  'faq.html': ('Preguntas frecuentes · PLU', faq, ''),
+  'contacto.html': ('Contacto · PLU', contacto, ''),
   'encuesta.html': ('Encuesta · PLU', encuesta, ''),
 }
 for f, (t, b, h) in PAGES.items():

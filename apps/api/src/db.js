@@ -40,3 +40,10 @@ function asegurarColumna(tabla, columna, definicion) {
 asegurarColumna('usuarios_intranet', 'debe_cambiar_password', 'INTEGER NOT NULL DEFAULT 0');
 asegurarColumna('usuarios_intranet', 'ultimo_acceso', 'TEXT');
 
+
+// Votaciones: una encuesta con quórum y resultados públicos al cerrar
+asegurarColumna('encuestas', 'tipo', "TEXT NOT NULL DEFAULT 'encuesta'");
+asegurarColumna('encuestas', 'quorum', 'INTEGER');
+asegurarColumna('encuestas', 'vinculante', 'INTEGER NOT NULL DEFAULT 0');
+asegurarColumna('encuestas', 'resultados_publicos', 'INTEGER NOT NULL DEFAULT 0');
+asegurarColumna('encuestas', 'propuesta_id', 'INTEGER');

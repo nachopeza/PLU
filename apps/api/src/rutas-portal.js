@@ -99,7 +99,7 @@ function elegible(personaId, territorioId) {
   }));
 }
 portal.get('/encuestas', requerirPersona(), (req, res) => {
-  res.json(elegible(req.persona.id, req.persona.territorio_id).map((e) => ({ id: e.id, titulo: e.titulo, descripcion: e.descripcion, anonima: !!e.anonima, cierra_en: e.cierra_en, respondida: e.respondida })));
+  res.json(elegible(req.persona.id, req.persona.territorio_id).map((e) => ({ tipo: e.tipo, id: e.id, titulo: e.titulo, descripcion: e.descripcion, anonima: !!e.anonima, cierra_en: e.cierra_en, respondida: e.respondida })));
 });
 function encuestaDePersona(req) {
   const e = db.prepare('SELECT * FROM encuestas WHERE id = ?').get(Number(req.params.id));

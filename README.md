@@ -105,3 +105,11 @@ Lee los documentos de `docs/` en orden. El `09-decisiones-pendientes.md` recoge 
 - **Encuesta por enlace** (`/prototipo/encuesta.html?t=...`): para simpatizantes, un solo uso.
 - Sin correo todavía: al aprobar una afiliación o crear un usuario, la contraseña temporal se muestra **una sola vez** en pantalla.
 - Plantilla del carné: ver `docs/11-plantilla-carne.md`.
+
+## Versión 0.4: participación
+- **Ideas ciudadanas** (`/prototipo/ideas.html`): cualquiera propone (nombre + correo, pasa por moderación); las personas afiliadas apoyan y comentan desde el portal; ciclo público *en estudio → debate → votación → aprobada / descartada → en marcha*.
+- **Votaciones** (`consultas.html`): una pregunta, voto secreto, solo afiliados, quórum, vinculante o consultiva; resultados públicos al cerrar.
+- **Agenda** (`eventos.html`) con inscripción y aforo, **noticias**, **voluntariado**, **transparencia en cifras** (`como-funciona.html`).
+- **Legal (borradores a revisar):** privacidad, términos, cookies, normas de participación, FAQ, contacto.
+- Intranet: secciones nuevas Ideas (moderación y denuncias), Agenda, Noticias, Voluntariado y editor de votaciones.
+- Quedan fuera por ahora: páginas por provincia, correo (necesita dominio) y donaciones.

@@ -128,13 +128,17 @@
     ['inscripciones', 'Inscripciones', ['admin', 'gestor', 'coordinador']],
     ['personas', 'Personas', ['admin', 'gestor', 'coordinador']],
     ['solicitudes', 'Solicitudes', ['admin', 'gestor', 'coordinador']],
-    ['encuestas', 'Encuestas', ['admin', 'moderador', 'auditor']],
+    ['propuestas', 'Ideas', ['admin', 'moderador', 'auditor']],
+    ['encuestas', 'Encuestas y votaciones', ['admin', 'moderador', 'auditor']],
+    ['eventos', 'Agenda', ['admin', 'moderador', 'gestor']],
+    ['noticias', 'Noticias', ['admin', 'moderador']],
+    ['voluntarios', 'Voluntariado', ['admin', 'moderador', 'gestor']],
     ['verificar', 'Verificar carné', ['admin', 'gestor', 'verificador']],
     ['carne', 'Carné', ['admin', 'gestor']],
     ['equipo', 'Equipo', ['admin']],
     ['auditoria', 'Auditoría', ['admin', 'auditor']]
   ];
-  var VISTAS = { resumen: sResumen, inscripciones: sInscripciones, personas: sPersonas, solicitudes: sSolicitudes, encuestas: sEncuestas, verificar: sVerificar, carne: sCarne, equipo: sEquipo, auditoria: sAuditoria };
+  var VISTAS = { propuestas: sPropuestas, eventos: sEventos, noticias: sNoticias, voluntarios: sVoluntarios, resumen: sResumen, inscripciones: sInscripciones, personas: sPersonas, solicitudes: sSolicitudes, encuestas: sEncuestas, verificar: sVerificar, carne: sCarne, equipo: sEquipo, auditoria: sAuditoria };
   var detenerCamara = function () {};
 
   function abrirPanel(u) {
@@ -428,7 +432,7 @@
       api('/encuestas').then(function (es) {
         if (!es.length) lista.appendChild(h('p', { class: 'muted' }, 'Aún no hay encuestas.'));
         es.forEach(function (e) {
-          lista.appendChild(fila(e.titulo, e.preguntas + ' preguntas · ' + e.participaciones + ' participaciones', e.estado.toUpperCase() + ' · ' + (e.anonima ? 'anónima' : 'con nombre') + ' · ' + (e.provincia || 'toda España') + (e.solo_afiliados ? ' · solo afiliados' : ' · abierta a simpatizantes'), function (body) { accionesEncuesta(e, body); }));
+          lista.appendChild(fila(e.titulo, e.preguntas + ' preguntas · ' + e.participaciones + ' participaciones', '#' + e.id + ' · ' + e.estado.toUpperCase() + ' · ' + (e.tipo === 'votacion' ? 'VOTACIÓN' + (e.vinculante ? ' vinculante' : '') : (e.anonima ? 'anónima' : 'con nombre')) + ' · ' + (e.provincia || 'toda España') + (e.solo_afiliados ? ' · solo afiliados' : ' · abierta a simpatizantes'), function (body) { accionesEncuesta(e, body); }));
         });
       }).catch(function (er) { errorSeccion(c, er); });
     }
@@ -509,6 +513,15 @@
         form.appendChild(h('div', { class: 'field-pair' }, prov, cierre));
         form.appendChild(h('label', { class: 'consent', for: 'e-an' }, anon, h('span', null, 'Anónima (no se guarda quién respondió qué; los resultados se muestran a partir de 5 participaciones)')));
         form.appendChild(h('label', { class: 'consent', for: 'e-so' }, solo, h('span', null, 'Solo afiliados (si la desmarcas, podrás enviar enlaces a simpatizantes)')));
+        var tipoE = h('select', { id: 'e-tipo' }, h('option', { value: 'encuesta', selected: e.tipo !== 'votacion' }, 'Encuesta'), h('option', { value: 'votacion', selected: e.tipo === 'votacion' }, 'Votación (una pregunta, voto secreto, solo afiliados)'));
+        var quorum = campo('e-qu', 'Quórum (mínimo de participaciones, opcional)', { type: 'number', min: '1', value: e.quorum || '' });
+        var vinc = h('input', { type: 'checkbox', id: 'e-vi' }); vinc.checked = !!e.vinculante;
+        var pubR = h('input', { type: 'checkbox', id: 'e-pu' }); pubR.checked = !!e.resultados_publicos;
+        var propId = campo('e-pp', 'Idea vinculada (id, opcional)', { type: 'number', min: '1', value: e.propuesta_id || '' });
+        form.appendChild(h('div', { class: 'field' }, h('label', { for: 'e-tipo' }, 'Tipo'), tipoE));
+        form.appendChild(h('div', { class: 'field-pair' }, quorum, propId));
+        form.appendChild(h('label', { class: 'consent', for: 'e-vi' }, vinc, h('span', null, 'Vinculante (la organización se compromete a aplicar el resultado)')));
+        form.appendChild(h('label', { class: 'consent', for: 'e-pu' }, pubR, h('span', null, 'Publicar los resultados en la web al cerrar')));
         form.appendChild(qs);
         form.appendChild(h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { preguntas.push({ tipo: 'opcion_unica', texto: '', opciones: ['', ''], min: 1, max: 5, obligatoria: true }); pintar(); } }, '+ Añadir pregunta'));
         form.appendChild(h('div', { class: 'row-btns' }, h('button', { class: 'btn btn-primary', type: 'submit' }, 'Guardar borrador'), h('button', { class: 'btn btn-ghost', type: 'button', onclick: listaEncuestas }, 'Cancelar')));
@@ -517,6 +530,7 @@
           ev.preventDefault();
           var cuerpo = {
             titulo: $('e-t').value, descripcion: $('e-d').value, anonima: anon.checked, solo_afiliados: solo.checked,
+            tipo: tipoE.value, quorum: $('e-qu').value || null, vinculante: vinc.checked, resultados_publicos: pubR.checked, propuesta_id: $('e-pp').value || null,
             ambito_territorio_id: prov.querySelector('select').value || null, cierra_en: cierre.querySelector('input').value ? cierre.querySelector('input').value + 'T21:59:59Z' : null,
             preguntas: preguntas.map(function (q) { var o = { tipo: q.tipo, texto: q.texto, obligatoria: q.obligatoria }; if (q.tipo === 'escala') { o.min = q.min; o.max = q.max; } else if (q.opciones && q.tipo !== 'texto') o.opciones = q.opciones; return o; })
           };
@@ -525,6 +539,148 @@
         zona.appendChild(form);
       }).catch(function (er) { errorSeccion(c, er); });
     }
+  }
+
+
+  // --- Ideas ciudadanas (moderación) ---
+  var EST_PROP = [['recibida', 'Por revisar'], ['en_estudio', 'En estudio'], ['en_debate', 'En debate'], ['en_votacion', 'En votación'], ['aprobada', 'Aprobadas'], ['en_marcha', 'En marcha'], ['descartada', 'Descartadas'], ['rechazada', 'Rechazadas']];
+  function sPropuestas(c) {
+    var puede = usuario.rol === 'admin' || usuario.rol === 'moderador', estado = 'recibida', lista = h('div', { class: 'rows' });
+    c.appendChild(filtros(EST_PROP, estado, function (v) { estado = v; cargar(); }));
+    c.appendChild(lista);
+    var den = h('div'); c.appendChild(den);
+    function cargar() {
+      limpiar(lista);
+      api('/propuestas?estado=' + estado).then(function (ps) {
+        if (!ps.length) lista.appendChild(h('p', { class: 'muted' }, 'No hay ideas en este estado.'));
+        ps.forEach(function (p) {
+          lista.appendChild(fila(p.titulo, p.autor_nombre + ' · ' + p.autor_email, (p.area || '') + ' · ' + p.apoyos + ' apoyos · ' + fecha(p.creada_en), function (body) {
+            body.appendChild(h('p', { style: 'white-space:pre-wrap' }, p.texto));
+            if (p.motivo_rechazo) body.appendChild(h('p', { class: 'muted' }, 'Motivo del rechazo: ' + p.motivo_rechazo));
+            if (!puede) return;
+            var st = h('p', { class: 'form-status err' }), btns = h('div', { class: 'row-btns' });
+            function pasar(nuevo, texto, pideNota) {
+              btns.appendChild(h('button', { class: 'btn ' + (nuevo === 'en_debate' || nuevo === 'en_estudio' ? 'btn-primary' : 'btn-ghost') + ' btn-sm', type: 'button', onclick: function () {
+                var nota = window.prompt(pideNota ? 'Motivo (se publicará / se enviará a la persona):' : 'Nota pública sobre este cambio (opcional):'); if (nota === null) return;
+                var cuerpo = { estado: nuevo, nota: nota };
+                if (nuevo === 'en_votacion') { var v = window.prompt('Número (id) de la votación vinculada:'); if (!v) return; cuerpo.votacion_id = Number(v); }
+                api('/propuestas/' + p.id + '/estado', cuerpo).then(cargar).catch(function (e) { st.textContent = e.message; });
+              } }, texto));
+            }
+            if (p.estado === 'recibida') { pasar('en_estudio', 'Publicar (en estudio)'); pasar('en_debate', 'Publicar en debate'); pasar('rechazada', 'Rechazar', true); }
+            else if (p.estado !== 'rechazada') {
+              if (p.estado !== 'en_debate') pasar('en_debate', 'Pasar a debate'); pasar('en_votacion', 'Pasar a votación'); pasar('aprobada', 'Aprobar'); pasar('en_marcha', 'En marcha'); pasar('descartada', 'Descartar', true);
+            }
+            body.appendChild(btns); body.appendChild(st);
+          }));
+        });
+      }).catch(function (e) { errorSeccion(c, e); });
+    }
+    cargar();
+    if (puede) {
+      api('/denuncias').then(function (ds) {
+        if (!ds.length) return;
+        den.appendChild(h('h3', { style: 'margin-top:28px' }, 'Comentarios denunciados'));
+        ds.forEach(function (d) {
+          den.appendChild(h('div', { class: 'audit-row' }, h('strong', null, d.denuncias + ' denuncia(s)'), h('span', { class: 'muted' }, d.oculto ? '(oculto)' : ''), h('span', { style: 'flex-basis:100%;white-space:pre-wrap' }, d.texto),
+            h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { api('/comentarios/' + d.id + '/moderar', { ocultar: true }).then(function () { irA('propuestas'); }); } }, 'Ocultar'),
+            h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { api('/comentarios/' + d.id + '/moderar', { ocultar: false }).then(function () { irA('propuestas'); }); } }, 'Mantener')));
+        });
+      }).catch(function () {});
+    }
+  }
+
+  // --- Agenda ---
+  function aLocalInput(iso) { if (!iso) return ''; var d = new Date(iso); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); }
+  function sEventos(c) {
+    var zona = h('div'); c.appendChild(zona); lista();
+    function lista() {
+      limpiar(zona); zona.appendChild(h('p', null, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: function () { editor(null); } }, '+ Nuevo acto')));
+      var rows = h('div', { class: 'rows' }); zona.appendChild(rows);
+      api('/eventos').then(function (es) {
+        if (!es.length) rows.appendChild(h('p', { class: 'muted' }, 'Aún no hay actos.'));
+        es.forEach(function (e) {
+          rows.appendChild(fila(e.titulo, (e.lugar || 'Sin lugar') + ' · ' + e.inscritos + ' inscritos' + (e.aforo ? ' / ' + e.aforo : ''), e.estado.toUpperCase() + ' · ' + fechaHora(e.inicio), function (body) {
+            var st = h('p', { class: 'form-status err' }), out = h('div'), btns = h('div', { class: 'row-btns' });
+            function b(t, fn) { btns.appendChild(h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: fn }, t)); }
+            function estado(v) { return function () { api('/eventos/' + e.id, { estado: v }, 'PATCH').then(lista).catch(function (er) { st.textContent = er.message; }); }; }
+            if (e.estado !== 'publicado') b('Publicar', estado('publicado')); if (e.estado === 'publicado') { b('Cancelar acto', function () { if (confirmar('¿Cancelar el acto?')) estado('cancelado')(); }); b('Volver a borrador', estado('borrador')); }
+            b('Editar', function () { editor(e); });
+            b('Ver inscritos', function () { api('/eventos/' + e.id + '/inscritos').then(function (ins) { limpiar(out).appendChild(secreto(ins.length + ' inscritos', ins.map(function (i) { return i.nombre + '\t' + i.email; }).join('\n') || '(ninguno)')); }).catch(function (er) { st.textContent = er.message; }); });
+            body.appendChild(btns); body.appendChild(st); body.appendChild(out);
+          }));
+        });
+      }).catch(function (e) { errorSeccion(c, e); });
+    }
+    function editor(e) {
+      limpiar(zona);
+      var f = h('form', { class: 'form-card', novalidate: true }, h('h2', null, e ? 'Editar acto' : 'Nuevo acto'),
+        campo('ev-t', 'Título', { value: e ? e.titulo : '', required: true }), campo('ev-l', 'Lugar', { value: e ? e.lugar || '' : '' }),
+        h('div', { class: 'field-pair' }, campo('ev-i', 'Inicio', { type: 'datetime-local', value: e ? aLocalInput(e.inicio) : '', required: true }), campo('ev-f', 'Fin (opcional)', { type: 'datetime-local', value: e ? aLocalInput(e.fin) : '' })),
+        campo('ev-a', 'Aforo (vacío = sin límite)', { type: 'number', min: '1', value: e && e.aforo ? e.aforo : '' }),
+        campo('ev-d', 'Descripción', { rows: 4 }, 'textarea'), h('div', { class: 'row-btns' }, h('button', { class: 'btn btn-primary', type: 'submit' }, 'Guardar'), h('button', { class: 'btn btn-ghost', type: 'button', onclick: lista }, 'Cancelar')), h('p', { class: 'form-status err', role: 'alert' }));
+      f.querySelector('#ev-d').value = e ? e.descripcion || '' : '';
+      f.addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        var cuerpo = { titulo: $('ev-t').value, lugar: $('ev-l').value, inicio: $('ev-i').value ? new Date($('ev-i').value).toISOString() : '', fin: $('ev-f').value ? new Date($('ev-f').value).toISOString() : null, aforo: $('ev-a').value || null, descripcion: $('ev-d').value };
+        (e ? api('/eventos/' + e.id, cuerpo, 'PATCH') : api('/eventos', cuerpo)).then(lista).catch(function (er) { msg(f, er.message); });
+      });
+      zona.appendChild(f);
+    }
+  }
+
+  // --- Noticias ---
+  function sNoticias(c) {
+    var zona = h('div'); c.appendChild(zona); lista();
+    function lista() {
+      limpiar(zona); zona.appendChild(h('p', null, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: function () { editor(null); } }, '+ Nueva noticia')));
+      var rows = h('div', { class: 'rows' }); zona.appendChild(rows);
+      api('/noticias').then(function (ns) {
+        if (!ns.length) rows.appendChild(h('p', { class: 'muted' }, 'Aún no hay noticias.'));
+        ns.forEach(function (n) {
+          rows.appendChild(fila(n.titulo, n.resumen || '', (n.publicada ? 'PUBLICADA' : 'BORRADOR') + ' · ' + fecha(n.fecha), function (body) {
+            var st = h('p', { class: 'form-status err' });
+            body.appendChild(h('div', { class: 'row-btns' },
+              h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { editor(n); } }, 'Editar'),
+              h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { api('/noticias/' + n.id, { publicada: !n.publicada }, 'PATCH').then(lista).catch(function (e) { st.textContent = e.message; }); } }, n.publicada ? 'Despublicar' : 'Publicar'),
+              h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { if (confirmar('¿Borrar la noticia?')) api('/noticias/' + n.id, undefined, 'DELETE').then(lista).catch(function (e) { st.textContent = e.message; }); } }, 'Borrar')));
+            body.appendChild(st);
+          }));
+        });
+      }).catch(function (e) { errorSeccion(c, e); });
+    }
+    function editor(n) {
+      limpiar(zona); var pub = h('input', { type: 'checkbox', id: 'nt-p' }); pub.checked = n ? !!n.publicada : false;
+      var f = h('form', { class: 'form-card', novalidate: true }, h('h2', null, n ? 'Editar noticia' : 'Nueva noticia'), campo('nt-t', 'Título', { value: n ? n.titulo : '', required: true }), campo('nt-r', 'Resumen (opcional)', { value: n ? n.resumen || '' : '' }), campo('nt-c', 'Texto', { rows: 10 }, 'textarea'),
+        h('label', { class: 'consent', for: 'nt-p' }, pub, h('span', null, 'Publicada')), h('div', { class: 'row-btns' }, h('button', { class: 'btn btn-primary', type: 'submit' }, 'Guardar'), h('button', { class: 'btn btn-ghost', type: 'button', onclick: lista }, 'Cancelar')), h('p', { class: 'form-status err', role: 'alert' }));
+      f.querySelector('#nt-c').value = n ? n.cuerpo : '';
+      f.addEventListener('submit', function (ev) {
+        ev.preventDefault(); var cuerpo = { titulo: $('nt-t').value, resumen: $('nt-r').value, cuerpo: $('nt-c').value, publicada: pub.checked };
+        (n ? api('/noticias/' + n.id, cuerpo, 'PATCH') : api('/noticias', cuerpo)).then(lista).catch(function (er) { msg(f, er.message); });
+      });
+      zona.appendChild(f);
+    }
+  }
+
+  // --- Voluntariado ---
+  function sVoluntarios(c) {
+    var estado = 'nuevo', lista = h('div', { class: 'rows' });
+    c.appendChild(filtros([['nuevo', 'Nuevos'], ['contactado', 'Contactados'], ['incorporado', 'Incorporados'], ['descartado', 'Descartados']], estado, function (v) { estado = v; cargar(); })); c.appendChild(lista);
+    function cargar() {
+      limpiar(lista);
+      api('/voluntarios?estado=' + estado).then(function (vs) {
+        if (!vs.length) lista.appendChild(h('p', { class: 'muted' }, 'Nadie en este estado.'));
+        vs.forEach(function (v) {
+          lista.appendChild(fila(v.nombre, v.email + (v.telefono ? ' · ' + v.telefono : ''), v.area + ' · ' + fecha(v.creada_en), function (body) {
+            if (v.mensaje) body.appendChild(h('p', { style: 'white-space:pre-wrap' }, v.mensaje));
+            var st = h('p', { class: 'form-status err' }), btns = h('div', { class: 'row-btns' });
+            [['contactado', 'Marcar contactado'], ['incorporado', 'Incorporado'], ['descartado', 'Descartar']].forEach(function (x) { if (x[0] !== v.estado) btns.appendChild(h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { api('/voluntarios/' + v.id + '/estado', { estado: x[0] }).then(cargar).catch(function (e) { st.textContent = e.message; }); } }, x[1])); });
+            body.appendChild(btns); body.appendChild(st);
+          }));
+        });
+      }).catch(function (e) { errorSeccion(c, e); });
+    }
+    cargar();
   }
 
   // Si ya hay sesión abierta, entra directo al panel
