@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal del afiliado · PLU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <div class="nav-pill">
+      <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><span class="wordmark" role="img" aria-label="PLU"></span></a>
+      <nav class="nav-links" aria-label="Principal"><a href="proyecto.html">Proyecto</a><a href="propuestas.html">Propuestas</a><a href="democracia.html">Participación</a><a href="como-funciona.html">Cómo funciona</a><a href="debate.html">Debate</a></nav>
+      <div class="nav-actions">
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+        <a class="btn btn-ghost btn-sm hide-s" href="portal.html">Soy afiliado</a>
+        <a class="btn btn-primary btn-sm" href="afiliate.html">Afíliate</a>
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+      </div>
+    </div>
+    <nav class="menu" id="menu" aria-label="Menú móvil" hidden><a href="proyecto.html">Proyecto</a><a href="propuestas.html">Propuestas</a><a href="democracia.html">Participación</a><a href="como-funciona.html">Cómo funciona</a><a href="debate.html">Debate</a><a href="participa.html">Participa</a><a href="portal.html">Portal del afiliado</a></nav>
+  </div>
+</header>
+<main>
+
+<section class="section login-page"><div class="wrap formwrap" style="align-items:center">
+  <div style="display:grid;gap:18px"><span class="eyebrow">Portal del afiliado</span><h1 class="h2">Tu carné, tus encuestas, tus solicitudes.</h1>
+    <p class="lede">Entra con tu correo y la contraseña que te enviamos. La primera vez te pediremos que elijas una nueva.</p>
+    <p class="muted">¿Todavía no eres afiliado? <a class="link" href="afiliate.html">Afíliate →</a></p></div>
+  <form class="form-card" data-demo="Prototipo: aquí se validaría tu cuenta." novalidate>
+    <h2>Entrar</h2>
+    <div class="field"><label for="p-c">Correo</label><input id="p-c" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="p-p">Contraseña</label><input id="p-p" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn-primary" type="submit">Entrar</button><p class="form-status" role="status" aria-live="polite"></p>
+    <a class="link" href="#" onclick="return false">He olvidado mi contraseña</a>
+    <p class="proto-note">Prototipo. No hay verificación pública de carnés: solo el equipo puede comprobarlos.</p>
+  </form>
+</div></section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><span class="wordmark" role="img" aria-label="PLU"></span></a>
+        <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
+      </div>
+      <div><h3>Explora</h3><ul class="footer-links"><li><a href="proyecto.html">Proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Participación</a></li><li><a href="como-funciona.html">Cómo funciona y transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
+      <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Participa</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
+    </div>
+    <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Prototipo: ningún formulario envía ni guarda datos.</p>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

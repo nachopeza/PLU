@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Debate abierto · PLU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <div class="nav-pill">
+      <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><span class="wordmark" role="img" aria-label="PLU"></span></a>
+      <nav class="nav-links" aria-label="Principal"><a href="proyecto.html">Proyecto</a><a href="propuestas.html">Propuestas</a><a href="democracia.html">Participación</a><a href="como-funciona.html">Cómo funciona</a><a href="debate.html" aria-current="page">Debate</a></nav>
+      <div class="nav-actions">
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+        <a class="btn btn-ghost btn-sm hide-s" href="portal.html">Soy afiliado</a>
+        <a class="btn btn-primary btn-sm" href="afiliate.html">Afíliate</a>
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+      </div>
+    </div>
+    <nav class="menu" id="menu" aria-label="Menú móvil" hidden><a href="proyecto.html">Proyecto</a><a href="propuestas.html">Propuestas</a><a href="democracia.html">Participación</a><a href="como-funciona.html">Cómo funciona</a><a href="debate.html">Debate</a><a href="participa.html">Participa</a><a href="portal.html">Portal del afiliado</a></nav>
+  </div>
+</header>
+<main>
+<section class="page-hero"><div class="ph duo "><img src="https://images.unsplash.com/photo-1590650046871-92c887180603?auto=format&fit=crop&w=1600&q=70" alt="Cuatro mujeres conversando en una mesa de café" loading="lazy" decoding="async"></div><div class="wrap"><span class="eyebrow">Debate abierto</span><h1>Lo que aún no está decidido.</h1></div></section>
+<section class="section"><div class="wrap">
+  <div class="head"><span class="eyebrow">Qué es firme y qué no</span><h2 class="h2">Un proyecto abierto al debate.</h2><p class="lede">Mueve cada control hacia lo que te parezca más importante. Es una demostración: no se guarda y no es una votación.</p></div>
+  <div class="state-legend">
+    <div class="state"><b>Principio definido</b><span class="muted">La dirección fundamental de PLU.</span></div>
+    <div class="state s2"><b>Propuesta en desarrollo</b><span class="muted">En estudio: falta diseño, viabilidad y coste.</span></div>
+    <div class="state s3"><b>Decisión abierta</b><span class="muted">Sin posición definitiva: buscamos aportaciones.</span></div>
+  </div>
+  <div class="dilemas" id="dilemas-list"></div>
+  <div class="cta-row" style="margin-top:24px"><button class="btn btn-ghost btn-sm" type="button" id="resetDilemas">Reiniciar</button><a class="btn btn-primary btn-sm" href="participa.html">Aportar mi opinión</a></div>
+</div></section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><span class="wordmark" role="img" aria-label="PLU"></span></a>
+        <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
+      </div>
+      <div><h3>Explora</h3><ul class="footer-links"><li><a href="proyecto.html">Proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Participación</a></li><li><a href="como-funciona.html">Cómo funciona y transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
+      <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Participa</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
+    </div>
+    <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Prototipo: ningún formulario envía ni guarda datos.</p>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

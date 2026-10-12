@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Participa · PLU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <div class="nav-pill">
+      <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><span class="wordmark" role="img" aria-label="PLU"></span></a>
+      <nav class="nav-links" aria-label="Principal"><a href="proyecto.html">Proyecto</a><a href="propuestas.html">Propuestas</a><a href="democracia.html">Participación</a><a href="como-funciona.html">Cómo funciona</a><a href="debate.html">Debate</a></nav>
+      <div class="nav-actions">
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+        <a class="btn btn-ghost btn-sm hide-s" href="portal.html">Soy afiliado</a>
+        <a class="btn btn-primary btn-sm" href="afiliate.html">Afíliate</a>
+        <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+      </div>
+    </div>
+    <nav class="menu" id="menu" aria-label="Menú móvil" hidden><a href="proyecto.html">Proyecto</a><a href="propuestas.html">Propuestas</a><a href="democracia.html">Participación</a><a href="como-funciona.html">Cómo funciona</a><a href="debate.html">Debate</a><a href="participa.html">Participa</a><a href="portal.html">Portal del afiliado</a></nav>
+  </div>
+</header>
+<main>
+<section class="page-hero"><div class="ph duo "><img src="https://images.unsplash.com/photo-1768299947895-06b676197f74?auto=format&fit=crop&w=1600&q=70" alt="Tres amigos riendo mirando un móvil" loading="lazy" decoding="async"></div><div class="wrap"><span class="eyebrow">Participa</span><h1>Ayúdanos a construir el proyecto.</h1></div></section>
+<section class="section"><div class="wrap formwrap">
+  <div style="display:grid;gap:22px;align-content:start">
+    <div class="head" style="margin:0"><span class="eyebrow">Participa</span><h2 class="h2">Elige hasta dónde quieres llegar.</h2></div>
+    <ol class="steps"><li><div><h3>Entender PLU</h3><p><a class="link" href="proyecto.html">Conocer el proyecto →</a></p></div></li>
+      <li><div><h3>Dar tu opinión</h3><p>Publicaremos las aportaciones y qué pasa con ellas.</p></div></li>
+      <li><div><h3>Seguir el proyecto</h3><p>Un boletín con avances y decisiones.</p></div></li>
+      <li><div><h3>Colaborar</h3><p>Grupos de trabajo y revisión de propuestas.</p></div></li>
+      <li><div><h3>Incorporarte</h3><p><a class="link" href="afiliate.html">Cómo formar parte de PLU →</a></p></div></li></ol>
+  </div>
+  <form class="form-card" data-demo="Prototipo: nada se ha enviado ni guardado." novalidate>
+    <h2>Construyamos PLU entre todos</h2>
+    <fieldset class="choices"><legend>¿Cómo te gustaría participar?</legend>
+      <label class="choice"><input type="radio" name="modo" checked><span>Compartir una idea</span></label>
+      <label class="choice"><input type="radio" name="modo"><span>Opinar sobre una cuestión abierta</span></label>
+      <label class="choice"><input type="radio" name="modo"><span>Recibir novedades</span></label>
+      <label class="choice"><input type="radio" name="modo"><span>Colaborar en el proyecto</span></label></fieldset>
+    <div class="field"><label for="f-aporte">¿Qué te gustaría aportar?</label><textarea id="f-aporte" placeholder="Opcional"></textarea></div>
+    <div class="field"><label for="f-correo">Correo electrónico</label><input id="f-correo" type="email" autocomplete="email" required></div>
+    <label class="consent"><input type="checkbox" required><span>Acepto que PLU use mi correo para responderme y enviarme novedades. Puedo darme de baja cuando quiera. Política de privacidad pendiente.</span></label>
+    <button class="btn btn-primary" type="submit">Enviar</button><p class="form-status" role="status" aria-live="polite"></p>
+  </form>
+</div></section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><span class="wordmark" role="img" aria-label="PLU"></span></a>
+        <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
+      </div>
+      <div><h3>Explora</h3><ul class="footer-links"><li><a href="proyecto.html">Proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Participación</a></li><li><a href="como-funciona.html">Cómo funciona y transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
+      <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Participa</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
+    </div>
+    <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Prototipo: ningún formulario envía ni guarda datos.</p>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # 05 · Web pública
 
-El prototipo está en [`apps/web/public/prototipo-landing.html`](../apps/web/public/prototipo-landing.html). Se migrará a React manteniendo el diseño.
+El prototipo actual es un sitio de varias páginas en [`apps/web/public/prototipo/`](../apps/web/public/prototipo/) (abre `index.html`). Es minimalista, con poco texto y mucha foto, y con accesos a afiliación, portal del afiliado e intranet. Las fotos son de Unsplash, enlazadas por su identificador (están en `build_site.py` del prototipo y en los `<img>`); se cambiarán por fotos propias o ilustraciones. Llevan un duotono provisional en CSS (`--duo-a`, `--duo-b` en `styles.css`). El prototipo de una sola página anterior sigue en `prototipo-landing.html`. Se migrará a React manteniendo el diseño.
 
 ## Enfoque de la web (decidido el 12 oct 2026)
 
