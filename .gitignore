@@ -1,0 +1,22 @@
+# Dependencias
+node_modules/
+
+# Datos reales de personas: nunca a git
+apps/api/data/
+*.db
+*.db-shm
+*.db-wal
+
+# Secretos
+.env
+.env.*
+!.env.example
+
+# Sistema y editores
+.DS_Store
+.vscode/
+.idea/
+
+# Builds
+dist/
+build/
