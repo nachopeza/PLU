@@ -21,6 +21,19 @@
   function vacioError(cont, err) { cont.appendChild(h('p', { class: 'form-status err' }, err.message)); }
   var parametros = new URLSearchParams(location.search);
 
+  // ---------- Portada: contadores y propuestas más apoyadas ----------
+  if ($('home-contadores')) {
+    api('/transparencia').then(function (d) {
+      var c = $('home-contadores');
+      [['Necesidades y propuestas recogidas', d.necesidades_recogidas], ['Estudiadas y publicadas', d.propuestas_publicas], ['Aprobadas o en marcha', d.propuestas_aprobadas], ['Personas afiliadas', d.afiliados]].forEach(function (x) { c.appendChild(h('div', { class: 'counter' }, h('b', null, String(x[1])), h('span', null, x[0]))); });
+    }).catch(function () { $('home-contadores').hidden = true; });
+    api('/propuestas?limite=5').then(function (l) {
+      var c = $('home-ideas');
+      if (!l.length) { c.appendChild(h('p', { class: 'muted' }, 'Aquí aparecerán las propuestas que la gente vaya apoyando. Sé la primera persona en contar qué necesitas.')); return; }
+      l.forEach(function (x) { c.appendChild(h('a', { class: 'rowitem', href: 'idea.html?id=' + x.id, style: 'text-decoration:none;color:inherit' }, h('div', { style: 'display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px' }, h('span', { class: 'icoc' }, String(x.apoyos)), h('div', null, h('span', { style: 'font:500 .72rem var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)' }, (ESTADOS[x.estado] || x.estado) + (x.provincia ? ' · ' + x.provincia : '')), h('h3', { style: 'font-size:1.1rem' }, x.titulo)), h('span', { class: 'chev', style: 'color:var(--accent)' }, '›')))); });
+    }).catch(function () { $('home-ideas').closest('section').hidden = true; });
+  }
+
   // ---------- Transparencia en cifras ----------
   if ($('t-datos')) {
     api('/transparencia').then(function (d) {
@@ -43,7 +56,7 @@
           c.appendChild(h('a', { class: 'rowitem', href: 'idea.html?id=' + x.id, style: 'text-decoration:none;color:inherit' },
             h('div', { class: 'summary-like', style: 'display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px' },
               h('span', { class: 'icoc' }, String(x.apoyos)),
-              h('div', null, h('span', { class: 'tag', style: 'font:500 .72rem var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)' }, (ESTADOS[x.estado] || x.estado) + (x.area ? ' · ' + x.area : '')), h('h3', { style: 'font-size:1.1rem' }, x.titulo), h('p', { class: 'muted', style: 'font-size:.92rem' }, 'Por ' + x.autor + ' · ' + x.comentarios + ' comentarios · ' + x.apoyos + (x.apoyos === 1 ? ' apoyo' : ' apoyos'))),
+              h('div', null, h('span', { class: 'tag', style: 'font:500 .72rem var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)' }, (x.tipo === 'necesidad' ? 'Necesidad · ' : '') + (ESTADOS[x.estado] || x.estado) + (x.provincia ? ' · ' + x.provincia : (x.area ? ' · ' + x.area : ''))), h('h3', { style: 'font-size:1.1rem' }, x.titulo), h('p', { class: 'muted', style: 'font-size:.92rem' }, 'Por ' + x.autor + ' · ' + x.comentarios + ' comentarios · ' + x.apoyos + (x.apoyos === 1 ? ' apoyo' : ' apoyos'))),
               h('span', { class: 'chev', style: 'color:var(--accent)' }, '›'))));
         });
       }).catch(function (e) { vacioError($('i-lista'), e); });
@@ -60,7 +73,7 @@
     var cargarIdea = function () {
       api('/propuestas/' + encodeURIComponent(id)).then(function (p) {
         document.title = p.titulo + ' · PLU';
-        $('d-estado').textContent = ESTADOS[p.estado] || p.estado; $('d-titulo').textContent = p.titulo; $('d-meta').textContent = 'Por ' + p.autor + ' · ' + fecha(p.creada_en) + (p.area ? ' · ' + p.area : '');
+        $('d-estado').textContent = ESTADOS[p.estado] || p.estado; $('d-titulo').textContent = p.titulo; $('d-meta').textContent = (p.tipo === 'necesidad' ? 'Necesidad recogida' : 'Por ' + p.autor) + ' · ' + fecha(p.creada_en) + (p.provincia ? ' · ' + p.provincia : '') + (p.area ? ' · ' + p.area : '');
         $('d-texto').textContent = p.texto; pintarApoyo(p.apoyos);
         if (p.votacion_id) { $('d-votacion').hidden = false; $('d-votacion-a').href = 'consultas.html?id=' + p.votacion_id; }
         var hist = $('d-historial'); hist.textContent = '';

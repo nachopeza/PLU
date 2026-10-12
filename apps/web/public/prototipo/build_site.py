@@ -133,12 +133,19 @@ CL = '<div class="clover big" aria-hidden="true"></div>'
 home_hero = f'''<section class="hero">{ph('walk', 1800)}
   <div class="wrap hero-grid">
     <div style="display:grid;gap:22px">
-      <h1><span class="split">Una política</span> <span class="split">que funcione</span> <span class="split"><em>para las personas.</em></span></h1>
-      <p data-r>Más libertad para decidir. Más claridad sobre quién responde. Más participación en las decisiones que afectan a tu vida.</p>
-      <div class="cta-row" data-r><a class="btn btn-light magnet" href="proyecto.html">Conoce el proyecto</a><a class="btn btn-line-light magnet" href="participa.html">Participa →</a></div>
-      <div class="lema" data-r><span><b>La libertad</b> de las personas.</span><span><b>La identidad</b> de los territorios.</span><span>El <b>bienestar</b> de todos.</span></div>
+      <span class="eyebrow" data-r>Un movimiento ciudadano</span>
+      <h1><span class="split">Cuéntanos</span> <span class="split">qué necesitas.</span> <span class="split"><em>Lo llevamos a la ley.</em></span></h1>
+      <p data-r>PLU es un movimiento: la política se construye a partir de lo que pide la gente. Recogemos tus necesidades y propuestas, las estudiamos, las clasifica, las convierte en leyes y te cuenta qué pasa con cada una.</p>
+      <div class="cta-row" data-r><a class="btn btn-light magnet" href="ideas.html">Ver lo que pide la gente</a><a class="btn btn-line-light magnet" href="como-funciona.html">Cómo funciona →</a></div>
     </div>
-    <div class="hero-clover clover" data-parallax="-30" aria-hidden="true"></div>
+    <form class="form-card hero-form" data-api="/api/necesidades" data-ok="¡Gracias, ya cuenta!" novalidate>
+      <h2>¿Qué necesitas que cambie?</h2>
+      <div class="field"><label for="h-t">Cuéntalo en una frase</label><textarea id="h-t" name="texto" rows="3" required minlength="10" maxlength="600" placeholder="Ej.: Que el transporte público llegue a mi pueblo después de las 9 de la noche"></textarea></div>
+      <div class="field-pair"><div class="field"><label for="f-prov">Tu provincia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div>
+        <div class="field"><label for="h-e">Correo (opcional)</label><input id="h-e" name="email" type="email" autocomplete="email" placeholder="Para contarte qué pasa"></div></div>
+      <label class="consent"><input type="checkbox" name="acepta" required><span>Acepto la <a class="link" href="privacidad.html">política de privacidad</a>. Mi necesidad se publicará de forma anónima si el equipo la acepta.</span></label>
+      <button class="btn btn-primary" type="submit">Enviar mi necesidad</button><p class="form-status" role="status" aria-live="polite"></p>
+    </form>
   </div>
 </section>
 <div class="ticker" aria-hidden="true"><div class="ticker-track"><span>Libertad</span><span>Participación</span><span>Cuentas claras</span><span>Vivienda</span><span>Sanidad</span><span>Educación</span><span>Transporte</span><span>Territorio</span><span>Libertad</span><span>Participación</span><span>Cuentas claras</span><span>Vivienda</span><span>Sanidad</span><span>Educación</span><span>Transporte</span><span>Territorio</span></div></div>'''
@@ -147,6 +154,27 @@ PRIN = [('Libertad individual','Tus decisiones, tus derechos.'),('Democracia rea
 prin_li = ''.join(f'<li data-r><b>{a}</b><span>{b}</span></li>' for a, b in PRIN)
 
 home = f'''
+<section class="section">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow" data-r>Cómo funciona PLU</span><h2 class="h2" data-r>De lo que necesitas a una ley, en cuatro pasos.</h2><p class="lede" data-r>Cada propuesta tiene un recorrido público. Sabrás en qué punto está y por qué.</p></div>
+    <ol class="steps5 pasos4">
+      <li data-r>{ico('speech')}1. Recogemos<small>Cualquier persona cuenta lo que necesita, en una frase.</small></li>
+      <li data-r>{ico('chart')}2. Estudiamos y clasificamos<small>Las agrupamos por tema y por quién tiene la competencia.</small></li>
+      <li data-r>{ico('doc')}3. Las llevamos a la ley<small>Las convertimos en iniciativas y propuestas normativas.</small></li>
+      <li data-r>{ico('eye')}4. Aplicamos y rendimos cuentas<small>Publicamos qué se ha conseguido y qué no.</small></li>
+    </ol>
+    <div class="counters" id="home-contadores" style="margin-top:28px"></div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow" data-r>Lo que pide la gente</span><h2 class="h2" data-r>Las propuestas con más apoyo.</h2></div>
+    <div class="rows" id="home-ideas"></div>
+    <p style="margin-top:22px"><a class="link-arrow" href="ideas.html">Ver todas y proponer la tuya →</a></p>
+  </div>
+</section>
+
 <section class="section">
   <div class="wrap sec-split">
     <div class="txt"><span class="eyebrow" data-r>¿Por qué PLU?</span><h2 data-r>Porque la política actual no está resolviendo los problemas reales.</h2>

@@ -587,7 +587,7 @@
       api('/propuestas?estado=' + estado).then(function (ps) {
         if (!ps.length) lista.appendChild(h('p', { class: 'muted' }, 'No hay ideas en este estado.'));
         ps.forEach(function (p) {
-          lista.appendChild(fila(p.titulo, p.autor_nombre + ' · ' + p.autor_email, (p.area || '') + ' · ' + p.apoyos + ' apoyos · ' + fecha(p.creada_en), function (body) {
+          lista.appendChild(fila(p.titulo, (p.autor_email ? p.autor_nombre + ' · ' + p.autor_email : 'Sin correo'), (p.tipo === 'necesidad' ? 'NECESIDAD · ' + (p.provincia || '') : (p.area || '')) + ' · ' + p.apoyos + ' apoyos · ' + fecha(p.creada_en), function (body) {
             body.appendChild(h('p', { style: 'white-space:pre-wrap' }, p.texto));
             if (p.motivo_rechazo) body.appendChild(h('p', { class: 'muted' }, 'Motivo del rechazo: ' + p.motivo_rechazo));
             if (!puede) return;

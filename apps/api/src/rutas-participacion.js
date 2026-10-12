@@ -22,6 +22,7 @@ participacionPublica.get('/areas', (_req, res) => res.json({ propuestas: AREAS, 
 
 // ---------- Propuestas (público) ----------
 const fichaPublica = (p) => ({
+  tipo: p.tipo, provincia: p.provincia ?? null,
   id: p.id, titulo: p.titulo, texto: p.texto, area: p.area, autor: primerNombre(p.autor_nombre), estado: p.estado,
   creada_en: p.creada_en, apoyos: p.apoyos ?? 0, comentarios: p.comentarios ?? 0, votacion_id: p.votacion_id,
 });
@@ -30,20 +31,23 @@ participacionPublica.get('/propuestas', (req, res) => {
   const q = [`p.estado IN (${PUBLICOS.map(() => '?').join(',')})`], args = [...PUBLICOS];
   if (PUBLICOS.includes(req.query.estado)) { q.push('p.estado = ?'); args.push(req.query.estado); }
   if (AREAS.includes(req.query.area)) { q.push('p.area = ?'); args.push(req.query.area); }
+  if (['necesidad', 'propuesta'].includes(req.query.tipo)) { q.push('p.tipo = ?'); args.push(req.query.tipo); }
+  if (Number(req.query.limite) > 0) { /* se aplica abajo */ }
   const texto = limpio(req.query.q, 60);
   if (texto) { q.push('(p.titulo LIKE ? OR p.texto LIKE ?)'); const l = `%${texto.replace(/[%_]/g, '')}%`; args.push(l, l); }
   const orden = req.query.orden === 'recientes' ? 'p.creada_en DESC' : 'apoyos DESC, p.creada_en DESC';
   const filas = db.prepare(
-    `SELECT p.*, (SELECT COUNT(*) FROM propuesta_apoyos a WHERE a.propuesta_id = p.id) AS apoyos,
+    `SELECT p.*, (SELECT nombre FROM territorios t WHERE t.id = p.provincia_id) AS provincia,
+            (SELECT COUNT(*) FROM propuesta_apoyos a WHERE a.propuesta_id = p.id) AS apoyos,
             (SELECT COUNT(*) FROM comentarios c WHERE c.propuesta_id = p.id AND c.oculto = 0) AS comentarios
-       FROM propuestas p WHERE ${q.join(' AND ')} ORDER BY ${orden} LIMIT 100`,
+       FROM propuestas p WHERE ${q.join(' AND ')} ORDER BY ${orden} LIMIT ${Math.min(100, Number(req.query.limite) || 100)}`,
   ).all(...args);
   res.json(filas.map(fichaPublica));
 });
 
 participacionPublica.get('/propuestas/:id', (req, res) => {
   const p = db.prepare(
-    `SELECT p.*, (SELECT COUNT(*) FROM propuesta_apoyos a WHERE a.propuesta_id = p.id) AS apoyos FROM propuestas p WHERE p.id = ?`,
+    `SELECT p.*, (SELECT nombre FROM territorios t WHERE t.id = p.provincia_id) AS provincia, (SELECT COUNT(*) FROM propuesta_apoyos a WHERE a.propuesta_id = p.id) AS apoyos FROM propuestas p WHERE p.id = ?`,
   ).get(Number(req.params.id));
   if (!p || !PUBLICOS.includes(p.estado)) return res.status(404).json({ error: 'Propuesta no encontrada' });
   const comentarios = db.prepare(
@@ -73,6 +77,27 @@ participacionPublica.post('/propuestas', (req, res) => {
     db.prepare("INSERT INTO propuesta_historial (propuesta_id, estado, nota) VALUES (?, 'recibida', NULL)").run(Number(r.lastInsertRowid));
   }
   res.status(201).json({ ok: true, mensaje: 'Gracias. El equipo revisará tu propuesta y, si cumple las normas, la verás publicada en el listado.' });
+});
+
+// Necesidad rápida: una frase y la provincia. Es la puerta de entrada de la web; el equipo la estudia y clasifica.
+participacionPublica.post('/necesidades', (req, res) => {
+  if (!limitar(`nec:${req.ip}`, 8, 3600_000)) return res.status(429).json({ error: 'Demasiados envíos seguidos. Prueba más tarde.' });
+  const b = req.body ?? {};
+  const texto = String(b.texto ?? '').replace(/\s+/g, ' ').trim().slice(0, 600);
+  const email = limpio(b.email, 254).toLowerCase();
+  const nombre = limpio(b.nombre, 80);
+  const provincia = db.prepare("SELECT id FROM territorios WHERE id = ? AND tipo = 'provincia'").get(Number(b.provincia_id));
+  const errores = {};
+  if (texto.length < 10) errores.texto = 'Cuéntanos un poco más (al menos 10 caracteres)';
+  if (!provincia) errores.provincia_id = 'Elige tu provincia';
+  if (email && !esEmail(email)) errores.email = 'Correo no válido';
+  if (b.acepta !== true) errores.acepta = 'Hace falta aceptar la política de privacidad';
+  if (Object.keys(errores).length) return res.status(400).json({ error: 'Revisa el formulario', errores });
+  let titulo = texto.length > 90 ? `${texto.slice(0, 90).replace(/\s+\S*$/, '')}…` : texto;
+  if (titulo.length < 8) titulo = texto;
+  const r = db.prepare("INSERT INTO propuestas (titulo, texto, autor_nombre, autor_email, tipo, provincia_id) VALUES (?, ?, ?, ?, 'necesidad', ?)").run(titulo, texto, nombre || 'Una persona', email, provincia.id);
+  db.prepare("INSERT INTO propuesta_historial (propuesta_id, estado, nota) VALUES (?, 'recibida', NULL)").run(Number(r.lastInsertRowid));
+  res.status(201).json({ ok: true, mensaje: 'Gracias. Tu necesidad está recibida: la estudiaremos, la clasificaremos y verás aquí qué pasa con ella. Cuantas más personas la compartan, más fuerza tiene.' });
 });
 
 // ---------- Propuestas (afiliados: apoyar y comentar) ----------
@@ -113,7 +138,7 @@ participacionPortal.post('/comentarios/:id/denunciar', requerirPersona(), (req, 
 participacionIntranet.get('/propuestas', requerirEquipo(...MODERAN, 'auditor'), (req, res) => {
   const estado = ESTADOS.includes(req.query.estado) ? req.query.estado : 'recibida';
   res.json(db.prepare(
-    `SELECT p.id, p.titulo, p.texto, p.area, p.autor_nombre, p.autor_email, p.estado, p.motivo_rechazo, p.votacion_id, p.creada_en,
+    `SELECT p.id, p.titulo, p.texto, p.area, p.tipo, (SELECT nombre FROM territorios t WHERE t.id = p.provincia_id) AS provincia, p.autor_nombre, p.autor_email, p.estado, p.motivo_rechazo, p.votacion_id, p.creada_en,
             (SELECT COUNT(*) FROM propuesta_apoyos a WHERE a.propuesta_id = p.id) AS apoyos
        FROM propuestas p WHERE p.estado = ? ORDER BY p.creada_en DESC LIMIT 200`,
   ).all(estado));
@@ -316,6 +341,7 @@ participacionPublica.get('/transparencia', (_req, res) => {
     actualizado: ahoraISO(),
     afiliados: n("SELECT COUNT(*) AS n FROM personas WHERE tipo = 'afiliado' AND estado = 'activo'"),
     simpatizantes: n("SELECT COUNT(*) AS n FROM personas WHERE tipo = 'simpatizante' AND estado = 'activo'"),
+    necesidades_recogidas: n("SELECT COUNT(*) AS n FROM propuestas WHERE estado <> 'rechazada'"),
     propuestas_publicas: Object.values(porEstado).reduce((a, b) => a + b, 0), propuestas_por_estado: porEstado,
     propuestas_aprobadas: (porEstado.aprobada || 0) + (porEstado.en_marcha || 0),
     consultas_cerradas: n("SELECT COUNT(*) AS n FROM encuestas WHERE estado = 'cerrada' AND (tipo = 'votacion' OR resultados_publicos = 1)"),

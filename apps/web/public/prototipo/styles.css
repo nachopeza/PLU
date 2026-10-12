@@ -535,3 +535,10 @@ a.rowitem { display: block; }
 .cms-foto { position: absolute; top: 10px; right: 10px; z-index: 20; font: 600 .85rem var(--font-body); background: #0b0d0c; color: #fff; border: 1px solid var(--accent); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
 .noticia-img { width: 100%; max-height: 420px; object-fit: cover; border-radius: 16px; margin-block: 12px; filter: grayscale(1) contrast(1.05); }
 .noticia-mini { width: 96px; height: 72px; object-fit: cover; border-radius: 10px; filter: grayscale(1); }
+
+/* ---------- Portada: formulario de necesidades ---------- */
+.hero-form { background: color-mix(in srgb, #050a07 82%, transparent); backdrop-filter: blur(10px); border: 1px solid var(--line); max-width: 30rem; justify-self: end; width: 100%; }
+.hero-form h2 { font-size: 1.5rem; }
+.hero-form textarea { min-height: 96px; }
+.pasos4 { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+@media (max-width: 899px) { .hero-form { justify-self: stretch; max-width: none; } }

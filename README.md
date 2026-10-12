@@ -121,3 +121,11 @@ Lee los documentos de `docs/` en orden. El `09-decisiones-pendientes.md` recoge 
 - **Imágenes** subidas desde la intranet: PNG, JPG o WebP de hasta 6 MB (se valida el contenido real del archivo; no se admite SVG). Se sirven en `/media/…`.
 - **Noticias** con imagen de portada, gestionadas desde Intranet → Noticias.
 - Si cambias a mano un texto en `build_site.py` y reconstruyes, ese texto recibe una clave nueva y deja de aplicarse el cambio guardado desde el editor. Los textos editables se generan solos al ejecutar `python3 build_site.py`.
+
+## Versión 0.6: necesidades y portada
+
+PLU es un movimiento: la política se construye a partir de lo que pide la ciudadanía.
+- `POST /api/necesidades`: formulario rápido de la portada (texto 10–600 caracteres, provincia, email opcional, límite 8/hora por IP). Entra como `propuestas.tipo='necesidad'`, sin publicar hasta moderar en Intranet → Ideas.
+- Portada reorientada: recoger → estudiar y clasificar → llevar a la ley → aplicar, con contadores y "Lo que pide la gente".
+- `/api/transparencia` incluye `necesidades_recogidas`.
+- Vía legal prevista: iniciativa legislativa popular.
