@@ -214,12 +214,12 @@
       });
       var btn = form.querySelector('[type="submit"]'); btn.disabled = true; status.textContent = 'Enviando…'; status.style.color = '';
       fetch(form.getAttribute('data-api'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
-        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); })
         .then(function (x) {
           btn.disabled = false;
           if (x.ok) { form.querySelectorAll('.step').forEach(function (s) { s.hidden = true; }); var done = document.createElement('div'); done.className = 'step'; done.innerHTML = '<h3>¡Solicitud enviada!</h3><p class="muted"></p>'; done.querySelector('p').textContent = x.d.mensaje; form.appendChild(done); form.reset(); return; }
           var det = x.d.errores ? Object.keys(x.d.errores).map(function (k) { return x.d.errores[k]; }).join(' · ') : x.d.error;
-          status.style.color = '#ff8a80'; status.textContent = det || 'No se pudo enviar.';
+          status.style.color = '#ff8a80'; status.textContent = det || 'Error del servidor. Mira la Terminal donde corre la API.';
         })
         .catch(function () { btn.disabled = false; status.style.color = '#ff8a80'; status.textContent = 'No se puede conectar con la API. Arranca el servidor (npm run dev) y abre http://localhost:8787/prototipo/afiliate.html'; });
     });

@@ -18,5 +18,16 @@ export const db = new DatabaseSync(join(DATA_DIR, 'plu.db'));
 db.exec('PRAGMA foreign_keys = ON;');
 db.exec('PRAGMA journal_mode = WAL;');
 
+// Si la base de datos es de una versión anterior (antes de guardar el DNI cifrado), avisamos con claridad.
+// Todavía no hay datos reales, así que basta con borrarla y dejar que se cree de nuevo.
+const columnas = db.prepare("PRAGMA table_info('personas')").all().map((c) => c.name);
+if (columnas.length && !columnas.includes('documento_hash')) {
+  console.error('\n⚠ La base de datos local es de una versión anterior y no tiene las columnas nuevas.');
+  console.error('  Para empezar de cero (solo si NO hay datos reales): cierra el servidor y ejecuta');
+  console.error('    rm apps/api/data/plu.db apps/api/data/plu.db-shm apps/api/data/plu.db-wal');
+  console.error('  Luego vuelve a arrancar con: npm run dev\n');
+  process.exit(1);
+}
+
 // El esquema usa CREATE TABLE IF NOT EXISTS, así que se puede ejecutar siempre sin romper nada.
 db.exec(readFileSync(join(aquí, 'schema.sql'), 'utf8'));
