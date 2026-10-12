@@ -1,9 +1,13 @@
 import pathlib
 OUT = pathlib.Path(__file__).parent
 
+def imgtag(pid, w, alt):
+    # Primero la foto local (fotos/<id>.jpg, la deja descargar-fotos.sh); si no existe, la carga de Unsplash.
+    remote = f'https://images.unsplash.com/{pid}?auto=format&fit=crop&w={w}&q=70'
+    return f'<img src="fotos/{pid}.jpg" alt="{alt}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src=\'{remote}\'">'
+
 def I(pid, w, alt, duo=True, extra=''):
-    src = f'https://images.unsplash.com/{pid}?auto=format&fit=crop&w={w}&q=70'
-    return f'<div class="ph{" duo" if duo else ""} {extra}"><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></div>'
+    return f'<div class="ph{" duo" if duo else ""} {extra}">{imgtag(pid, w, alt)}</div>'
 
 # Fotos (Unsplash, enlazadas por id). Se pueden cambiar o sustituir por las propias.
 P = {
@@ -253,7 +257,7 @@ proyecto = f'''
 # ================= PROPUESTAS =================
 def prow(cat, k, name, title, short, bullets):
     lis = ''.join(f'<li>{b}</li>' for b in bullets)
-    return f'''<details class="rowitem" id="{cat}" data-cat="{cat}" data-r><summary><div class="ph duo thumb"><img src="https://images.unsplash.com/{P[k][0]}?auto=format&fit=crop&w=300&q=70" alt="{P[k][1]}" loading="lazy"></div><div><span class="tag">{name}</span><h3>{title}</h3><p class="s">{short}</p></div><span class="chev">›</span></summary>
+    return f'''<details class="rowitem" id="{cat}" data-cat="{cat}" data-r><summary><div class="ph duo thumb">{imgtag(P[k][0], 300, P[k][1])}</div><div><span class="tag">{name}</span><h3>{title}</h3><p class="s">{short}</p></div><span class="chev">›</span></summary>
  <div class="body"><ul class="leaf-list">{lis}</ul><span class="status">En desarrollo</span>
  <div class="pcard"><div class="pcard-head">Ficha · ejemplo de estructura, no es propuesta aprobada</div><dl>
  <div class="row"><dt>El problema</dt><dd>Por definir con datos.</dd></div><div class="row"><dt>La medida</dt><dd>Por definir: qué cambia y quién responde.</dd></div>
@@ -449,3 +453,6 @@ PAGES = {
 for f, (t, b, h) in PAGES.items():
     (OUT / f).write_text(page(f, t, b, h))
 print('ok', len(PAGES))
+ids = sorted({v[0] for v in P.values()})
+sh = '#!/bin/bash\n# Descarga las fotos de Unsplash a la carpeta fotos/ (macOS o Linux). Ejecutar desde esta carpeta:\n#   cd apps/web/public/prototipo && bash descargar-fotos.sh\nset -e\nmkdir -p fotos\nfor id in ' + ' '.join(ids) + '; do\n  echo "Descargando $id"\n  curl -fsSL "https://images.unsplash.com/$id?auto=format&fit=crop&w=1800&q=75" -o "fotos/$id.jpg" || echo "  (no se pudo: $id)"\ndone\necho "Listo. Abre index.html"\n'
+(OUT / 'descargar-fotos.sh').write_text(sh)
