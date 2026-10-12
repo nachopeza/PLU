@@ -8,6 +8,7 @@ import {
 } from './seguridad.js';
 import { auditar, cerrarSesion, iniciarSesion, requerirEquipo } from './sesion.js';
 import { enmascarar, limpio } from './validar.js';
+import { asignarPasswordTemporal, emitirCarne, formatoNumero as fmtNum, transaccion } from './servicios.js';
 
 export const intranet = Router();
 
@@ -15,6 +16,7 @@ export const intranet = Router();
 const FALSO = hashPassword('no-existe');
 
 function usuarioPorNombre(u) { return db.prepare('SELECT * FROM usuarios_intranet WHERE username = ? AND activo = 1').get(u); }
+function usuarioTicket(t) { const u = usuarioPorId(leerTicket(t)); return u && !u.debe_cambiar_password ? u : null; }
 function usuarioPorId(id) { return db.prepare('SELECT * FROM usuarios_intranet WHERE id = ? AND activo = 1').get(id); }
 const datosUsuario = (u) => ({ id: u.id, username: u.username, nombre: u.nombre, rol: u.rol });
 
@@ -29,13 +31,28 @@ intranet.post('/login', (req, res) => {
   const ok = verificarPassword(password, u?.password_hash ?? FALSO) && u;
   if (!ok) { auditar(u?.id, 'login_fallido', 'usuario', u?.id, { usuario }); return res.status(401).json({ error: 'Usuario o contraseña incorrectos' }); }
   const ticket = crearTicket(u.id);
+  if (u.debe_cambiar_password) return res.json({ paso: 'cambiar_password', ticket });
   if (u.totp_activo) return res.json({ paso: 'codigo', ticket });
   res.json({ paso: 'configurar', ticket }); // primera vez: hay que activar la doble verificación
 });
 
+// 1b) Cuenta nueva o restablecida: hay que elegir contraseña propia antes de seguir
+intranet.post('/cambiar-password', (req, res) => {
+  const u = usuarioPorId(leerTicket(req.body?.ticket));
+  if (!u || !u.debe_cambiar_password) return res.status(401).json({ error: 'El paso ha caducado. Vuelve a empezar.' });
+  const nueva = String(req.body?.nueva ?? '');
+  if (nueva.length < 12) return res.status(400).json({ error: 'La contraseña debe tener al menos 12 caracteres' });
+  if (verificarPassword(nueva, u.password_hash)) return res.status(400).json({ error: 'Elige una contraseña distinta de la temporal' });
+  db.prepare('UPDATE usuarios_intranet SET password_hash = ?, debe_cambiar_password = 0 WHERE id = ?').run(hashPassword(nueva), u.id);
+  db.prepare("DELETE FROM sesiones WHERE tipo = 'staff' AND sujeto_id = ?").run(u.id);
+  auditar(u.id, 'cambiar_password', 'usuario', u.id);
+  const ticket = crearTicket(u.id);
+  res.json({ paso: u.totp_activo ? 'codigo' : 'configurar', ticket });
+});
+
 // 2a) Primera vez: genera el secreto y el QR para la app autenticadora
 intranet.post('/2fa/preparar', async (req, res) => {
-  const u = usuarioPorId(leerTicket(req.body?.ticket));
+  const u = usuarioTicket(req.body?.ticket);
   if (!u) return res.status(401).json({ error: 'El paso ha caducado. Vuelve a empezar.' });
   if (u.totp_activo) return res.status(400).json({ error: 'La doble verificación ya está activa.' });
   const secreto = nuevoSecretoTotp();
@@ -46,7 +63,7 @@ intranet.post('/2fa/preparar', async (req, res) => {
 
 // 2b) Confirma el primer código: activa la doble verificación, abre sesión y entrega códigos de recuperación
 intranet.post('/2fa/activar', (req, res) => {
-  const u = usuarioPorId(leerTicket(req.body?.ticket));
+  const u = usuarioTicket(req.body?.ticket);
   if (!u || !u.totp_secreto_cifrado) return res.status(401).json({ error: 'El paso ha caducado. Vuelve a empezar.' });
   if (!limitar(`totp:${u.id}`, 8, 15 * 60_000)) return res.status(429).json({ error: 'Demasiados intentos.' });
   if (!verificarTotp(descifrar(u.totp_secreto_cifrado), String(req.body?.codigo ?? '').trim())) return res.status(401).json({ error: 'Código incorrecto' });
@@ -60,7 +77,7 @@ intranet.post('/2fa/activar', (req, res) => {
 
 // 3) Siguientes accesos: código de 6 cifras (o un código de recuperación, que se gasta)
 intranet.post('/2fa/verificar', (req, res) => {
-  const u = usuarioPorId(leerTicket(req.body?.ticket));
+  const u = usuarioTicket(req.body?.ticket);
   if (!u || !u.totp_activo) return res.status(401).json({ error: 'El paso ha caducado. Vuelve a empezar.' });
   if (!limitar(`totp:${u.id}`, 8, 15 * 60_000)) return res.status(429).json({ error: 'Demasiados intentos.' });
   const codigo = String(req.body?.codigo ?? '').trim();
@@ -72,6 +89,7 @@ intranet.post('/2fa/verificar', (req, res) => {
   }
   if (!valido) { auditar(u.id, 'login_2fa_fallido', 'usuario', u.id); return res.status(401).json({ error: 'Código incorrecto' }); }
   iniciarSesion(res, u.id);
+  db.prepare('UPDATE usuarios_intranet SET ultimo_acceso = ? WHERE id = ?').run(new Date().toISOString(), u.id);
   auditar(u.id, 'login', 'usuario', u.id);
   res.json({ ok: true, usuario: datosUsuario(u) });
 });
@@ -84,7 +102,7 @@ const GESTION = ['admin', 'gestor', 'coordinador'];
 function filtroAlcance(eq) {
   return eq.rol === 'coordinador' ? { sql: ' AND p.territorio_id = ?', args: [eq.territorio_id ?? -1] } : { sql: '', args: [] };
 }
-const formatoNumero = (n) => (n ? `${n.slice(0, 2)}-${n.slice(2)}` : null);
+const formatoNumero = fmtNum;
 
 intranet.get('/resumen', requerirEquipo(...GESTION), (req, res) => {
   const f = filtroAlcance(req.equipo);
@@ -142,16 +160,20 @@ intranet.post('/inscripciones/:id/aprobar', requerirEquipo(...GESTION), (req, re
   if (p.estado !== 'pendiente') return res.status(409).json({ error: 'Esta solicitud ya está resuelta' });
   const numero = nuevoNumeroAfiliado(p.codigo_num);
   const ahora = new Date().toISOString();
-  db.exec('BEGIN');
+  let temp;
   try {
-    db.prepare("UPDATE personas SET estado = 'activo', numero_afiliado = ?, codigo_verificacion = ?, fecha_alta = ?, actualizado_en = ? WHERE id = ?")
-      .run(numero, tokenAleatorio(24), ahora, ahora, p.id);
-    db.prepare("INSERT INTO movimientos_afiliacion (persona_id, tipo, desde, hasta, usuario_id) VALUES (?, 'alta', 'pendiente', 'activo', ?)").run(p.id, req.equipo.id);
-    db.exec('COMMIT');
-  } catch (e) { db.exec('ROLLBACK'); console.error(e.message); return res.status(500).json({ error: 'No se pudo aprobar' }); }
+    temp = transaccion(() => {
+      db.prepare("UPDATE personas SET estado = 'activo', numero_afiliado = ?, codigo_verificacion = ?, fecha_alta = ?, actualizado_en = ? WHERE id = ?")
+        .run(numero, tokenAleatorio(24), ahora, ahora, p.id);
+      db.prepare("INSERT INTO movimientos_afiliacion (persona_id, tipo, desde, hasta, usuario_id) VALUES (?, 'alta', 'pendiente', 'activo', ?)").run(p.id, req.equipo.id);
+      emitirCarne({ ...p, numero_afiliado: numero });
+      return asignarPasswordTemporal(p.id);
+    });
+  } catch (e) { console.error(e.message); return res.status(500).json({ error: 'No se pudo aprobar' }); }
+  db.prepare("INSERT INTO correos (persona_id, tipo, destinatario, estado, error) VALUES (?, 'bienvenida', ?, 'omitido', 'envío de correo no activo')").run(p.id, p.email);
   auditar(req.equipo.id, 'aprobar_inscripcion', 'persona', p.id, { numero });
-  // El carné y la contraseña temporal por correo llegarán cuando exista el envío de correo.
-  res.json({ ok: true, numero_afiliado: formatoNumero(numero), correo: 'pendiente: el envío de correo todavía no está activo' });
+  // Sin correo todavía: la contraseña temporal se muestra UNA vez al equipo para que la entregue a la persona.
+  res.json({ ok: true, numero_afiliado: formatoNumero(numero), password_temporal: temp.password, caduca: temp.caduca, correo: 'pendiente: el envío de correo todavía no está activo' });
 });
 
 intranet.post('/inscripciones/:id/rechazar', requerirEquipo(...GESTION), (req, res) => {

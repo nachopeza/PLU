@@ -31,3 +31,12 @@ if (columnas.length && !columnas.includes('documento_hash')) {
 
 // El esquema usa CREATE TABLE IF NOT EXISTS, así que se puede ejecutar siempre sin romper nada.
 db.exec(readFileSync(join(aquí, 'schema.sql'), 'utf8'));
+
+// Migraciones ligeras: añade columnas nuevas a bases de datos ya creadas (CREATE TABLE IF NOT EXISTS no las añade).
+function asegurarColumna(tabla, columna, definicion) {
+  const hay = db.prepare(`PRAGMA table_info('${tabla}')`).all().some((c) => c.name === columna);
+  if (!hay) db.exec(`ALTER TABLE ${tabla} ADD COLUMN ${columna} ${definicion}`);
+}
+asegurarColumna('usuarios_intranet', 'debe_cambiar_password', 'INTEGER NOT NULL DEFAULT 0');
+asegurarColumna('usuarios_intranet', 'ultimo_acceso', 'TEXT');
+

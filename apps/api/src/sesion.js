@@ -55,3 +55,34 @@ export function auditar(usuarioId, accion, entidad, entidadId, detalle) {
   db.prepare('INSERT INTO auditoria (usuario_id, accion, entidad, entidad_id, detalle_json) VALUES (?, ?, ?, ?, ?)')
     .run(usuarioId ?? null, accion, entidad, entidadId ?? null, detalle ? JSON.stringify(detalle) : null);
 }
+
+// ---------- Sesiones de afiliados (portal) ----------
+const NOMBRE_PERSONA = 'plu_persona';
+
+export function iniciarSesionPersona(res, personaId) {
+  const token = tokenAleatorio();
+  const expira = new Date(Date.now() + 12 * 3600_000).toISOString();
+  db.prepare("INSERT INTO sesiones (id, tipo, sujeto_id, expira_en) VALUES (?, 'persona', ?, ?)").run(sha256(token), personaId, expira);
+  res.setHeader('Set-Cookie', `${NOMBRE_PERSONA}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${12 * 3600}${COOKIE_SEGURA ? '; Secure' : ''}`);
+  return sha256(token);
+}
+export function cerrarSesionPersona(req, res) {
+  const token = leerCookie(req, NOMBRE_PERSONA);
+  if (token) db.prepare('DELETE FROM sesiones WHERE id = ?').run(sha256(token));
+  res.setHeader('Set-Cookie', `${NOMBRE_PERSONA}=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0${COOKIE_SEGURA ? '; Secure' : ''}`);
+}
+// Exige sesión de afiliado activo. Si debe cambiar la contraseña, solo deja usar las rutas marcadas con { permiteCambio: true }.
+export function requerirPersona({ permiteCambio = false } = {}) {
+  return (req, res, next) => {
+    const token = leerCookie(req, NOMBRE_PERSONA);
+    const fila = token && db.prepare(
+      `SELECT p.id, p.nombre, p.apellidos, p.email, p.estado, p.territorio_id, p.debe_cambiar_password, s.id AS sesion_id
+         FROM sesiones s JOIN personas p ON p.id = s.sujeto_id
+        WHERE s.id = ? AND s.tipo = 'persona' AND s.expira_en > ? AND p.tipo = 'afiliado' AND p.estado IN ('activo','suspendido')`,
+    ).get(sha256(token), new Date().toISOString());
+    if (!fila) return res.status(401).json({ error: 'Sesión no válida' });
+    if (fila.debe_cambiar_password && !permiteCambio) return res.status(403).json({ error: 'Debes cambiar tu contraseña', cambiar_password: true });
+    req.persona = fila;
+    next();
+  };
+}
