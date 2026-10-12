@@ -1,21 +1,35 @@
-# 09 · Decisiones pendientes
+# 09 · Decisiones
 
-Cada respuesta cierra una parte del diseño. Márcalas cuando las tengas decididas y apunta aquí la respuesta.
+Cada respuesta cierra una parte del diseño. Lo decidido está marcado y con su fecha.
+
+## Decidido
+
+- [x] **La verificación de afiliación no es pública.** Solo se hace desde la intranet, con sesión de equipo. (12 oct 2026)
+- [x] **Contraseña generada automáticamente**, enviada por correo, con cambio obligatorio en el primer acceso. (12 oct 2026)
+- [x] **No hay cuota.** La afiliación es gratuita y solo hay donaciones voluntarias. (12 oct 2026)
+- [x] **Número de afiliado más corto y simple que el de IDENTIA** y que identifique. Propuesta: `09-482915`, ver [04](04-afiliacion-y-carne.md). Falta confirmar el formato exacto.
 
 ## Producto
 
-- [ ] **Nombres de las áreas**: propuesta `/portal` (afiliados y simpatizantes) e `/intranet` (equipo). ¿O toda el área privada se llama intranet y se divide en «mi espacio» y «gestión»?
+- [ ] **Nombres de las áreas**: propuesta `/portal` (afiliados y simpatizantes) e `/intranet` (equipo).
 - [ ] **Quién puede afiliarse**: edad mínima, residencia, nacionalidad.
-- [ ] **Simpatizante frente a afiliado**: qué puede hacer cada uno, y si los simpatizantes votan en encuestas.
+- [ ] **Simpatizante frente a afiliado**: qué puede hacer cada uno, si los simpatizantes tienen cuenta y portal, y si votan en encuestas.
 - [ ] **Verificación de identidad**: ¿basta el correo y la aprobación del gestor, o se pide DNI/NIE? Pedirlo aumenta mucho la responsabilidad sobre los datos.
-- [ ] **Cuota**: ¿hay cuota de afiliación y pagos en línea? Si sí, hace falta pasarela de pago y gestión de recibos.
 - [ ] **Duración del carné**: anual, bianual, indefinido. Y qué pasa al caducar.
-- [ ] **Formato del número de afiliado**: propuesta `PLU-AND-000123`.
-- [ ] **Territorios**: ¿solo comunidades autónomas, o también provincia y municipio desde el principio?
-- [ ] **Acceso del afiliado**: contraseña elegida por la persona, o enlace de un solo uso por correo. IDENTIA usa contraseña creada por el gestor; para un movimiento político es mejor que la persona controle su acceso.
+- [ ] **Caducidad de la contraseña temporal**: propuesta 7 días.
+- [ ] **Territorios**: ¿solo comunidades autónomas o también provincia y municipio desde el principio?
 - [ ] **Idiomas** de la web (lenguas cooficiales).
 - [ ] **Votaciones internas vinculantes**: ¿se quieren más adelante (elegir cargos, aprobar estatutos)? Es otro nivel de exigencia.
 - [ ] **Foto en el carné**: obligatoria, opcional o ninguna.
+- [ ] **Doble verificación (2FA) para el equipo**: recomendada para gestores y admins, porque ven datos de afiliación.
+- [ ] **Baja**: ¿se da de baja la persona sola desde el portal, o la solicita y la tramita un gestor?
+- [ ] **Datos tras la baja**: cuánto tiempo se conservan.
+
+## Donaciones
+
+Ver [10 · Donaciones](10-donaciones.md).
+
+- [ ] Método de cobro, justificantes, límites, rol de tesorería, transparencia de las cuentas.
 
 ## Visión y tono
 
@@ -38,6 +52,6 @@ Cada respuesta cierra una parte del diseño. Márcalas cuando las tengas decidid
 ## Técnicas
 
 - [ ] Hosting y región (Railway como en IDENTIA, u otro).
-- [ ] Dominio y correo propios (necesario para enviar el carné a cualquier persona).
+- [ ] Dominio y correo propios (necesario para enviar el carné y las contraseñas a cualquier persona).
 - [ ] Política de copias de seguridad.
 - [ ] Cuándo pasar de SQLite a PostgreSQL.

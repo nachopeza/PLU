@@ -17,7 +17,7 @@ Para afiliados y simpatizantes. Cada persona solo ve lo suyo.
 | Novedades | Comunicados del movimiento |
 | Privacidad | Qué ha consentido, descargar sus datos, pedir su supresión |
 
-Acceso: por correo. Falta decidir si con contraseña o con enlace de un solo uso.
+Acceso: con el correo y una contraseña que genera el sistema y llega por correo. Al entrar la primera vez hay que elegir una nueva (ver [04](04-afiliacion-y-carne.md)).
 
 ## Intranet de gestión (`/intranet`)
 
@@ -32,7 +32,7 @@ Para el equipo. Lo que se ve depende del rol (ver [roles y permisos](03-roles-y-
 | Solicitudes | Bandeja de solicitudes y su resolución | Admin, Gestor, Coordinador |
 | Encuestas | Crear, publicar, cerrar y ver resultados agregados | Admin, Moderador |
 | Plantillas de carné | Subir plantillas PDF por territorio, activarlas, probarlas | Admin, Gestor |
-| Verificar | Comprobar un código de carné | Admin, Gestor, Verificador |
+| Verificar carné | Escanear el QR o escribir el número. Muestra válido, caducado, revocado o inexistente y los datos mínimos. Queda en auditoría. **Es la única forma de verificar** | Admin, Gestor, Verificador |
 | Comunicaciones | Enviar avisos y novedades a grupos (afiliados, simpatizantes, un territorio) | Admin, Moderador |
 | Territorios | Ver y mantener la lista de territorios | Admin |
 | Usuarios y roles | Crear cuentas del equipo y asignar rol | Admin |

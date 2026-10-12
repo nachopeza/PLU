@@ -26,7 +26,7 @@ Hay dos mundos separados: **personas** (afiliados y simpatizantes, que usan el p
 | Crear y cerrar encuestas | ✔ | | ✔ | | | |
 | Ver resultados agregados | ✔ | | ✔ | ✔ (su territorio) | | ✔ |
 | Gestionar plantillas de carné | ✔ | ✔ | | | | |
-| Verificar códigos | ✔ | ✔ | | | ✔ | |
+| Verificar carnés (solo desde la intranet) | ✔ | ✔ | | | ✔ | |
 | Enviar comunicaciones | ✔ | | ✔ | | | |
 | Crear usuarios y asignar roles | ✔ | | | | | |
 | Ver auditoría | ✔ | | | | | ✔ |
@@ -41,3 +41,5 @@ Hay dos mundos separados: **personas** (afiliados y simpatizantes, que usan el p
 5. Cada acción de escritura del equipo queda en `auditoria`.
 6. El usuario maestro (admin) se define por variables de entorno. No hay contraseñas por defecto.
 7. Principio de mínimo privilegio: en caso de duda, el rol menos potente.
+8. No existe verificación pública de carnés. Cada verificación queda en auditoría.
+9. Se prevé un rol de **tesorería** para las donaciones (ver [10](10-donaciones.md)).

@@ -8,7 +8,8 @@
 -- ============================================================
 CREATE TABLE IF NOT EXISTS territorios (
   id        INTEGER PRIMARY KEY,
-  codigo    TEXT NOT NULL UNIQUE,
+  codigo    TEXT NOT NULL UNIQUE,          -- siglas de 3 letras
+  codigo_num TEXT UNIQUE,                  -- código INE de 2 dígitos: va dentro del número de afiliado
   nombre    TEXT NOT NULL,
   tipo      TEXT NOT NULL CHECK (tipo IN ('comunidad','ciudad_autonoma','provincia','municipio')),
   padre_id  INTEGER REFERENCES territorios(id)
@@ -23,7 +24,7 @@ CREATE TABLE IF NOT EXISTS personas (
   tipo                 TEXT NOT NULL DEFAULT 'simpatizante' CHECK (tipo IN ('simpatizante','afiliado')),
   estado               TEXT NOT NULL DEFAULT 'pendiente'
                          CHECK (estado IN ('pendiente','activo','suspendido','baja','rechazado')),
-  numero_afiliado      TEXT UNIQUE,            -- solo se asigna al activar a un afiliado
+  numero_afiliado      TEXT UNIQUE,            -- 8 cifras sin guion (territorio 2 + 6 aleatorias). Se muestra como 09-482915
   codigo_verificacion  TEXT UNIQUE,            -- código aleatorio que lleva el QR del carné
   nombre               TEXT NOT NULL,
   apellidos            TEXT NOT NULL,
@@ -36,6 +37,8 @@ CREATE TABLE IF NOT EXISTS personas (
   territorio_id        INTEGER REFERENCES territorios(id),
   foto_path            TEXT,
   password_hash        TEXT,
+  debe_cambiar_password INTEGER NOT NULL DEFAULT 1,  -- 1 mientras use la contraseña temporal
+  password_temporal_expira_en TEXT,                  -- la temporal caduca (propuesta: 7 días)
   creado_en            TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
   actualizado_en       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
   fecha_alta           TEXT,
@@ -206,25 +209,25 @@ CREATE TABLE IF NOT EXISTS correos (
 );
 
 -- ============================================================
--- Datos iniciales: los 19 territorios (17 comunidades + Ceuta y Melilla).
+-- Datos iniciales: los 19 territorios (17 comunidades + Ceuta y Melilla), con su código INE.
 -- ============================================================
-INSERT OR IGNORE INTO territorios (codigo, nombre, tipo) VALUES
-  ('AND','Andalucía','comunidad'),
-  ('ARA','Aragón','comunidad'),
-  ('AST','Principado de Asturias','comunidad'),
-  ('BAL','Illes Balears','comunidad'),
-  ('CAN','Canarias','comunidad'),
-  ('CNT','Cantabria','comunidad'),
-  ('CLM','Castilla-La Mancha','comunidad'),
-  ('CYL','Castilla y León','comunidad'),
-  ('CAT','Catalunya','comunidad'),
-  ('VAL','Comunitat Valenciana','comunidad'),
-  ('EXT','Extremadura','comunidad'),
-  ('GAL','Galicia','comunidad'),
-  ('RIO','La Rioja','comunidad'),
-  ('MAD','Comunidad de Madrid','comunidad'),
-  ('MUR','Región de Murcia','comunidad'),
-  ('NAV','Comunidad Foral de Navarra','comunidad'),
-  ('PVA','Euskadi','comunidad'),
-  ('CEU','Ceuta','ciudad_autonoma'),
-  ('MEL','Melilla','ciudad_autonoma');
+INSERT OR IGNORE INTO territorios (codigo, codigo_num, nombre, tipo) VALUES
+  ('AND','01','Andalucía','comunidad'),
+  ('ARA','02','Aragón','comunidad'),
+  ('AST','03','Principado de Asturias','comunidad'),
+  ('BAL','04','Illes Balears','comunidad'),
+  ('CAN','05','Canarias','comunidad'),
+  ('CNT','06','Cantabria','comunidad'),
+  ('CYL','07','Castilla y León','comunidad'),
+  ('CLM','08','Castilla-La Mancha','comunidad'),
+  ('CAT','09','Catalunya','comunidad'),
+  ('VAL','10','Comunitat Valenciana','comunidad'),
+  ('EXT','11','Extremadura','comunidad'),
+  ('GAL','12','Galicia','comunidad'),
+  ('MAD','13','Comunidad de Madrid','comunidad'),
+  ('MUR','14','Región de Murcia','comunidad'),
+  ('NAV','15','Comunidad Foral de Navarra','comunidad'),
+  ('PVA','16','Euskadi','comunidad'),
+  ('RIO','17','La Rioja','comunidad'),
+  ('CEU','18','Ceuta','ciudad_autonoma'),
+  ('MEL','19','Melilla','ciudad_autonoma');

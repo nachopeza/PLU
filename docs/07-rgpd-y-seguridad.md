@@ -14,6 +14,7 @@ La afiliación a un partido o movimiento político revela opiniones políticas. 
 - [ ] **Delegado de protección de datos** si corresponde.
 - [ ] **Textos legales**: política de privacidad, cookies y aviso legal.
 - [ ] **Registro de afiliados** conforme a la normativa de partidos, una vez constituida la organización.
+- [ ] **Donaciones**: normativa de financiación de partidos, identificación de quien dona y justificantes (ver [10](10-donaciones.md)).
 - [ ] **Edad mínima** para afiliarse y tratamiento de menores.
 - [ ] **Conservación**: cuánto tiempo se guardan los datos tras la baja.
 - [ ] **Encargados del tratamiento**: contratos con el hosting y el servicio de correo, y dónde están los servidores.
@@ -31,7 +32,9 @@ Acceso, rectificación, supresión, limitación, oposición y portabilidad. El p
 | Contraseñas | Hash robusto (scrypt o argon2). Nunca en claro |
 | Sesiones | Cookie `httpOnly`, `secure` y `sameSite`; caducidad y cierre en todos los dispositivos |
 | Permisos | Comprobados en el servidor, mínimo privilegio, coordinadores limitados a su territorio |
-| Límite de intentos | En login, verificación de carné e inscripciones |
+| Contraseña temporal | Aleatoria, un solo uso, caduca, cambio obligatorio al entrar y aviso en el correo de que no se comparta |
+| Límite de intentos | En login, olvido de contraseña, verificación de carné e inscripciones |
+| Verificación de carné | Solo con sesión de equipo y registrada en auditoría. No hay verificación pública |
 | Auditoría | Quién hizo qué sobre datos de personas, y cuándo |
 | Encuestas anónimas | Esquema que impide enlazar respuesta y persona |
 | Copias de seguridad | Cifradas, probadas y con política de retención |

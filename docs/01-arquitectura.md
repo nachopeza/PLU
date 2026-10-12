@@ -16,14 +16,13 @@ graph LR
   API --> M[Correo]
 ```
 
-Una sola aplicación web con cuatro zonas y una API que las sirve a todas. Es la misma idea que IDENTIA.
+Una sola aplicación web con tres zonas y una API que las sirve a todas. Es la misma idea que IDENTIA.
 
 | Zona | Ruta | Quién entra | Para qué |
 |---|---|---|---|
 | Web pública | `/` | Cualquiera | Información del movimiento, afiliarse, simpatizante, novedades |
-| Verificación | `/verificar` | Cualquiera | Comprobar un carné sin ver datos personales |
 | Portal | `/portal` | Afiliados y simpatizantes | Ficha, carné, encuestas, solicitudes, historial |
-| Intranet | `/intranet` | Equipo, con rol | Gestión de personas, solicitudes, encuestas, plantillas, usuarios |
+| Intranet | `/intranet` | Equipo, con rol | Gestión de personas, solicitudes, encuestas, plantillas, usuarios y **verificación de carnés** |
 
 > Los nombres `/portal` e `/intranet` son una propuesta. Ver [decisiones pendientes](09-decisiones-pendientes.md).
 
@@ -60,18 +59,19 @@ Cuando crezca la API se dividirá en `routes/`, `services/` (carné, correo, aud
 4. **Historial inmutable.** Los cambios de estado de una persona se registran como movimientos, no se sobrescriben.
 5. **Auditoría.** Toda acción del equipo sobre datos de personas queda en `auditoria`.
 6. **Encuestas anónimas de verdad.** Ver [modelo de datos](02-modelo-de-datos.md).
-7. **Sin valores por defecto para secretos.** A diferencia de un prototipo, la API debe negarse a arrancar la intranet sin usuario y contraseña maestros definidos por variables de entorno.
+7. **Sin verificación pública.** Un carné solo se comprueba desde la intranet.
+8. **Sin valores por defecto para secretos.** A diferencia de un prototipo, la API debe negarse a arrancar la intranet sin usuario y contraseña maestros definidos por variables de entorno.
 
 ## API prevista (resumen)
 
 Públicos:
 - `POST /api/inscripciones` crea una persona pendiente (afiliado o simpatizante) con consentimientos.
 - `POST /api/novedades` alta solo a novedades.
-- `GET /api/verificar/:codigo` dice si un carné es válido, sin datos personales.
 - `GET /api/territorios` lista de territorios.
 
 Portal (sesión de persona):
 - `POST /api/portal/login`, `POST /api/portal/logout`, `GET /api/portal/yo`
+- `POST /api/portal/cambiar-password` (obligatoria con contraseña temporal) y `POST /api/portal/olvide-password`
 - `GET /api/portal/carne` descarga el carné vigente
 - `GET /api/portal/encuestas`, `POST /api/portal/encuestas/:id/responder`
 - `GET|POST /api/portal/solicitudes`
@@ -83,5 +83,6 @@ Intranet (sesión de equipo + rol):
 - `GET|POST /api/intranet/solicitudes` y su resolución
 - `GET|POST /api/intranet/encuestas` y resultados
 - `GET|POST /api/intranet/plantillas-carne`
+- `GET /api/intranet/verificar/:codigo` comprueba un carné (solo equipo, queda en auditoría)
 - `GET|POST /api/intranet/usuarios`
 - `GET /api/intranet/auditoria`

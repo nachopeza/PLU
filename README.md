@@ -27,6 +27,7 @@ plu/
     07-rgpd-y-seguridad.md
     08-hoja-de-ruta.md
     09-decisiones-pendientes.md
+    10-donaciones.md
   apps/
     web/                         Web pública + portal + intranet (por construir: React + TypeScript + Vite + Tailwind)
       public/
@@ -69,4 +70,4 @@ git push            # sube a GitHub
 
 ## Documentación
 
-Lee los documentos de `docs/` en orden. El `09-decisiones-pendientes.md` recoge las preguntas abiertas que condicionan el resto del diseño.
+Lee los documentos de `docs/` en orden. El `09-decisiones-pendientes.md` recoge lo ya decidido y las preguntas abiertas que condicionan el resto del diseño.

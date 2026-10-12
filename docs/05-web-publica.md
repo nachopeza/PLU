@@ -19,7 +19,7 @@ El prototipo está en [`apps/web/public/prototipo-landing.html`](../apps/web/pub
 | `/afiliate` | Formulario de afiliación | Por hacer |
 | `/simpatizante` | Formulario de simpatizante | Por hacer |
 | `/novedades` | Alta a novedades | Prototipo de formulario |
-| `/verificar` | Verificación de carné | Por hacer |
+| `/dona` | Información sobre donaciones voluntarias | Por decidir (ver [10](10-donaciones.md)) |
 | `/privacidad`, `/cookies`, `/aviso-legal` | Textos legales | Por redactar con asesoría |
 | `/contacto` | Contacto | Por hacer |
 

@@ -33,12 +33,12 @@ Distinta de la hoja de ruta política (fases 1 a 7 del [documento general](00-do
 
 - [ ] Subida de plantillas PDF y motor de relleno por campos
 - [ ] Número de afiliado y código de verificación
-- [ ] QR y `/verificar`
+- [ ] QR y verificación dentro de la intranet (sin página pública)
 - [ ] Envío por correo al activar
 
 ## Fase 5 · Portal del afiliado
 
-- [ ] Login de personas
+- [ ] Login de personas con contraseña temporal por correo y cambio obligatorio
 - [ ] Mi ficha, mi carné, mi historial
 - [ ] Solicitudes y su resolución en la intranet
 - [ ] Derechos de privacidad (ver, descargar, pedir baja)
@@ -48,6 +48,10 @@ Distinta de la hoja de ruta política (fases 1 a 7 del [documento general](00-do
 - [ ] Encuestas (anónimas y nominales) y resultados agregados
 - [ ] Comunicaciones por grupos
 - [ ] Los dilemas de la web conectados a datos reales, si se decide
+
+## Donaciones
+
+- [ ] Cuando se decida el método (ver [10](10-donaciones.md)): página `/dona`, tabla de donaciones y rol de tesorería
 
 ## Fase 7 · Producción
 

@@ -24,7 +24,7 @@ erDiagram
 
 | Tabla | Qué guarda |
 |---|---|
-| `territorios` | 19 territorios precargados (17 comunidades y Ceuta y Melilla). `padre_id` permite añadir provincias y municipios |
+| `territorios` | 19 territorios precargados (17 comunidades y Ceuta y Melilla) con su código INE. `padre_id` permite añadir provincias y municipios |
 | `personas` | Simpatizantes y afiliados en la misma tabla. Cambian `tipo` y `estado` |
 | `consentimientos` | Qué aceptó cada persona, con qué versión de texto y cuándo |
 | `usuarios_intranet` | Equipo con rol. Los afiliados **no** están aquí |
@@ -55,11 +55,15 @@ Si la encuesta es nominal (`anonima = 0`), se guarda `persona_id` en cada respue
 
 ## Número de afiliado y código de verificación
 
-- `numero_afiliado`: el que se imprime en el carné. Formato por decidir; propuesta `PLU-AND-000123` (siglas, territorio, secuencial).
+- `numero_afiliado`: 8 cifras sin guion. Las 2 primeras son el código INE del territorio (`territorios.codigo_num`) y las 6 siguientes son aleatorias y únicas. Se muestra como `09-482915`. Ver [04](04-afiliacion-y-carne.md).
 - `codigo_verificacion`: cadena aleatoria larga que va en el QR. No se deduce del número ni de los datos de la persona.
+
+## Contraseñas
+
+`password_hash` guarda solo el hash. `debe_cambiar_password` vale 1 mientras la persona use la contraseña temporal que se le envió por correo, y `password_temporal_expira_en` marca cuándo caduca. Al cambiarla, la primera pasa a 0 y la segunda se vacía.
 
 ## Datos que todavía no se guardan
 
 - Documento de identidad (DNI/NIE): depende de si se verifica la identidad. Ver [decisiones pendientes](09-decisiones-pendientes.md).
-- Cuotas y pagos.
+- Donaciones: la afiliación es gratuita y solo hay donaciones voluntarias. Ver [10](10-donaciones.md).
 - Votaciones internas.
