@@ -382,27 +382,27 @@ afiliate = f'''
     {ph('fence', 1000, 'r')}
     <p class="muted">¿Solo quieres recibir avisos de campañas, eventos y encuestas? <a class="link" href="participa.html">Hazte simpatizante →</a></p>
   </div>
-  <form class="form-card" data-demo="Prototipo: nada se ha enviado ni guardado. Al aprobar tu solicitud recibirías el carné y una contraseña temporal por correo." novalidate>
+  <form class="form-card" data-api="/api/inscripciones" novalidate>
     <div class="stepper" aria-hidden="true"><span></span><span></span><span></span></div>
     <div class="step">
       <h3>1. Tus datos</h3>
-      <div class="field-pair"><div class="field"><label for="a-n">Nombre</label><input id="a-n" autocomplete="given-name" required></div><div class="field"><label for="a-a">Apellidos</label><input id="a-a" autocomplete="family-name" required></div></div>
-      <div class="field"><label for="a-c">Correo</label><input id="a-c" type="email" autocomplete="email" required></div>
-      <div class="field"><label for="a-t">Teléfono</label><input id="a-t" type="tel" placeholder="Opcional"></div>
+      <div class="field-pair"><div class="field"><label for="a-n">Nombre</label><input id="a-n" name="nombre" autocomplete="given-name" required maxlength="80"></div><div class="field"><label for="a-a">Apellidos</label><input id="a-a" name="apellidos" autocomplete="family-name" required maxlength="120"></div></div>
+      <div class="field"><label for="a-c">Correo</label><input id="a-c" name="email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="a-t">Teléfono</label><input id="a-t" name="telefono" type="tel" placeholder="Opcional"></div>
       <button class="btn btn-primary" type="button" data-next>Siguiente</button>
     </div>
     <div class="step" hidden>
       <h3>2. Identificación y provincia</h3>
-      <div class="field"><label for="a-d">DNI o NIE</label><input id="a-d" required></div>
-      <div class="field"><label for="a-f">Fecha de nacimiento (mínimo 16 años)</label><input id="a-f" type="date" required></div>
-      <div class="field-pair"><div class="field"><label for="f-prov">Provincia de residencia</label><select id="f-prov" required><option value="">Elige…</option></select></div><div class="field"><label for="a-cp">Código postal</label><input id="a-cp" inputmode="numeric" required></div></div>
-      <p class="muted" style="font-size:.92rem">Tu documento se guarda cifrado y no pedimos foto del DNI.</p>
+      <div class="field"><label for="a-d">DNI o NIE</label><input id="a-d" name="documento" required autocomplete="off" maxlength="12"></div>
+      <div class="field"><label for="a-f">Fecha de nacimiento (mínimo 16 años)</label><input id="a-f" name="fecha_nacimiento" type="date" required></div>
+      <div class="field-pair"><div class="field"><label for="f-prov">Provincia de residencia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div><div class="field"><label for="a-cp">Código postal</label><input id="a-cp" name="codigo_postal" inputmode="numeric" required maxlength="5" pattern="[0-9]{{5}}"></div></div>
+      <p class="muted" style="font-size:.92rem">Tu documento se guarda cifrado. No pedimos foto del DNI ni foto para el carné.</p>
       <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev>Atrás</button><button class="btn btn-primary" type="button" data-next>Siguiente</button></div>
     </div>
     <div class="step" hidden>
       <h3>3. Consentimientos</h3>
-      <label class="consent"><input type="checkbox" required><span>Acepto que PLU trate mis datos para gestionar mi afiliación. Mi afiliación es un dato especialmente protegido y solo la verá el equipo autorizado.</span></label>
-      <label class="consent"><input type="checkbox"><span>Quiero recibir avisos de campañas, eventos y encuestas por correo (opcional).</span></label>
+      <label class="consent"><input type="checkbox" name="consentimiento_afiliacion" required><span>Acepto que PLU trate mis datos para gestionar mi afiliación. Mi afiliación es un dato especialmente protegido y solo la verá el equipo autorizado.</span></label>
+      <label class="consent"><input type="checkbox" name="consentimiento_avisos"><span>Quiero recibir avisos de campañas, eventos y encuestas por correo (opcional).</span></label>
       <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev>Atrás</button><button class="btn btn-primary" type="submit">Solicitar afiliación</button></div>
       <p class="form-status" role="status" aria-live="polite"></p>
     </div>
@@ -424,19 +424,63 @@ portal = f'''
     <p class="proto-note">Prototipo. No hay verificación pública de carnés: solo el equipo puede comprobarlos.</p>
   </form>
 </div></section>'''
-intranet = f'''
-<section class="section login-page"><div class="wrap formwrap" style="align-items:center">
-  <div style="display:grid;gap:18px"><span class="eyebrow">Intranet · Solo equipo</span><h1 class="h2">Gestión de PLU.</h1>
-    <p class="lede">Acceso restringido a personas autorizadas, con doble verificación obligatoria. Cada acción queda registrada.</p></div>
-  <form class="form-card" data-demo="Prototipo: aquí se validaría usuario, contraseña y código." novalidate>
-    <h2>Acceso del equipo</h2>
-    <div class="field"><label for="i-u">Usuario</label><input id="i-u" autocomplete="username" required></div>
-    <div class="field"><label for="i-p">Contraseña</label><input id="i-p" type="password" autocomplete="current-password" required></div>
-    <div class="field"><label for="i-k">Código de la app autenticadora</label><input id="i-k" inputmode="numeric" maxlength="6" autocomplete="one-time-code" required></div>
-    <button class="btn btn-primary" type="submit">Entrar</button><p class="form-status" role="status" aria-live="polite"></p>
-    <p class="proto-note">Prototipo. En la plataforma real este acceso vive en /intranet.</p>
-  </form>
-</div></section>'''
+intranet = '''
+<section class="section login-page"><div class="wrap">
+  <div id="app-intranet" class="intra">
+    <div id="v-login" class="intra-view">
+      <div class="formwrap" style="align-items:center">
+        <div style="display:grid;gap:18px"><span class="eyebrow">Intranet · Solo equipo</span><h1 class="h2">Gestión de PLU.</h1>
+          <p class="lede">Acceso restringido a personas autorizadas, con doble verificación obligatoria. Cada acción queda registrada.</p></div>
+        <form class="form-card" id="f-login" novalidate>
+          <h2>Acceso del equipo</h2>
+          <div class="field"><label for="i-u">Usuario</label><input id="i-u" autocomplete="username" required></div>
+          <div class="field"><label for="i-p">Contraseña</label><input id="i-p" type="password" autocomplete="current-password" required></div>
+          <button class="btn btn-primary" type="submit">Continuar</button><p class="form-status err" role="alert"></p>
+        </form>
+      </div>
+    </div>
+
+    <div id="v-codigo" class="intra-view" hidden>
+      <form class="form-card" id="f-codigo" style="max-width:30rem;margin-inline:auto" novalidate>
+        <h2>Doble verificación</h2>
+        <p class="muted">Escribe el código de 6 cifras de tu app autenticadora, o un código de recuperación (0000-0000).</p>
+        <div class="field"><label for="i-k">Código</label><input id="i-k" inputmode="numeric" autocomplete="one-time-code" maxlength="9" required></div>
+        <button class="btn btn-primary" type="submit">Entrar</button><p class="form-status err" role="alert"></p>
+        <button class="btn btn-ghost btn-sm" type="button" data-volver>Volver</button>
+      </form>
+    </div>
+
+    <div id="v-config" class="intra-view" hidden>
+      <form class="form-card" id="f-config" style="max-width:34rem;margin-inline:auto" novalidate>
+        <h2>Activa la doble verificación</h2>
+        <p class="muted">Es obligatoria para todo el equipo. Escanea el QR con una app autenticadora (Google Authenticator, Microsoft Authenticator, 1Password...) y escribe el código que te muestre.</p>
+        <img id="qr" alt="Código QR para la app autenticadora" width="220" height="220" style="background:#fff;border-radius:12px;padding:8px;justify-self:start">
+        <p class="muted" style="font-size:.9rem">¿No puedes escanear? Clave manual: <code id="secreto" style="user-select:all"></code></p>
+        <div class="field"><label for="i-k2">Código de 6 cifras</label><input id="i-k2" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
+        <button class="btn btn-primary" type="submit">Activar y entrar</button><p class="form-status err" role="alert"></p>
+      </form>
+    </div>
+
+    <div id="v-recuperacion" class="intra-view" hidden>
+      <div class="form-card" style="max-width:34rem;margin-inline:auto">
+        <h2>Guarda tus códigos de recuperación</h2>
+        <p class="muted">Cada uno sirve una sola vez si pierdes el móvil. No se vuelven a mostrar. Guárdalos en un gestor de contraseñas.</p>
+        <ul id="codigos" class="chips" style="list-style:none;padding:0;margin:0"></ul>
+        <button class="btn btn-primary" type="button" id="b-recuperacion">Ya los he guardado</button>
+      </div>
+    </div>
+
+    <div id="v-panel" class="intra-view" hidden>
+      <div class="panel-head"><div><span class="eyebrow" id="p-rol"></span><h1 class="h2" id="p-nombre"></h1></div><button class="btn btn-ghost btn-sm" type="button" id="b-salir">Cerrar sesión</button></div>
+      <div class="counters" id="contadores"></div>
+      <div class="filters" role="group" aria-label="Estado"><button class="fbtn" aria-pressed="true" data-e="pendiente">Pendientes</button><button class="fbtn" aria-pressed="false" data-e="activo">Aprobadas</button><button class="fbtn" aria-pressed="false" data-e="rechazado">Rechazadas</button></div>
+      <div class="rows" id="lista"></div>
+      <p class="muted" id="vacio" hidden>No hay solicitudes en este estado.</p>
+      <p class="proto-note" style="margin-top:22px">El envío del carné y de la contraseña temporal por correo se activará cuando PLU tenga dominio propio. Mientras tanto, al aprobar se asigna el número de afiliado.</p>
+    </div>
+  </div>
+</div></section>
+<script src="intranet.js"></script>'''
 
 PAGES = {
   'index.html': ('PLU · Plataforma Liberal Unida', home, home_hero),

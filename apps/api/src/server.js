@@ -1,41 +1,58 @@
-// Servidor de la API de la PLU (esqueleto).
-// De momento: comprobación de salud, listado de provincias y el prototipo de la web en "/".
+// Servidor de la API de la PLU.
+// Sirve: comprobación de salud, provincias, inscripciones públicas, intranet (equipo) y la web de prototipo.
 import express from 'express';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db } from './db.js';
+import './config.js';
+import { crearAdminInicial } from './admin-inicial.js';
+import { publicas } from './rutas-publicas.js';
+import { intranet } from './rutas-intranet.js';
+import { soloJson } from './sesion.js';
 
 const aquí = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(aquí, '..', '..', 'web', 'public');
 
 const app = express();
 app.disable('x-powered-by');
-app.use(express.json({ limit: '1mb' }));
+app.set('trust proxy', 1); // detrás del proxy del hosting, para ver la IP real
+app.use((_req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'same-origin');
+  res.setHeader('X-Frame-Options', 'DENY');
+  next();
+});
+app.use(express.json({ limit: '100kb' }));
+app.use('/api', soloJson);
+// Los datos de la API nunca se guardan en caché
+app.use('/api', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
 
-// ¿Está viva la API y la base de datos responde?
 app.get('/api/health', (_req, res) => {
   const { total } = db.prepare("SELECT COUNT(*) AS total FROM territorios WHERE tipo = 'provincia'").get();
-  res.json({ ok: true, servicio: 'plu-api', version: '0.1.0', provincias: total });
+  res.json({ ok: true, servicio: 'plu-api', version: '0.2.0', provincias: total });
 });
 
-// Lista pública de provincias con su comunidad (se usará en el formulario de afiliación).
-// El código INE de 2 dígitos es el que va dentro del número de afiliado.
+// Lista de provincias con su comunidad (formulario de afiliación). El código INE va en el número de afiliado.
 app.get('/api/provincias', (_req, res) => {
-  const filas = db
-    .prepare(
-      `SELECT p.id, p.codigo_num AS codigo, p.nombre, c.nombre AS comunidad
-         FROM territorios p JOIN territorios c ON c.id = p.padre_id
-        WHERE p.tipo = 'provincia' ORDER BY p.nombre`,
-    )
-    .all();
-  res.json(filas);
+  res.json(db.prepare(
+    `SELECT p.id, p.codigo_num AS codigo, p.nombre, c.nombre AS comunidad
+       FROM territorios p JOIN territorios c ON c.id = p.padre_id
+      WHERE p.tipo = 'provincia' ORDER BY p.nombre`,
+  ).all());
 });
 
-// Ficheros estáticos de la web (logo, prototipo...) y el prototipo como página de inicio
+app.use('/api', publicas);
+app.use('/api/intranet', intranet);
+app.use('/api', (_req, res) => res.status(404).json({ error: 'No existe' }));
+
+// Web: el prototipo nuevo es la página de inicio
+app.use('/prototipo', express.static(join(publicDir, 'prototipo')));
 app.use(express.static(publicDir));
-app.get('/', (_req, res) => res.sendFile(join(publicDir, 'prototipo-landing.html')));
+app.get('/', (_req, res) => res.redirect('/prototipo/index.html'));
+app.get('/intranet', (_req, res) => res.redirect('/prototipo/intranet.html'));
+app.get('/portal', (_req, res) => res.redirect('/prototipo/portal.html'));
+
+crearAdminInicial();
 
 const puerto = Number(process.env.PORT ?? 8787);
-app.listen(puerto, () => {
-  console.log(`PLU API escuchando en http://localhost:${puerto}`);
-});
+app.listen(puerto, () => console.log(`PLU API escuchando en http://localhost:${puerto}`));

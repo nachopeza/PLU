@@ -25,7 +25,7 @@ sequenceDiagram
   G->>API: Revisa la bandeja y aprueba
   API->>API: Asigna número de afiliado y código de verificación
   API->>API: Crea la cuenta con contraseña temporal
-  API->>API: Genera el carné PDF con foto y QR
+  API->>API: Genera el carné PDF con QR
   API->>M: Envía carné y contraseña temporal
   P->>API: Entra al portal con la contraseña temporal
   API-->>P: Obliga a elegir una contraseña nueva
@@ -107,8 +107,9 @@ Igual que en IDENTIA, el motor rellena **campos de formulario PDF por nombre**, 
 | `territorio` | Texto | Territorio |
 | `fechaAlta` | Texto | DD/MM/AAAA |
 | `validoHasta` | Texto | DD/MM/AAAA |
-| `foto` | Botón (imagen) | Foto de la persona, opcional |
 | `qr` | Botón (imagen) | QR hacia la verificación de la intranet |
+
+**El carné no lleva foto** (decidido el 12 oct 2026). Al verificar, la pantalla de la intranet comprueba nombre, número, provincia y estado; la persona se identifica con su documento oficial.
 
 Un campo ausente se ignora sin romper el resto. Una plantilla general sirve para todos los territorios; se pueden añadir plantillas por territorio (`plantillas_carne.territorio_id`).
 
@@ -131,7 +132,7 @@ No existe una página pública para comprobar carnés. La verificación se hace 
 1. Un verificador, gestor o admin inicia sesión en `/intranet` (con doble verificación).
 2. Abre la pantalla **Verificar carné** y escanea el QR con la cámara, o escribe el número de afiliado.
 3. La pantalla muestra, en grande y con color, si el carné es **válido** (verde), **caducado**, **revocado** o **inexistente** (rojo).
-4. Si es válido, enseña lo mínimo para comprobar a la persona: **foto, nombre, número de afiliado, provincia y estado**. Nada de teléfono, correo ni documento.
+4. Si es válido, enseña lo mínimo para comprobar a la persona: **nombre, número de afiliado, provincia y estado**. Nada de teléfono, correo ni documento.
 5. Cada verificación queda en `auditoria` con quién la hizo y cuándo.
 
 El QR contiene una dirección de la intranet con el código aleatorio. Quien lo escanee sin sesión de equipo solo ve la pantalla de inicio de sesión: la dirección no revela ningún dato personal.

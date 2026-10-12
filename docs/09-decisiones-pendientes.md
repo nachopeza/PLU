@@ -18,6 +18,10 @@ Cada respuesta cierra una parte del diseño. Lo decidido está marcado y con su 
 - [x] **Equipo de gestión** (varias personas, no una sola). (12 oct 2026)
 - [x] **Número de afiliado corto**, con provincia: `28-482915` (28 = Madrid). Falta confirmar el formato exacto.
 
+- [x] **Formulario de afiliación en 3 pasos** (datos, DNI y provincia, consentimientos). (12 oct 2026)
+- [x] **El carné no lleva foto.** (12 oct 2026)
+- [x] **Primero inscripción y bandeja de gestión con datos reales.** El correo se activa cuando haya dominio propio. (12 oct 2026)
+
 ## Pendiente por producto
 
 - [ ] **Edad del carné**: la edad de 30 años, ¿se mira el día de la emisión o de la renovación? Propuesta: sí, ese día.

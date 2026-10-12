@@ -190,4 +190,38 @@
     var out = inp.closest('.dilema').querySelector('.dilema-out'), poles = inp.closest('.dilema').querySelectorAll('.poles span');
     inp.addEventListener('input', function () { var v = +inp.value; out.textContent = v < 35 ? 'Más hacia ' + poles[0].textContent : v > 65 ? 'Más hacia ' + poles[1].textContent : 'Equilibrio'; });
   });
+
+  /* Formularios con envío real a la API (data-api) */
+  var PROV_FALLBACK = prov ? prov.innerHTML : '';
+  if (prov) {
+    fetch('/api/provincias').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (lista) {
+      prov.innerHTML = '<option value="">Elige…</option>';
+      lista.forEach(function (p) { var o = document.createElement('option'); o.value = p.id; o.textContent = p.nombre + ' (' + p.comunidad + ')'; prov.appendChild(o); });
+    }).catch(function () { /* sin API: se queda la lista de demostración */ });
+  }
+  document.querySelectorAll('form[data-api]').forEach(function (form) {
+    var status = form.querySelector('.form-status');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var pasos = form.querySelectorAll('.step');
+      if (pasos.length && pasos[pasos.length - 1].hidden) { var sig = form.querySelector('.step:not([hidden]) [data-next]'); if (sig) sig.click(); return; }
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+      var data = {};
+      form.querySelectorAll('[name]').forEach(function (f) {
+        if (f.type === 'checkbox') data[f.name] = f.checked;
+        else if (f.type === 'radio') { if (f.checked) data[f.name] = f.value; }
+        else data[f.name] = f.value;
+      });
+      var btn = form.querySelector('[type="submit"]'); btn.disabled = true; status.textContent = 'Enviando…'; status.style.color = '';
+      fetch(form.getAttribute('data-api'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+        .then(function (x) {
+          btn.disabled = false;
+          if (x.ok) { form.querySelectorAll('.step').forEach(function (s) { s.hidden = true; }); var done = document.createElement('div'); done.className = 'step'; done.innerHTML = '<h3>¡Solicitud enviada!</h3><p class="muted"></p>'; done.querySelector('p').textContent = x.d.mensaje; form.appendChild(done); form.reset(); return; }
+          var det = x.d.errores ? Object.keys(x.d.errores).map(function (k) { return x.d.errores[k]; }).join(' · ') : x.d.error;
+          status.style.color = '#ff8a80'; status.textContent = det || 'No se pudo enviar.';
+        })
+        .catch(function () { btn.disabled = false; status.style.color = '#ff8a80'; status.textContent = 'No se puede conectar con la API. Arranca el servidor (npm run dev) y abre http://localhost:8787/prototipo/afiliate.html'; });
+    });
+  });
 })();

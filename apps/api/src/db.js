@@ -1,5 +1,6 @@
 // Abre la base de datos SQLite y crea las tablas la primera vez.
 // Usa el módulo node:sqlite que viene con Node 22 (no hace falta instalar nada).
+import './env.js';
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
