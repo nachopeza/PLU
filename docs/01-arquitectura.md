@@ -21,7 +21,7 @@ Una sola aplicación web con tres zonas y una API que las sirve a todas. Es la m
 | Zona | Ruta | Quién entra | Para qué |
 |---|---|---|---|
 | Web pública | `/` | Cualquiera | Información del movimiento, afiliarse, simpatizante, novedades |
-| Portal | `/portal` | Afiliados y simpatizantes | Ficha, carné, encuestas, solicitudes, historial |
+| Portal | `/portal` | Afiliados (los simpatizantes no tienen portal) | Ficha, carné, encuestas, solicitudes, historial |
 | Intranet | `/intranet` | Equipo, con rol | Gestión de personas, solicitudes, encuestas, plantillas, usuarios y **verificación de carnés** |
 
 > Los nombres `/portal` e `/intranet` son una propuesta. Ver [decisiones pendientes](09-decisiones-pendientes.md).
@@ -67,7 +67,8 @@ Cuando crezca la API se dividirá en `routes/`, `services/` (carné, correo, aud
 Públicos:
 - `POST /api/inscripciones` crea una persona pendiente (afiliado o simpatizante) con consentimientos.
 - `POST /api/novedades` alta solo a novedades.
-- `GET /api/territorios` lista de territorios.
+- `GET /api/provincias` lista de provincias con su comunidad.
+- `GET|POST /api/encuestas-directas/:token` encuesta de un solo uso para simpatizantes.
 
 Portal (sesión de persona):
 - `POST /api/portal/login`, `POST /api/portal/logout`, `GET /api/portal/yo`

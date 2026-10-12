@@ -4,32 +4,42 @@ Cada respuesta cierra una parte del diseño. Lo decidido está marcado y con su 
 
 ## Decidido
 
-- [x] **La verificación de afiliación no es pública.** Solo se hace desde la intranet, con sesión de equipo. (12 oct 2026)
+- [x] **Verificación de afiliación no pública.** Solo desde la intranet, con una pantalla de verificación del QR del carné. (12 oct 2026)
 - [x] **Contraseña generada automáticamente**, enviada por correo, con cambio obligatorio en el primer acceso. (12 oct 2026)
-- [x] **No hay cuota.** La afiliación es gratuita y solo hay donaciones voluntarias. (12 oct 2026)
-- [x] **Número de afiliado más corto y simple que el de IDENTIA** y que identifique. Propuesta: `09-482915`, ver [04](04-afiliacion-y-carne.md). Falta confirmar el formato exacto.
+- [x] **No hay cuota.** La afiliación es gratuita y solo hay donaciones voluntarias, por **transferencia**. (12 oct 2026)
+- [x] **Simpatizantes sin portal.** Solo reciben avisos de campañas en la calle, encuestas directas y eventos. (12 oct 2026)
+- [x] **Requisitos para afiliarse:** mínimo 16 años y residir en España. (12 oct 2026)
+- [x] **Se exige DNI** (o NIE). (12 oct 2026)
+- [x] **Verificadores** para eventos y mítines con acceso libre o de prensa. La pantalla de verificación vive en la intranet. (12 oct 2026)
+- [x] **Carné:** vale hasta que la persona se da de baja o caduca. Duración 5 años si tiene menos de 30 años y 10 si tiene 30 o más. Hay que solicitar la renovación. (12 oct 2026)
+- [x] **Territorio por provincias** (52, con su comunidad). (12 oct 2026)
+- [x] **La baja se solicita desde el portal.** (12 oct 2026)
+- [x] **Doble verificación obligatoria para el equipo.** (12 oct 2026)
+- [x] **Equipo de gestión** (varias personas, no una sola). (12 oct 2026)
+- [x] **Número de afiliado corto**, con provincia: `28-482915` (28 = Madrid). Falta confirmar el formato exacto.
 
-## Producto
+## Pendiente por producto
 
-- [ ] **Nombres de las áreas**: propuesta `/portal` (afiliados y simpatizantes) e `/intranet` (equipo).
-- [ ] **Quién puede afiliarse**: edad mínima, residencia, nacionalidad.
-- [ ] **Simpatizante frente a afiliado**: qué puede hacer cada uno, si los simpatizantes tienen cuenta y portal, y si votan en encuestas.
-- [ ] **Verificación de identidad**: ¿basta el correo y la aprobación del gestor, o se pide DNI/NIE? Pedirlo aumenta mucho la responsabilidad sobre los datos.
-- [ ] **Duración del carné**: anual, bianual, indefinido. Y qué pasa al caducar.
-- [ ] **Caducidad de la contraseña temporal**: propuesta 7 días.
-- [ ] **Territorios**: ¿solo comunidades autónomas o también provincia y municipio desde el principio?
-- [ ] **Idiomas** de la web (lenguas cooficiales).
-- [ ] **Votaciones internas vinculantes**: ¿se quieren más adelante (elegir cargos, aprobar estatutos)? Es otro nivel de exigencia.
-- [ ] **Foto en el carné**: obligatoria, opcional o ninguna.
-- [ ] **Doble verificación (2FA) para el equipo**: recomendada para gestores y admins, porque ven datos de afiliación.
-- [ ] **Baja**: ¿se da de baja la persona sola desde el portal, o la solicita y la tramita un gestor?
+- [ ] **Edad del carné**: la edad de 30 años, ¿se mira el día de la emisión o de la renovación? Propuesta: sí, ese día.
+- [ ] **Aviso de caducidad**: cuántos días antes se avisa y qué pasa si no se renueva (pasa a «caducado» y sigue siendo afiliado, o causa baja).
+- [ ] **16 y 17 años**: confirmar con asesoría si necesitan autorización de sus representantes legales.
+- [ ] **DNI**: cómo se comprueba. Propuesta: el gestor valida el formato y la letra, y no se guarda foto del DNI.
+- [ ] **NIE**: ¿se acepta para personas extranjeras que residen en España?
+- [ ] **Eventos**: ¿se registra la asistencia al escanear el QR?
+- [ ] **Prensa**: acreditaciones para periodistas, ¿quién las emite y cómo se verifican?
+- [ ] **Provincia de afiliación**: ¿la de residencia o la que elija la persona? ¿Qué pasa al mudarse? Propuesta: la de residencia, y se cambia con una solicitud.
+- [ ] **Agrupaciones locales** dentro de cada provincia (municipios o comarcas).
+- [ ] **Encuestas directas a simpatizantes**: por enlace en el correo. ¿También por SMS o WhatsApp?
+- [ ] **Quién envía avisos masivos** y cómo se da de baja una persona de los avisos.
 - [ ] **Datos tras la baja**: cuánto tiempo se conservan.
+- [ ] **Idiomas** de la web (lenguas cooficiales).
+- [ ] **Votaciones internas vinculantes**: ¿se quieren más adelante?
 
 ## Donaciones
 
 Ver [10 · Donaciones](10-donaciones.md).
 
-- [ ] Método de cobro, justificantes, límites, rol de tesorería, transparencia de las cuentas.
+- [ ] Entidad receptora e IBAN, justificantes, límites, conciliación y transparencia de las cuentas.
 
 ## Visión y tono
 
@@ -51,7 +61,7 @@ Ver [10 · Donaciones](10-donaciones.md).
 
 ## Técnicas
 
-- [ ] Hosting y región (Railway como en IDENTIA, u otro).
+- [ ] Hosting y región (Railway como en IDENTIA, u otro). Recomendación: servidores en la Unión Europea.
 - [ ] Dominio y correo propios (necesario para enviar el carné y las contraseñas a cualquier persona).
 - [ ] Política de copias de seguridad.
 - [ ] Cuándo pasar de SQLite a PostgreSQL.

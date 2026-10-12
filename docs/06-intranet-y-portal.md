@@ -4,7 +4,7 @@ Las dos zonas son privadas y comparten API. Su estructura se basa en IDENTIA, qu
 
 ## Portal del afiliado (`/portal`)
 
-Para afiliados y simpatizantes. Cada persona solo ve lo suyo.
+Solo para **afiliados**. Los simpatizantes no tienen portal. Cada persona solo ve lo suyo.
 
 | Módulo | Qué hace |
 |---|---|
@@ -12,7 +12,7 @@ Para afiliados y simpatizantes. Cada persona solo ve lo suyo.
 | Mi ficha | Ver y pedir cambios de sus datos |
 | Mi carné | Ver y descargar el carné vigente (solo afiliados) |
 | Encuestas | Listado de encuestas abiertas para ella, y responder |
-| Solicitudes | Crear y seguir solicitudes: cambio de datos o territorio, duplicado de carné, certificado, baja, hacerse afiliado |
+| Solicitudes | Crear y seguir solicitudes: cambio de datos o de provincia, duplicado de carné, **renovación del carné**, certificado y **baja** |
 | Mi historial | Movimientos de afiliación: alta, cambios, suspensiones |
 | Novedades | Comunicados del movimiento |
 | Privacidad | Qué ha consentido, descargar sus datos, pedir su supresión |
@@ -32,9 +32,11 @@ Para el equipo. Lo que se ve depende del rol (ver [roles y permisos](03-roles-y-
 | Solicitudes | Bandeja de solicitudes y su resolución | Admin, Gestor, Coordinador |
 | Encuestas | Crear, publicar, cerrar y ver resultados agregados | Admin, Moderador |
 | Plantillas de carné | Subir plantillas PDF por territorio, activarlas, probarlas | Admin, Gestor |
-| Verificar carné | Escanear el QR o escribir el número. Muestra válido, caducado, revocado o inexistente y los datos mínimos. Queda en auditoría. **Es la única forma de verificar** | Admin, Gestor, Verificador |
-| Comunicaciones | Enviar avisos y novedades a grupos (afiliados, simpatizantes, un territorio) | Admin, Moderador |
-| Territorios | Ver y mantener la lista de territorios | Admin |
+| Verificar carné | Pantalla para móvil, pensada para eventos y mítines: escanea el QR y muestra en grande válido, caducado, revocado o inexistente, con foto, nombre, número, provincia y estado. Queda en auditoría. **Es la única forma de verificar** | Admin, Gestor, Verificador |
+| Comunicaciones | Avisos de campañas en la calle, eventos y novedades a grupos (afiliados, simpatizantes, una provincia) | Admin, Moderador |
+| Eventos | Crear eventos y mítines y avisar a quien corresponda. Pendiente decidir si registra asistencia | Admin, Moderador, Coordinador |
+| Donaciones | Registrar las donaciones recibidas por transferencia y generar justificantes | Admin, Tesorería |
+| Territorios | Provincias y comunidades | Admin |
 | Usuarios y roles | Crear cuentas del equipo y asignar rol | Admin |
 | Auditoría | Registro de acciones sobre datos | Admin, Auditor |
 | Configuración | Datos de la organización, textos legales, correo | Admin |

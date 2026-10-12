@@ -25,8 +25,8 @@ El prototipo está en [`apps/web/public/prototipo-landing.html`](../apps/web/pub
 
 ## Formularios
 
-- **Afiliación**: nombre, apellidos, correo, teléfono (opcional), fecha de nacimiento, país, código postal y población, territorio, foto (opcional). Consentimientos separados: tratamiento de datos para la afiliación y comunicaciones.
-- **Simpatizante**: solo lo necesario (nombre, correo, territorio) y consentimiento de comunicaciones.
+- **Afiliación**: nombre, apellidos, correo, teléfono (opcional), **DNI o NIE**, fecha de nacimiento (mínimo 16 años), código postal y población, **provincia** (residencia en España), foto para el carné. Consentimientos separados: tratamiento de datos para la afiliación y comunicaciones.
+- **Simpatizante**: solo nombre, correo y provincia, y consentimiento para recibir avisos de campañas en la calle, encuestas y eventos. No crea cuenta.
 - **Novedades**: nombre, correo y consentimiento.
 - Casillas de consentimiento **sin marcar** por defecto, con el texto exacto versionado.
 - Mensajes de error claros y accesibles. Nada de decir que se ha enviado algo si no se ha guardado.

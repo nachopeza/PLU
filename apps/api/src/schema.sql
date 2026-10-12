@@ -3,13 +3,14 @@
 -- Todas las fechas se guardan como texto ISO 8601 (UTC).
 
 -- ============================================================
--- Territorios: comunidades autónomas y ciudades autónomas (19).
--- La columna padre_id permite añadir provincias y municipios más adelante.
+-- Territorios: comunidades y ciudades autónomas (19) y las 52 provincias (INE).
+-- El nivel de trabajo es la PROVINCIA: cada persona pertenece a una provincia, y cada
+-- provincia cuelga de su comunidad mediante padre_id. Los municipios se podrían añadir después.
 -- ============================================================
 CREATE TABLE IF NOT EXISTS territorios (
   id        INTEGER PRIMARY KEY,
-  codigo    TEXT NOT NULL UNIQUE,          -- siglas de 3 letras
-  codigo_num TEXT UNIQUE,                  -- código INE de 2 dígitos: va dentro del número de afiliado
+  codigo    TEXT NOT NULL UNIQUE,          -- comunidad: siglas de 3 letras. Provincia: 'P' + código INE (P28)
+  codigo_num TEXT UNIQUE,                  -- solo provincias: código INE de 2 dígitos. Va en el número de afiliado
   nombre    TEXT NOT NULL,
   tipo      TEXT NOT NULL CHECK (tipo IN ('comunidad','ciudad_autonoma','provincia','municipio')),
   padre_id  INTEGER REFERENCES territorios(id)
@@ -24,19 +25,22 @@ CREATE TABLE IF NOT EXISTS personas (
   tipo                 TEXT NOT NULL DEFAULT 'simpatizante' CHECK (tipo IN ('simpatizante','afiliado')),
   estado               TEXT NOT NULL DEFAULT 'pendiente'
                          CHECK (estado IN ('pendiente','activo','suspendido','baja','rechazado')),
-  numero_afiliado      TEXT UNIQUE,            -- 8 cifras sin guion (territorio 2 + 6 aleatorias). Se muestra como 09-482915
+  numero_afiliado      TEXT UNIQUE,            -- 8 cifras sin guion (provincia INE 2 + 6 aleatorias). Se muestra como 28-482915
   codigo_verificacion  TEXT UNIQUE,            -- código aleatorio que lleva el QR del carné
   nombre               TEXT NOT NULL,
   apellidos            TEXT NOT NULL,
   email                TEXT NOT NULL UNIQUE,
   telefono             TEXT,
-  fecha_nacimiento     TEXT,
+  fecha_nacimiento     TEXT,                   -- mínimo 16 años: lo valida la API
+  documento_tipo       TEXT CHECK (documento_tipo IN ('DNI','NIE')),
+  documento_cifrado    TEXT,                   -- número cifrado (AES-GCM, clave en variable de entorno)
+  documento_hash       TEXT UNIQUE,            -- HMAC del número: detecta duplicados sin descifrar
   pais                 TEXT NOT NULL DEFAULT 'España',
   codigo_postal        TEXT,
   poblacion            TEXT,
-  territorio_id        INTEGER REFERENCES territorios(id),
+  territorio_id        INTEGER REFERENCES territorios(id),   -- siempre una provincia
   foto_path            TEXT,
-  password_hash        TEXT,
+  password_hash        TEXT,                   -- solo afiliados. Los simpatizantes no tienen cuenta ni portal
   debe_cambiar_password INTEGER NOT NULL DEFAULT 1,  -- 1 mientras use la contraseña temporal
   password_temporal_expira_en TEXT,                  -- la temporal caduca (propuesta: 7 días)
   creado_en            TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
@@ -68,8 +72,11 @@ CREATE TABLE IF NOT EXISTS usuarios_intranet (
   nombre         TEXT NOT NULL,
   email          TEXT,
   password_hash  TEXT NOT NULL,
-  rol            TEXT NOT NULL CHECK (rol IN ('admin','gestor','moderador','coordinador','verificador','auditor')),
-  territorio_id  INTEGER REFERENCES territorios(id),   -- solo para el rol coordinador
+  rol            TEXT NOT NULL CHECK (rol IN ('admin','gestor','moderador','coordinador','verificador','tesoreria','auditor')),
+  territorio_id  INTEGER REFERENCES territorios(id),   -- solo para el rol coordinador (una provincia)
+  totp_secreto_cifrado TEXT,                           -- doble verificación con app autenticadora
+  totp_activo    INTEGER NOT NULL DEFAULT 0,
+  codigos_recuperacion_hash TEXT,
   activo         INTEGER NOT NULL DEFAULT 1,
   creado_en      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
@@ -122,7 +129,7 @@ CREATE TABLE IF NOT EXISTS solicitudes (
   id           INTEGER PRIMARY KEY,
   persona_id   INTEGER NOT NULL REFERENCES personas(id),
   tipo         TEXT NOT NULL CHECK (tipo IN
-                 ('cambio_datos','cambio_territorio','hacerse_afiliado','baja','duplicado_carne','certificado','otra')),
+                 ('cambio_datos','cambio_provincia','baja','duplicado_carne','renovacion_carne','certificado','otra')),
   estado       TEXT NOT NULL DEFAULT 'abierta' CHECK (estado IN ('abierta','en_revision','resuelta','rechazada')),
   detalle      TEXT,
   resolucion   TEXT,
@@ -177,6 +184,17 @@ CREATE TABLE IF NOT EXISTS respuestas (
   persona_id  INTEGER REFERENCES personas(id)
 );
 
+-- Enlaces de un solo uso para encuestas directas a simpatizantes (no tienen portal).
+-- Se guarda solo el hash del enlace. Este enlace NO se guarda junto a las respuestas.
+CREATE TABLE IF NOT EXISTS enlaces_encuesta (
+  id          INTEGER PRIMARY KEY,
+  encuesta_id INTEGER NOT NULL REFERENCES encuestas(id) ON DELETE CASCADE,
+  persona_id  INTEGER NOT NULL REFERENCES personas(id),
+  token_hash  TEXT NOT NULL UNIQUE,
+  expira_en   TEXT NOT NULL,
+  usado_en    TEXT
+);
+
 -- ============================================================
 -- Sesiones, auditoría y registro de correos.
 -- ============================================================
@@ -209,25 +227,98 @@ CREATE TABLE IF NOT EXISTS correos (
 );
 
 -- ============================================================
--- Datos iniciales: los 19 territorios (17 comunidades + Ceuta y Melilla), con su código INE.
+-- Donaciones: se reciben por transferencia y las registra tesorería al conciliar el banco.
+-- Importes en céntimos de euro. Ver docs/10-donaciones.md (falta asesoría jurídica).
 -- ============================================================
-INSERT OR IGNORE INTO territorios (codigo, codigo_num, nombre, tipo) VALUES
-  ('AND','01','Andalucía','comunidad'),
-  ('ARA','02','Aragón','comunidad'),
-  ('AST','03','Principado de Asturias','comunidad'),
-  ('BAL','04','Illes Balears','comunidad'),
-  ('CAN','05','Canarias','comunidad'),
-  ('CNT','06','Cantabria','comunidad'),
-  ('CYL','07','Castilla y León','comunidad'),
-  ('CLM','08','Castilla-La Mancha','comunidad'),
-  ('CAT','09','Catalunya','comunidad'),
-  ('VAL','10','Comunitat Valenciana','comunidad'),
-  ('EXT','11','Extremadura','comunidad'),
-  ('GAL','12','Galicia','comunidad'),
-  ('MAD','13','Comunidad de Madrid','comunidad'),
-  ('MUR','14','Región de Murcia','comunidad'),
-  ('NAV','15','Comunidad Foral de Navarra','comunidad'),
-  ('PVA','16','Euskadi','comunidad'),
-  ('RIO','17','La Rioja','comunidad'),
-  ('CEU','18','Ceuta','ciudad_autonoma'),
-  ('MEL','19','Melilla','ciudad_autonoma');
+CREATE TABLE IF NOT EXISTS donaciones (
+  id                        INTEGER PRIMARY KEY,
+  persona_id                INTEGER REFERENCES personas(id),    -- NULL si quien dona no está en la base
+  donante_nombre            TEXT NOT NULL,
+  donante_documento_cifrado TEXT,
+  importe_centimos          INTEGER NOT NULL CHECK (importe_centimos > 0),
+  fecha                     TEXT NOT NULL,
+  metodo                    TEXT NOT NULL DEFAULT 'transferencia' CHECK (metodo IN ('transferencia')),
+  referencia                TEXT,
+  estado                    TEXT NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','confirmada','rechazada')),
+  justificante_path         TEXT,
+  registrada_por            INTEGER REFERENCES usuarios_intranet(id),
+  creada_en                 TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+
+-- ============================================================
+-- Datos iniciales: 19 comunidades y ciudades autónomas y 52 provincias (código INE).
+-- ============================================================
+INSERT OR IGNORE INTO territorios (codigo, nombre, tipo) VALUES
+  ('AND','Andalucía','comunidad'),
+  ('ARA','Aragón','comunidad'),
+  ('AST','Principado de Asturias','comunidad'),
+  ('BAL','Illes Balears','comunidad'),
+  ('CAN','Canarias','comunidad'),
+  ('CNT','Cantabria','comunidad'),
+  ('CYL','Castilla y León','comunidad'),
+  ('CLM','Castilla-La Mancha','comunidad'),
+  ('CAT','Catalunya','comunidad'),
+  ('VAL','Comunitat Valenciana','comunidad'),
+  ('EXT','Extremadura','comunidad'),
+  ('GAL','Galicia','comunidad'),
+  ('MAD','Comunidad de Madrid','comunidad'),
+  ('MUR','Región de Murcia','comunidad'),
+  ('NAV','Comunidad Foral de Navarra','comunidad'),
+  ('PVA','Euskadi','comunidad'),
+  ('RIO','La Rioja','comunidad'),
+  ('CEU','Ceuta','ciudad_autonoma'),
+  ('MEL','Melilla','ciudad_autonoma');
+
+INSERT OR IGNORE INTO territorios (codigo, codigo_num, nombre, tipo, padre_id) VALUES
+  ('P01','01','Araba/Álava','provincia',(SELECT id FROM territorios WHERE codigo='PVA')),
+  ('P02','02','Albacete','provincia',(SELECT id FROM territorios WHERE codigo='CLM')),
+  ('P03','03','Alicante/Alacant','provincia',(SELECT id FROM territorios WHERE codigo='VAL')),
+  ('P04','04','Almería','provincia',(SELECT id FROM territorios WHERE codigo='AND')),
+  ('P05','05','Ávila','provincia',(SELECT id FROM territorios WHERE codigo='CYL')),
+  ('P06','06','Badajoz','provincia',(SELECT id FROM territorios WHERE codigo='EXT')),
+  ('P07','07','Illes Balears','provincia',(SELECT id FROM territorios WHERE codigo='BAL')),
+  ('P08','08','Barcelona','provincia',(SELECT id FROM territorios WHERE codigo='CAT')),
+  ('P09','09','Burgos','provincia',(SELECT id FROM territorios WHERE codigo='CYL')),
+  ('P10','10','Cáceres','provincia',(SELECT id FROM territorios WHERE codigo='EXT')),
+  ('P11','11','Cádiz','provincia',(SELECT id FROM territorios WHERE codigo='AND')),
+  ('P12','12','Castellón/Castelló','provincia',(SELECT id FROM territorios WHERE codigo='VAL')),
+  ('P13','13','Ciudad Real','provincia',(SELECT id FROM territorios WHERE codigo='CLM')),
+  ('P14','14','Córdoba','provincia',(SELECT id FROM territorios WHERE codigo='AND')),
+  ('P15','15','A Coruña','provincia',(SELECT id FROM territorios WHERE codigo='GAL')),
+  ('P16','16','Cuenca','provincia',(SELECT id FROM territorios WHERE codigo='CLM')),
+  ('P17','17','Girona','provincia',(SELECT id FROM territorios WHERE codigo='CAT')),
+  ('P18','18','Granada','provincia',(SELECT id FROM territorios WHERE codigo='AND')),
+  ('P19','19','Guadalajara','provincia',(SELECT id FROM territorios WHERE codigo='CLM')),
+  ('P20','20','Gipuzkoa','provincia',(SELECT id FROM territorios WHERE codigo='PVA')),
+  ('P21','21','Huelva','provincia',(SELECT id FROM territorios WHERE codigo='AND')),
+  ('P22','22','Huesca','provincia',(SELECT id FROM territorios WHERE codigo='ARA')),
+  ('P23','23','Jaén','provincia',(SELECT id FROM territorios WHERE codigo='AND')),
+  ('P24','24','León','provincia',(SELECT id FROM territorios WHERE codigo='CYL')),
+  ('P25','25','Lleida','provincia',(SELECT id FROM territorios WHERE codigo='CAT')),
+  ('P26','26','La Rioja','provincia',(SELECT id FROM territorios WHERE codigo='RIO')),
+  ('P27','27','Lugo','provincia',(SELECT id FROM territorios WHERE codigo='GAL')),
+  ('P28','28','Madrid','provincia',(SELECT id FROM territorios WHERE codigo='MAD')),
+  ('P29','29','Málaga','provincia',(SELECT id FROM territorios WHERE codigo='AND')),
+  ('P30','30','Murcia','provincia',(SELECT id FROM territorios WHERE codigo='MUR')),
+  ('P31','31','Navarra','provincia',(SELECT id FROM territorios WHERE codigo='NAV')),
+  ('P32','32','Ourense','provincia',(SELECT id FROM territorios WHERE codigo='GAL')),
+  ('P33','33','Asturias','provincia',(SELECT id FROM territorios WHERE codigo='AST')),
+  ('P34','34','Palencia','provincia',(SELECT id FROM territorios WHERE codigo='CYL')),
+  ('P35','35','Las Palmas','provincia',(SELECT id FROM territorios WHERE codigo='CAN')),
+  ('P36','36','Pontevedra','provincia',(SELECT id FROM territorios WHERE codigo='GAL')),
+  ('P37','37','Salamanca','provincia',(SELECT id FROM territorios WHERE codigo='CYL')),
+  ('P38','38','Santa Cruz de Tenerife','provincia',(SELECT id FROM territorios WHERE codigo='CAN')),
+  ('P39','39','Cantabria','provincia',(SELECT id FROM territorios WHERE codigo='CNT')),
+  ('P40','40','Segovia','provincia',(SELECT id FROM territorios WHERE codigo='CYL')),
+  ('P41','41','Sevilla','provincia',(SELECT id FROM territorios WHERE codigo='AND')),
+  ('P42','42','Soria','provincia',(SELECT id FROM territorios WHERE codigo='CYL')),
+  ('P43','43','Tarragona','provincia',(SELECT id FROM territorios WHERE codigo='CAT')),
+  ('P44','44','Teruel','provincia',(SELECT id FROM territorios WHERE codigo='ARA')),
+  ('P45','45','Toledo','provincia',(SELECT id FROM territorios WHERE codigo='CLM')),
+  ('P46','46','Valencia/València','provincia',(SELECT id FROM territorios WHERE codigo='VAL')),
+  ('P47','47','Valladolid','provincia',(SELECT id FROM territorios WHERE codigo='CYL')),
+  ('P48','48','Bizkaia','provincia',(SELECT id FROM territorios WHERE codigo='PVA')),
+  ('P49','49','Zamora','provincia',(SELECT id FROM territorios WHERE codigo='CYL')),
+  ('P50','50','Zaragoza','provincia',(SELECT id FROM territorios WHERE codigo='ARA')),
+  ('P51','51','Ceuta','provincia',(SELECT id FROM territorios WHERE codigo='CEU')),
+  ('P52','52','Melilla','provincia',(SELECT id FROM territorios WHERE codigo='MEL'));

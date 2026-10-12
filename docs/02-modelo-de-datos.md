@@ -24,8 +24,8 @@ erDiagram
 
 | Tabla | Qué guarda |
 |---|---|
-| `territorios` | 19 territorios precargados (17 comunidades y Ceuta y Melilla) con su código INE. `padre_id` permite añadir provincias y municipios |
-| `personas` | Simpatizantes y afiliados en la misma tabla. Cambian `tipo` y `estado` |
+| `territorios` | 19 comunidades y ciudades autónomas y **52 provincias** con su código INE, precargadas. Cada provincia cuelga de su comunidad (`padre_id`). La persona pertenece a una provincia |
+| `personas` | Simpatizantes y afiliados en la misma tabla. Cambian `tipo` y `estado`. Solo los afiliados tienen contraseña |
 | `consentimientos` | Qué aceptó cada persona, con qué versión de texto y cuándo |
 | `usuarios_intranet` | Equipo con rol. Los afiliados **no** están aquí |
 | `movimientos_afiliacion` | Historial inmutable: inscripción, alta, cambio de tipo o territorio, suspensión, reactivación, baja, rechazo |
@@ -35,6 +35,8 @@ erDiagram
 | `encuestas`, `preguntas` | Definición de encuestas |
 | `participaciones` | Quién participó en cada encuesta, para impedir doble respuesta |
 | `respuestas` | Qué se respondió |
+| `enlaces_encuesta` | Enlaces de un solo uso para encuestas directas a simpatizantes |
+| `donaciones` | Donaciones recibidas por transferencia, registradas por tesorería |
 | `sesiones` | Sesiones de persona y de equipo |
 | `auditoria` | Acciones del equipo sobre datos |
 | `correos` | Registro de correos enviados |
@@ -55,15 +57,19 @@ Si la encuesta es nominal (`anonima = 0`), se guarda `persona_id` en cada respue
 
 ## Número de afiliado y código de verificación
 
-- `numero_afiliado`: 8 cifras sin guion. Las 2 primeras son el código INE del territorio (`territorios.codigo_num`) y las 6 siguientes son aleatorias y únicas. Se muestra como `09-482915`. Ver [04](04-afiliacion-y-carne.md).
+- `numero_afiliado`: 8 cifras sin guion. Las 2 primeras son el código INE de la provincia (`territorios.codigo_num`) y las 6 siguientes son aleatorias y únicas. Se muestra como `28-482915`. Ver [04](04-afiliacion-y-carne.md).
 - `codigo_verificacion`: cadena aleatoria larga que va en el QR. No se deduce del número ni de los datos de la persona.
+
+## Documento de identidad
+
+Se exige DNI o NIE para afiliarse. `documento_cifrado` guarda el número **cifrado** (AES-GCM, con la clave en una variable de entorno y fuera de la base de datos) y `documento_hash` guarda un HMAC con clave para impedir duplicados sin descifrar. No se guarda ninguna imagen del documento.
 
 ## Contraseñas
 
-`password_hash` guarda solo el hash. `debe_cambiar_password` vale 1 mientras la persona use la contraseña temporal que se le envió por correo, y `password_temporal_expira_en` marca cuándo caduca. Al cambiarla, la primera pasa a 0 y la segunda se vacía.
+`password_hash` guarda solo el hash y solo existe para afiliados (los simpatizantes no tienen cuenta). `debe_cambiar_password` vale 1 mientras la persona use la contraseña temporal que se le envió por correo, y `password_temporal_expira_en` marca cuándo caduca. Al cambiarla, la primera pasa a 0 y la segunda se vacía.
 
 ## Datos que todavía no se guardan
 
-- Documento de identidad (DNI/NIE): depende de si se verifica la identidad. Ver [decisiones pendientes](09-decisiones-pendientes.md).
-- Donaciones: la afiliación es gratuita y solo hay donaciones voluntarias. Ver [10](10-donaciones.md).
+- Eventos y asistencia: pendiente de decidir si se registra la asistencia al verificar. Ver [decisiones](09-decisiones-pendientes.md).
+- Acreditaciones de prensa.
 - Votaciones internas.

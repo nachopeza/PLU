@@ -25,7 +25,7 @@ Distinta de la hoja de ruta política (fases 1 a 7 del [documento general](00-do
 ## Fase 3 · Inscripción e intranet de gestión
 
 - [ ] Formularios de afiliación y simpatizante con consentimientos
-- [ ] Login de equipo, sesiones y roles
+- [ ] Login de equipo con doble verificación, sesiones y roles
 - [ ] Bandeja de inscripciones, ficha de persona, movimientos
 - [ ] Gestión de usuarios y auditoría
 
@@ -33,12 +33,13 @@ Distinta de la hoja de ruta política (fases 1 a 7 del [documento general](00-do
 
 - [ ] Subida de plantillas PDF y motor de relleno por campos
 - [ ] Número de afiliado y código de verificación
-- [ ] QR y verificación dentro de la intranet (sin página pública)
+- [ ] QR y pantalla móvil de verificación en la intranet, para eventos y mítines (sin página pública)
+- [ ] Vigencia del carné (5 o 10 años según edad) y renovación
 - [ ] Envío por correo al activar
 
 ## Fase 5 · Portal del afiliado
 
-- [ ] Login de personas con contraseña temporal por correo y cambio obligatorio
+- [ ] Login de afiliados con contraseña temporal por correo y cambio obligatorio (los simpatizantes no tienen portal)
 - [ ] Mi ficha, mi carné, mi historial
 - [ ] Solicitudes y su resolución en la intranet
 - [ ] Derechos de privacidad (ver, descargar, pedir baja)
@@ -46,12 +47,13 @@ Distinta de la hoja de ruta política (fases 1 a 7 del [documento general](00-do
 ## Fase 6 · Participación
 
 - [ ] Encuestas (anónimas y nominales) y resultados agregados
-- [ ] Comunicaciones por grupos
+- [ ] Comunicaciones por grupos y encuestas directas a simpatizantes con enlace de un solo uso
+- [ ] Eventos
 - [ ] Los dilemas de la web conectados a datos reales, si se decide
 
 ## Donaciones
 
-- [ ] Cuando se decida el método (ver [10](10-donaciones.md)): página `/dona`, tabla de donaciones y rol de tesorería
+- [ ] Página `/dona` con la información por transferencia y pantalla de tesorería para registrar donaciones (ver [10](10-donaciones.md)). Requiere asesoría antes de mostrar un IBAN
 
 ## Fase 7 · Producción
 
