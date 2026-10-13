@@ -19,14 +19,38 @@ function registrar(personaId, tipo, para, estado, error) {
   try { db.prepare('INSERT INTO correos (persona_id, tipo, destinatario, estado, error) VALUES (?, ?, ?, ?, ?)').run(personaId ?? null, tipo, para, estado, error ?? null); } catch { /* registro best-effort */ }
 }
 
-// Devuelve true si salió el correo. Nunca lanza.
+// Proveedor por API web (puerto 443): funciona aunque el hosting bloquee SMTP. Resend: https://resend.com
+const { RESEND_API_KEY } = process.env;
+export const CORREO_ACTIVO_API = Boolean(RESEND_API_KEY);
+export const CORREO_DISPONIBLE = CORREO_ACTIVO || CORREO_ACTIVO_API;
+const DESDE_API = SMTP_FROM || 'PLU <hola@somosplu.com>';
+console.log('Correo:', CORREO_ACTIVO_API ? 'API Resend activa' : CORREO_ACTIVO ? 'SMTP activo (' + SMTP_HOST + ')' : 'no configurado (las contraseñas se entregan a mano)');
+
+function motivo(e) {
+  const m = String(e && e.message || e);
+  if (/ETIMEDOUT|ECONNREFUSED|ENETUNREACH|timeout|Greeting never received/i.test(m)) return 'No hay conexión con el servidor de correo (el hosting puede bloquear SMTP). Usa RESEND_API_KEY.';
+  if (/EAUTH|Invalid login|535|authentication/i.test(m)) return 'Usuario o contraseña SMTP incorrectos.';
+  if (/ENOTFOUND/i.test(m)) return 'Servidor de correo no encontrado: revisa SMTP_HOST.';
+  if (/domain.*not verified|not verified/i.test(m)) return 'El dominio aún no está verificado en el proveedor de correo.';
+  return m.slice(0, 160);
+}
+
+// Devuelve { ok, motivo }. Nunca lanza.
 export async function enviarCorreo({ personaId, tipo, para, asunto, texto }) {
-  if (!CORREO_ACTIVO) { registrar(personaId, tipo, para, 'omitido', 'SMTP no configurado'); return false; }
+  if (!CORREO_DISPONIBLE) { registrar(personaId, tipo, para, 'omitido', 'correo no configurado'); return { ok: false, motivo: 'Correo no configurado en el servidor.' }; }
   try {
-    await transporte.sendMail({ from: DESDE, to: para, subject: asunto, text: texto });
-    registrar(personaId, tipo, para, 'enviado'); return true;
+    if (CORREO_ACTIVO_API) {
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST', headers: { Authorization: 'Bearer ' + RESEND_API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: DESDE_API, to: [para], subject: asunto, text: texto }), signal: AbortSignal.timeout(15000)
+      });
+      if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.message || ('HTTP ' + r.status)); }
+    } else {
+      await transporte.sendMail({ from: DESDE, to: para, subject: asunto, text: texto });
+    }
+    registrar(personaId, tipo, para, 'enviado'); return { ok: true };
   } catch (e) {
-    console.error('correo:', e.message); registrar(personaId, tipo, para, 'error', String(e.message).slice(0, 200)); return false;
+    console.error('correo:', e.message); registrar(personaId, tipo, para, 'error', String(e.message).slice(0, 200)); return { ok: false, motivo: motivo(e) };
   }
 }
 

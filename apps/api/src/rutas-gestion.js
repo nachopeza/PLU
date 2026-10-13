@@ -140,8 +140,8 @@ gestion.post('/personas/:id/estado', requerirEquipo('admin', 'gestor'), async (r
       t = asignarPasswordTemporal(p.id);
     });
     auditar(req.equipo.id, 'persona_readmitir', 'persona', p.id, { motivo });
-    const enviado = await enviarCorreo({ personaId: p.id, tipo: 'readmision', para: p.email, asunto: 'Tu afiliación a PLU se ha reactivado', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: t.password, caduca: t.caduca, motivo: 'Tu afiliación a PLU se ha reactivado.' }) });
-    return res.json({ ok: true, password_temporal: t.password, caduca: t.caduca, correo: enviado ? 'enviado' : 'no enviado' });
+    const envio = await enviarCorreo({ personaId: p.id, tipo: 'readmision', para: p.email, asunto: 'Tu afiliación a PLU se ha reactivado', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: t.password, caduca: t.caduca, motivo: 'Tu afiliación a PLU se ha reactivado.' }) });
+    return res.json({ ok: true, password_temporal: t.password, caduca: t.caduca, correo: envio.ok ? 'enviado' : 'no enviado', correo_motivo: envio.ok ? undefined : envio.motivo });
   } else if (accion === 'baja' && ['activo', 'suspendido'].includes(p.estado)) {
     transaccion(() => {
       moverEstado(p.id, 'baja', 'baja', motivo, req.equipo.id);
@@ -176,8 +176,8 @@ gestion.post('/personas/:id/reset-password', requerirEquipo('admin', 'gestor'), 
   if (!p || p.tipo !== 'afiliado' || p.estado !== 'activo') return res.status(404).json({ error: 'No encontrada' });
   const t = asignarPasswordTemporal(p.id);
   auditar(req.equipo.id, 'reset_password_afiliado', 'persona', p.id);
-  const enviado = await enviarCorreo({ personaId: p.id, tipo: 'reset_password', para: p.email, asunto: 'Nueva contraseña temporal de PLU', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: t.password, caduca: t.caduca, motivo: 'Se ha generado una contraseña temporal para tu acceso.' }) });
-  res.json({ ok: true, password_temporal: t.password, caduca: t.caduca, correo: enviado ? 'enviado' : 'no enviado' });
+  const envio = await enviarCorreo({ personaId: p.id, tipo: 'reset_password', para: p.email, asunto: 'Nueva contraseña temporal de PLU', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: t.password, caduca: t.caduca, motivo: 'Se ha generado una contraseña temporal para tu acceso.' }) });
+  res.json({ ok: true, password_temporal: t.password, caduca: t.caduca, correo: envio.ok ? 'enviado' : 'no enviado', correo_motivo: envio.ok ? undefined : envio.motivo });
 });
 
 // ---------- Solicitudes ----------

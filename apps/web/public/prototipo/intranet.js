@@ -8,14 +8,14 @@
   var ticket = null, usuario = null, provincias = null;
 
   // ---------- Utilidades ----------
-  var ultimoCorreo = null;
+  var ultimoCorreo = null, ultimoMotivo = null;
   function api(ruta, cuerpo, metodo) {
     return fetch('/api/intranet' + ruta, {
       method: metodo || (cuerpo === undefined ? 'GET' : 'POST'),
       headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
       body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo)
     }).then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) { var e = new Error(d.error || 'Error'); e.status = r.status; e.datos = d; throw e; } ultimoCorreo = d.correo || null; return d; });
+      return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) { var e = new Error(d.error || 'Error'); e.status = r.status; e.datos = d; throw e; } ultimoCorreo = d.correo || null; ultimoMotivo = d.correo_motivo || null; return d; });
     }, function () { throw new Error('No se puede conectar con la API. Arranca el servidor (npm run dev) y abre http://localhost:8787/intranet'); });
   }
   function msg(form, texto) { form.querySelector('.form-status').textContent = texto || ''; }
@@ -59,7 +59,7 @@
   function secreto(titulo, texto, ayuda) {
     var area = h('textarea', { class: 'secret-area', readonly: true, rows: Math.min(8, texto.split('\n').length + 1) }); area.value = texto;
     var copiar = h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { area.select(); try { navigator.clipboard.writeText(texto); copiar.textContent = 'Copiado'; } catch (e) { document.execCommand('copy'); } } }, 'Copiar');
-    var nota = ultimoCorreo === 'enviado' ? 'Se ha enviado también por correo a la persona.' : (ultimoCorreo === 'no enviado' ? 'El correo no se ha podido enviar: entrégale tú la contraseña.' : null); ultimoCorreo = null;
+    var nota = ultimoCorreo === 'enviado' ? 'Se ha enviado también por correo a la persona.' : (ultimoCorreo === 'no enviado' ? 'El correo no se ha podido enviar' + (ultimoMotivo ? ' (' + ultimoMotivo + ')' : '') + ': entrégale tú la contraseña.' : null); ultimoCorreo = null; ultimoMotivo = null;
     return h('div', { class: 'secret' }, h('strong', null, titulo), ayuda ? h('p', { class: 'muted' }, ayuda) : null, nota ? h('p', { class: 'muted' }, nota) : null, area, copiar);
   }
   function fila(titulo, sub, etiqueta, onAbrir) {
@@ -177,7 +177,7 @@
   function irA(id, arg) {
     detenerCamara();
     var sec = SECCIONES.filter(function (s) { return s[0] === id; })[0];
-    Array.prototype.forEach.call($('p-tabs').querySelectorAll('.ip-btn'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.s === id)); });
+    Array.prototype.forEach.call($('p-tabs').querySelectorAll('.ip-btn'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.s === id)); if (b.dataset.s === id && b.scrollIntoView) { try { b.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) { /* sin scroll */ } } });
     $('p-titulo').textContent = sec ? sec[1] : '';
     var cont = limpiar($('sec')); VISTAS[id](cont, arg);
   }
@@ -228,8 +228,13 @@
       ok.addEventListener('click', function () {
         ok.disabled = no.disabled = true;
         api('/inscripciones/' + f.id + '/aprobar', {}).then(function (r) {
-          st.className = 'form-status'; st.textContent = 'Aprobada. Número de afiliado ' + r.numero_afiliado + '. Carné emitido.';
-          salida.appendChild(secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal, 'Entrégala a la persona por un canal seguro. Caduca en 7 días y deberá cambiarla al entrar.'));
+          // La inscripción deja de estar pendiente: se actualiza la ficha y desaparecen Aprobar/Rechazar
+          f.estado = 'activo'; f.numero_afiliado = r.numero_afiliado;
+          var aviso = h('p', { class: 'aviso-ok', role: 'status' }, '✓ Afiliación aprobada · Nº ' + r.numero_afiliado + ' · carné emitido'); limpiar(body).appendChild(aviso);
+          body.appendChild(datosFicha(f));
+          body.appendChild(secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal, 'Caduca en 7 días y deberá cambiarla al entrar.'));
+          body.appendChild(h('div', { class: 'row-btns' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: function () { recargar(); } }, 'Hecho · siguiente inscripción')));
+          try { aviso.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) { /* sin scroll */ }
         }).catch(function (e) { ok.disabled = no.disabled = false; st.textContent = e.message; });
       });
       no.addEventListener('click', function () {

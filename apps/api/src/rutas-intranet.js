@@ -172,10 +172,10 @@ intranet.post('/inscripciones/:id/aprobar', requerirEquipo(...GESTION), async (r
       return asignarPasswordTemporal(p.id);
     });
   } catch (e) { console.error(e.message); return res.status(500).json({ error: 'No se pudo aprobar' }); }
-  const enviado = await enviarCorreo({ personaId: p.id, tipo: 'bienvenida', para: p.email, asunto: 'Bienvenida a PLU: tu acceso al portal', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: temp.password, caduca: temp.caduca, numero: formatoNumero(numero), motivo: 'Tu afiliación a PLU ha sido aprobada. Gracias por sumarte.' }) });
+  const envio = await enviarCorreo({ personaId: p.id, tipo: 'bienvenida', para: p.email, asunto: 'Bienvenida a PLU: tu acceso al portal', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: temp.password, caduca: temp.caduca, numero: formatoNumero(numero), motivo: 'Tu afiliación a PLU ha sido aprobada. Gracias por sumarte.' }) });
   auditar(req.equipo.id, 'aprobar_inscripcion', 'persona', p.id, { numero });
   // Sin correo todavía: la contraseña temporal se muestra UNA vez al equipo para que la entregue a la persona.
-  res.json({ ok: true, numero_afiliado: formatoNumero(numero), password_temporal: temp.password, caduca: temp.caduca, correo: enviado ? 'enviado' : 'no enviado' });
+  res.json({ ok: true, numero_afiliado: formatoNumero(numero), password_temporal: temp.password, caduca: temp.caduca, correo: envio.ok ? 'enviado' : 'no enviado', correo_motivo: envio.ok ? undefined : envio.motivo });
 });
 
 intranet.post('/inscripciones/:id/rechazar', requerirEquipo(...GESTION), (req, res) => {

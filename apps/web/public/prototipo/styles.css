@@ -856,3 +856,43 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spac
 @media (min-width: 640px) { .ficha-bloque .row-btns .btn { flex: 0 0 auto; } }
 .datos-cambio { display: grid; gap: 12px; }
 .ficha-bloque .field select, .ficha-form select { width: 100%; }
+
+/* ===== v1.3 · Modo claro: banda verde sólida con texto claro legible ===== */
+:root[data-theme="light"] .greenband { background: #24553a; color: #f4f7f1; border: 0; }
+:root[data-theme="light"] .greenband h2, :root[data-theme="light"] .greenband p, :root[data-theme="light"] .greenband .lede { color: #f4f7f1; opacity: 1 !important; }
+:root[data-theme="light"] .greenband h2 em { color: #9be7b3; text-decoration-color: #9be7b3; }
+:root[data-theme="light"] .greenband .eyebrow, :root[data-theme="light"] .greenband .link-arrow { color: #b9ecc9 !important; }
+/* Modo claro: verde de texto más oscuro sobre fondos claros (contraste AA) */
+:root[data-theme="light"] .section:not(.band):not(.greenband):not(.joinband):not(.quoteband) :is(.eyebrow, a.link, .tag, .chev, .dilema-out, .link-arrow) { color: #166534; }
+:root[data-theme="light"] main > .wrap :is(.eyebrow, a.link, .tag) { color: #166534; }
+:root[data-theme="light"] .small-muted, :root[data-theme="light"] .rowitem .s, :root[data-theme="light"] .muted { color: #4a5a50; }
+
+/* ===== v1.4 · Intranet y portal en móvil ===== */
+.aviso-ok { padding: 12px 14px; border-radius: 12px; font-weight: 600; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--fg); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); margin: 0 0 12px; }
+.secret-area { overflow-wrap: anywhere; word-break: break-all; white-space: pre-wrap; min-height: 5.5em; line-height: 1.5; }
+@media (max-width: 899px) {
+  /* Menú de la intranet: tira horizontal desplazable en lugar de ocupar toda la pantalla */
+  .ip-nav { display: flex; flex-direction: row; gap: 6px; overflow-x: auto; padding: 8px; border-radius: 14px; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; position: sticky; top: 84px; z-index: 5; }
+  .ip-nav::-webkit-scrollbar { display: none; }
+  .ip-grupo { display: flex; flex-direction: row; gap: 6px; flex: 0 0 auto; padding-right: 8px; margin-right: 2px; border-right: 1px solid var(--line); }
+  .ip-grupo:last-child { border-right: 0; }
+  .ip-grupo-t { display: none; }
+  .ip-btn { flex: 0 0 auto; white-space: nowrap; padding: 10px 14px; border: 1px solid var(--line); border-left-width: 1px; border-radius: 999px; font-size: .92rem; scroll-snap-align: start; }
+  .ip-btn[aria-pressed="true"] { border-color: transparent; }
+  .ip-top { padding: 12px 14px; }
+  .ip-top .row-btns { width: 100%; }
+  .ip-layout { gap: 14px; }
+  .toolbar { grid-template-columns: 1fr; }
+  .row-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .row-btns .btn { flex: 1 1 calc(50% - 8px); min-width: 0; justify-content: center; text-align: center; }
+  .rowitem summary { padding: 14px; }
+  .rowitem .body, .rowitem > div:last-child { padding: 14px; }
+  .ficha-dl { grid-template-columns: 1fr 1fr; gap: 10px 14px; }
+  .audit-row { grid-template-columns: 1fr; gap: 4px; }
+  .secret .btn { width: 100%; }
+}
+@media (max-width: 480px) {
+  .ficha-dl { grid-template-columns: 1fr; }
+  .row-btns .btn { flex: 1 1 100%; }
+}
+.aviso-ok { scroll-margin-top: 170px; }
