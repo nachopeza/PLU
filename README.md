@@ -142,3 +142,7 @@ PLU es un movimiento: la política se construye a partir de lo que pide la ciuda
 - Tipografía: Newsreader (serifa) para títulos y Public Sans para texto; sin fuente monoespaciada ni rótulos en mayúsculas.
 - Cabecera lisa con filete, botones rectos, tarjetas de esquina casi recta; se quitan la cinta animada, el brillo del ratón y las inclinaciones.
 - Todo el aspecto vive en el último bloque de `styles.css` ("v0.8") para poder ajustarlo en un sitio.
+
+## Versión 0.9: cristal esmerilado sobre verde bosque
+- Se recupera el efecto cristal (cabecera en píldora, tarjetas y formulario translúcidos con desenfoque del fondo) y el modo oscuro por defecto, ahora sin degradados: velos planos, verde salvia apagado y títulos en serifa.
+- Los títulos de las fotos van sobre una banda de cristal verde. Sigue el bloque final de `styles.css` ("v0.9") como único lugar de ajuste.

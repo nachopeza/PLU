@@ -711,3 +711,83 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 500; letter-spac
 :is(.txt, .head, .section, .wrap, .panel, .hero, .page-hero, .joinband, .quoteband, .band, .ip-main, .family, .tile, .gate) :is(h1, h2, h3, h4) { font-weight: 500; letter-spacing: -.01em; }
 .hero p { font-size: 1.15rem; max-width: 34rem; line-height: 1.6; }
 .counter b { font-weight: 500; }
+
+/* ===== v0.9 · Cristal esmerilado sobre verde bosque: sobrio, sin degradados ===== */
+:root {
+  --bg: #0a1810; --surface: rgba(255,255,255,.045); --surface-2: rgba(255,255,255,.09); --fg: #eef2ea; --muted: #a7b8ab; --line: rgba(255,255,255,.13);
+  --accent: #6cc392; --accent-strong: #4aa774; --on-accent: #06180e; --soft: rgba(108,195,146,.14);
+  --glass: rgba(255,255,255,.055); --glass-b: rgba(255,255,255,.14); --radius: 20px;
+}
+:root[data-theme="light"] {
+  --bg: #eef2ec; --surface: rgba(255,255,255,.6); --surface-2: rgba(255,255,255,.85); --fg: #12221a; --muted: #55645a; --line: rgba(18,34,26,.14);
+  --accent: #23694a; --accent-strong: #1f5f42; --on-accent: #fff; --soft: rgba(35,105,74,.1);
+  --glass: rgba(255,255,255,.55); --glass-b: rgba(18,34,26,.12);
+}
+body { background: var(--bg); }
+.alt { background: rgba(255,255,255,.025); }
+:root[data-theme="light"] .alt { background: rgba(255,255,255,.5); }
+
+/* Cabecera: píldora de cristal flotante */
+.site-header { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 10px); padding-top: 10px; background: none; border: 0; }
+.nav-pill { border: 1px solid var(--glass-b); border-radius: 999px; background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.15); backdrop-filter: blur(20px) saturate(1.15); padding: 8px 8px 8px 18px; box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+.site-header.scrolled .nav-pill { background: color-mix(in srgb, var(--bg) 62%, transparent); }
+.nav-links a { border-radius: 999px; padding: 8px 13px; }
+.nav-links a:hover, .nav-links a[aria-current="page"] { background: var(--surface-2); color: var(--fg); }
+.menu { margin-top: 8px; border: 1px solid var(--glass-b); border-radius: 24px; background: var(--glass); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+.menu a { border-radius: 16px; }
+.hero, .page-hero { margin-top: -66px; padding-top: 66px; }
+
+/* Botones: píldoras sobrias */
+.btn { border-radius: 999px; padding: 13px 26px; }
+.btn-sm { padding: 9px 17px; }
+.btn-primary { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.btn-primary:hover, :root[data-theme="light"] .btn-primary:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+:root:not([data-theme="light"]) .btn-primary:hover { background: var(--accent); border-color: var(--accent); color: #06180e; }
+.btn-ghost { border-color: var(--glass-b); background: var(--glass); color: var(--fg); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.btn-ghost:hover { background: var(--surface-2); color: var(--fg); border-color: var(--fg); }
+.btn-light { background: #f3f6ef; color: #0c1a12; border-color: #f3f6ef; }
+.btn-line-light { border-color: rgba(255,255,255,.55); color: #fff; background: rgba(255,255,255,.08); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.btn-line-light:hover { background: #fff; color: #0c1a12; }
+.icon-btn { border-radius: 50%; border-color: var(--glass-b); }
+.icon-btn:hover { background: var(--surface-2); color: var(--fg); }
+.fbtn { border-radius: 999px; border-color: var(--glass-b); background: var(--glass); }
+.fbtn[aria-pressed="true"], .ip-btn[aria-pressed="true"] { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+.link, .link-arrow { color: var(--accent); }
+
+/* Superficies de cristal: translúcidas, borde fino y un reflejo suave arriba (sin degradado) */
+.form-card, .panel, .counter, .rowitem, .pcard, .gate, .qq, .res-q, .secret, .audit-row, .opt, .ip-top, .ip-nav, .family, .carnet {
+  background: var(--glass); border: 1px solid var(--glass-b); border-radius: var(--radius);
+  -webkit-backdrop-filter: blur(16px) saturate(1.1); backdrop-filter: blur(16px) saturate(1.1); box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+}
+.counter b { color: var(--fg); }
+.gate.main { background: rgba(108,195,146,.16); border-color: rgba(108,195,146,.45); color: var(--fg); }
+.gate.main:hover { background: rgba(108,195,146,.24); }
+.ip-btn { border-radius: 10px; }
+.icoc { border-color: var(--accent); }
+.leaf-list li::before { border-radius: 0 100% 0 100%; transform: none; width: 10px; height: 10px; top: .6em; }
+
+/* Fotos y títulos: velo verde plano; banda de cristal verde bajo el título */
+.ph, .tile, .ptile, .vidblock { border-radius: var(--radius) !important; }
+.hero .ph, .page-hero .ph, .joinband .ph, .quoteband .ph { border-radius: 0 !important; }
+.hero::after { background: rgba(6,20,12,.62); }
+.page-hero::after { background: rgba(6,20,12,.6); }
+.joinband::after { background: rgba(6,20,12,.7); }
+.quoteband::after { background: rgba(6,20,12,.68); }
+.tile .in, .ptile span, .vidblock .cap, .ph .cap {
+  background: rgba(34,104,68,.72); color: #fff; -webkit-backdrop-filter: blur(12px) saturate(1.2); backdrop-filter: blur(12px) saturate(1.2); border-top: 1px solid rgba(255,255,255,.2);
+}
+.tile h3, .tile p, .tile .arrow { color: #fff; }
+.tile:hover .in, .ptile:hover span { background: rgba(44,126,82,.82); }
+.ptile span { font-weight: 600; }
+.greenband { background: rgba(34,104,68,.35); color: var(--fg); border-block: 1px solid var(--glass-b); }
+.greenband .eyebrow, .greenband .link-arrow { color: var(--accent) !important; }
+.band { background: rgba(255,255,255,.03); color: var(--fg); border-block: 1px solid var(--glass-b); }
+.band .lede, .band p { color: var(--muted); }
+
+/* Formulario de portada: cristal oscuro sobre la foto */
+.hero-form { background: rgba(8,22,14,.52); color: #fff; border: 1px solid rgba(255,255,255,.2); border-radius: 24px; -webkit-backdrop-filter: blur(22px) saturate(1.15); backdrop-filter: blur(22px) saturate(1.15);
+  --fg: #fff; --muted: rgba(255,255,255,.72); --line: rgba(255,255,255,.28); --surface: transparent; --accent: #7fd1a2; }
+.hero-form .btn-primary { background: #f3f6ef; border-color: #f3f6ef; color: #0c1a12; width: 100%; }
+.hero-form .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
+.hero-form select option { color: #141916; }
+.hero h1 { color: #fff; }
