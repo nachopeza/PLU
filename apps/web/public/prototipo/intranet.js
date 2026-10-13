@@ -8,13 +8,14 @@
   var ticket = null, usuario = null, provincias = null;
 
   // ---------- Utilidades ----------
+  var ultimoCorreo = null;
   function api(ruta, cuerpo, metodo) {
     return fetch('/api/intranet' + ruta, {
       method: metodo || (cuerpo === undefined ? 'GET' : 'POST'),
       headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
       body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo)
     }).then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) { var e = new Error(d.error || 'Error'); e.status = r.status; e.datos = d; throw e; } return d; });
+      return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) { var e = new Error(d.error || 'Error'); e.status = r.status; e.datos = d; throw e; } ultimoCorreo = d.correo || null; return d; });
     }, function () { throw new Error('No se puede conectar con la API. Arranca el servidor (npm run dev) y abre http://localhost:8787/intranet'); });
   }
   function msg(form, texto) { form.querySelector('.form-status').textContent = texto || ''; }
@@ -58,7 +59,8 @@
   function secreto(titulo, texto, ayuda) {
     var area = h('textarea', { class: 'secret-area', readonly: true, rows: Math.min(8, texto.split('\n').length + 1) }); area.value = texto;
     var copiar = h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { area.select(); try { navigator.clipboard.writeText(texto); copiar.textContent = 'Copiado'; } catch (e) { document.execCommand('copy'); } } }, 'Copiar');
-    return h('div', { class: 'secret' }, h('strong', null, titulo), ayuda ? h('p', { class: 'muted' }, ayuda) : null, area, copiar);
+    var nota = ultimoCorreo === 'enviado' ? 'Se ha enviado también por correo a la persona.' : (ultimoCorreo === 'no enviado' ? 'El correo no se ha podido enviar: entrégale tú la contraseña.' : null); ultimoCorreo = null;
+    return h('div', { class: 'secret' }, h('strong', null, titulo), ayuda ? h('p', { class: 'muted' }, ayuda) : null, nota ? h('p', { class: 'muted' }, nota) : null, area, copiar);
   }
   function fila(titulo, sub, etiqueta, onAbrir) {
     var d = h('details', { class: 'rowitem' }), cuerpo = h('div', { class: 'body' });

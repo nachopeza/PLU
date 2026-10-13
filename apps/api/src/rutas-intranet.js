@@ -8,6 +8,7 @@ import {
 } from './seguridad.js';
 import { auditar, cerrarSesion, iniciarSesion, requerirEquipo } from './sesion.js';
 import { enmascarar, limpio } from './validar.js';
+import { enviarCorreo, textoAcceso } from './correo.js';
 import { asignarPasswordTemporal, emitirCarne, formatoNumero as fmtNum, transaccion } from './servicios.js';
 
 export const intranet = Router();
@@ -153,7 +154,7 @@ function nuevoNumeroAfiliado(codigoProvincia) {
   throw new Error('No se pudo generar un número libre');
 }
 
-intranet.post('/inscripciones/:id/aprobar', requerirEquipo(...GESTION), (req, res) => {
+intranet.post('/inscripciones/:id/aprobar', requerirEquipo(...GESTION), async (req, res) => {
   const f = filtroAlcance(req.equipo);
   const p = db.prepare(`SELECT p.*, t.codigo_num FROM personas p JOIN territorios t ON t.id = p.territorio_id WHERE p.id = ? AND p.tipo = 'afiliado'${f.sql}`)
     .get(Number(req.params.id), ...f.args);
@@ -171,10 +172,10 @@ intranet.post('/inscripciones/:id/aprobar', requerirEquipo(...GESTION), (req, re
       return asignarPasswordTemporal(p.id);
     });
   } catch (e) { console.error(e.message); return res.status(500).json({ error: 'No se pudo aprobar' }); }
-  db.prepare("INSERT INTO correos (persona_id, tipo, destinatario, estado, error) VALUES (?, 'bienvenida', ?, 'omitido', 'envío de correo no activo')").run(p.id, p.email);
+  const enviado = await enviarCorreo({ personaId: p.id, tipo: 'bienvenida', para: p.email, asunto: 'Bienvenida a PLU: tu acceso al portal', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: temp.password, caduca: temp.caduca, numero: formatoNumero(numero), motivo: 'Tu afiliación a PLU ha sido aprobada. Gracias por sumarte.' }) });
   auditar(req.equipo.id, 'aprobar_inscripcion', 'persona', p.id, { numero });
   // Sin correo todavía: la contraseña temporal se muestra UNA vez al equipo para que la entregue a la persona.
-  res.json({ ok: true, numero_afiliado: formatoNumero(numero), password_temporal: temp.password, caduca: temp.caduca, correo: 'pendiente: el envío de correo todavía no está activo' });
+  res.json({ ok: true, numero_afiliado: formatoNumero(numero), password_temporal: temp.password, caduca: temp.caduca, correo: enviado ? 'enviado' : 'no enviado' });
 });
 
 intranet.post('/inscripciones/:id/rechazar', requerirEquipo(...GESTION), (req, res) => {

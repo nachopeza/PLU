@@ -7,6 +7,7 @@ import {
   ahoraISO, asignarPasswordTemporal, carneVigente, emitirCarne, formatoNumero, moverEstado, passwordTemporal, revocarCarnes, transaccion,
 } from './servicios.js';
 import { datosPerfil, enmascarar, esEmail, limpio } from './validar.js';
+import { enviarCorreo, textoAcceso } from './correo.js';
 import { datosCarne, generarCarnePdf, generarCertificadoPdf } from './carne.js';
 
 export const gestion = Router();
@@ -124,7 +125,7 @@ gestion.get('/personas/:id/certificado.pdf', requerirEquipo('admin', 'gestor'), 
   } catch (e) { console.error('Error certificado:', e.message); res.status(500).json({ error: 'No se pudo generar el certificado' }); }
 });
 
-gestion.post('/personas/:id/estado', requerirEquipo('admin', 'gestor'), (req, res) => {
+gestion.post('/personas/:id/estado', requerirEquipo('admin', 'gestor'), async (req, res) => {
   const p = personaVisible(req);
   if (!p || p.tipo !== 'afiliado') return res.status(404).json({ error: 'No encontrada' });
   const accion = req.body?.accion;
@@ -139,7 +140,8 @@ gestion.post('/personas/:id/estado', requerirEquipo('admin', 'gestor'), (req, re
       t = asignarPasswordTemporal(p.id);
     });
     auditar(req.equipo.id, 'persona_readmitir', 'persona', p.id, { motivo });
-    return res.json({ ok: true, password_temporal: t.password, caduca: t.caduca });
+    const enviado = await enviarCorreo({ personaId: p.id, tipo: 'readmision', para: p.email, asunto: 'Tu afiliación a PLU se ha reactivado', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: t.password, caduca: t.caduca, motivo: 'Tu afiliación a PLU se ha reactivado.' }) });
+    return res.json({ ok: true, password_temporal: t.password, caduca: t.caduca, correo: enviado ? 'enviado' : 'no enviado' });
   } else if (accion === 'baja' && ['activo', 'suspendido'].includes(p.estado)) {
     transaccion(() => {
       moverEstado(p.id, 'baja', 'baja', motivo, req.equipo.id);
@@ -169,12 +171,13 @@ function cambiarProvincia(p, territorioId, motivo, usuarioId) {
   });
 }
 
-gestion.post('/personas/:id/reset-password', requerirEquipo('admin', 'gestor'), (req, res) => {
+gestion.post('/personas/:id/reset-password', requerirEquipo('admin', 'gestor'), async (req, res) => {
   const p = personaVisible(req);
   if (!p || p.tipo !== 'afiliado' || p.estado !== 'activo') return res.status(404).json({ error: 'No encontrada' });
   const t = asignarPasswordTemporal(p.id);
   auditar(req.equipo.id, 'reset_password_afiliado', 'persona', p.id);
-  res.json({ ok: true, password_temporal: t.password, caduca: t.caduca });
+  const enviado = await enviarCorreo({ personaId: p.id, tipo: 'reset_password', para: p.email, asunto: 'Nueva contraseña temporal de PLU', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: t.password, caduca: t.caduca, motivo: 'Se ha generado una contraseña temporal para tu acceso.' }) });
+  res.json({ ok: true, password_temporal: t.password, caduca: t.caduca, correo: enviado ? 'enviado' : 'no enviado' });
 });
 
 // ---------- Solicitudes ----------
