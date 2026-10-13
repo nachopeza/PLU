@@ -86,11 +86,18 @@
   /* Afiliación por pasos (demostración) */
   var steps = document.querySelectorAll('.step');
   if (steps.length) {
-    var cur = 0, bars = document.querySelectorAll('.stepper span');
+    var cur = 0, started = false, bars = document.querySelectorAll('.stepper span');
     function show(n) {
       cur = n;
       steps.forEach(function (s, i) { s.hidden = i !== n; });
       bars.forEach(function (b, i) { b.classList.toggle('on', i <= n); });
+      if (started) {
+        // Al cambiar de paso, volver al inicio del formulario (debajo de la cabecera fija)
+        var form = steps[0].closest('form') || steps[0].parentElement, stp = document.querySelector('.stepper') || form;
+        var top = stp.getBoundingClientRect().top + window.scrollY - 96;
+        window.scrollTo({ top: Math.max(0, top), behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+        var f = steps[n].querySelector('input:not([type=hidden]), select, textarea'); if (f && n > 0) { try { f.focus({ preventScroll: true }); } catch (e) { /* sin foco */ } }
+      }
     }
     function valid(n) {
       var ok = true;
@@ -99,7 +106,7 @@
     }
     document.querySelectorAll('[data-next]').forEach(function (b) { b.addEventListener('click', function () { if (valid(cur)) show(cur + 1); }); });
     document.querySelectorAll('[data-prev]').forEach(function (b) { b.addEventListener('click', function () { show(cur - 1); }); });
-    show(0);
+    show(0); started = true;
   }
 
   /* Formularios de demostración */
