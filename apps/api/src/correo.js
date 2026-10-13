@@ -11,7 +11,7 @@ const DESDE = SMTP_FROM || (SMTP_USER ? `PLU <${SMTP_USER}>` : '');
 const transporte = CORREO_ACTIVO
   ? nodemailer.createTransport({
       host: SMTP_HOST, port: Number(SMTP_PORT || 465), secure: Number(SMTP_PORT || 465) === 465,
-      auth: { user: SMTP_USER, pass: SMTP_PASS }, connectionTimeout: 10000, socketTimeout: 15000
+      requireTLS: Number(SMTP_PORT || 465) === 587, auth: { user: SMTP_USER, pass: SMTP_PASS }, connectionTimeout: 10000, socketTimeout: 15000
     })
   : null;
 
