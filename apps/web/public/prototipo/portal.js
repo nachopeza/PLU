@@ -20,6 +20,7 @@
   function fecha(iso) { return iso ? new Date(iso).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : ''; }
   function msg(f, t) { f.querySelector('.form-status').textContent = t || ''; }
   var MOV = { inscripcion: 'Solicitud de afiliación', alta: 'Alta como afiliado', cambio_territorio: 'Cambio de provincia', suspension: 'Suspensión', reactivacion: 'Reactivación', baja: 'Baja', rechazo: 'Rechazo' };
+  var catalogos = { situaciones: [], sectores: [] };
   var TIPOS = { cambio_datos: 'Cambio de datos', cambio_provincia: 'Cambio de provincia', baja: 'Darme de baja', duplicado_carne: 'Duplicado del carné', renovacion_carne: 'Renovar el carné', certificado: 'Certificado de afiliación', otra: 'Otra consulta' };
   var ESTSOL = { abierta: 'En espera', en_revision: 'En revisión', resuelta: 'Resuelta', rechazada: 'Rechazada' };
 
@@ -43,6 +44,7 @@
       $('w-estado').textContent = (d.estado === 'suspendido' ? 'Afiliación suspendida' : 'Afiliado') + ' · Nº ' + d.numero_afiliado;
       ver('w-panel'); irA('carne');
       fetch('/api/provincias').then(function (r) { return r.json(); }).then(function (p) { provincias = p; }).catch(function () {});
+      fetch('/api/catalogos').then(function (r) { return r.json(); }).then(function (c) { catalogos = c; }).catch(function () {});
     }).catch(function () { ver('w-login'); });
   }
   function irA(s) {
@@ -57,7 +59,7 @@
     c.appendChild(h('div', { class: 'carnet' },
       h('small', null, 'PLU · Carné de afiliado'), h('strong', null, yo.nombre + ' ' + yo.apellidos), h('span', null, 'Nº ' + yo.numero_afiliado + ' · ' + yo.provincia),
       h('small', null, 'Alta ' + fecha(yo.fecha_alta) + ' · válido hasta ' + fecha(k.valido_hasta))));
-    c.appendChild(h('p', { class: 'row-btns' }, h('a', { class: 'btn btn-primary', href: '/api/portal/carne.pdf' }, 'Descargar carné (PDF)')));
+    c.appendChild(h('p', { class: 'row-btns' }, h('a', { class: 'btn btn-primary', href: '/api/portal/carne.pdf' }, 'Descargar carné (PDF)'), h('a', { class: 'btn btn-ghost', href: '/api/portal/certificado.pdf' }, 'Certificado de afiliación (PDF)')));
     c.appendChild(h('p', { class: 'muted' }, 'El carné lleva un QR que el equipo puede comprobar en eventos y mítines. No es un documento oficial y no sustituye al DNI. Si lo pierdes, pide un duplicado en Solicitudes.'));
   }
 
@@ -73,10 +75,21 @@
     var tipo = h('select', { id: 's-t' }, Object.keys(TIPOS).map(function (k) { return h('option', { value: k }, TIPOS[k]); }));
     var prov = h('select', { id: 's-p' }, [h('option', { value: '' }, 'Elige provincia…')].concat(provincias.map(function (p) { return h('option', { value: p.id }, p.nombre); })));
     var provCampo = h('div', { class: 'field', hidden: true }, h('label', { for: 's-p' }, 'Nueva provincia'), prov);
-    tipo.addEventListener('change', function () { provCampo.hidden = tipo.value !== 'cambio_provincia'; });
+    // Cambio de datos: campos con los valores actuales; solo se envía lo que cambie
+    var CAMPOS = [['direccion', 'Dirección', 'text'], ['poblacion', 'Municipio', 'text'], ['codigo_postal', 'Código postal', 'text'], ['telefono', 'Teléfono', 'tel'], ['ocupacion', 'Ocupación o profesión', 'text']];
+    var datosCampo = h('div', { class: 'datos-cambio', hidden: true }), refs = {};
+    CAMPOS.forEach(function (k) { refs[k[0]] = h('input', { id: 'd-' + k[0], type: k[2], value: yo[k[0]] || '', maxlength: '160' }); datosCampo.appendChild(h('div', { class: 'field' }, h('label', { for: 'd-' + k[0] }, k[1]), refs[k[0]])); });
+    function lista2(id, etiqueta, opciones, actual) {
+      var s = h('select', { id: id }, [h('option', { value: '' }, 'Sin indicar')].concat(opciones.map(function (o) { return h('option', { value: o[0] }, o[1]); }))); s.value = actual || '';
+      datosCampo.appendChild(h('div', { class: 'field' }, h('label', { for: id }, etiqueta), s)); return s;
+    }
+    refs.situacion_laboral = lista2('d-situacion', 'Situación laboral', catalogos.situaciones, yo.situacion_laboral);
+    refs.sector = lista2('d-sector', 'Sector', catalogos.sectores, yo.sector);
+    datosCampo.appendChild(h('p', { class: 'muted' }, 'Cambia solo lo que haya cambiado. El equipo lo revisará y lo actualizará.'));
+    tipo.addEventListener('change', function () { provCampo.hidden = tipo.value !== 'cambio_provincia'; datosCampo.hidden = tipo.value !== 'cambio_datos'; });
     var det = h('textarea', { id: 's-d', rows: '3', maxlength: '800' });
     form.appendChild(h('h2', null, 'Nueva solicitud'));
-    form.appendChild(h('div', { class: 'field' }, h('label', { for: 's-t' }, 'Qué necesitas'), tipo)); form.appendChild(provCampo);
+    form.appendChild(h('div', { class: 'field' }, h('label', { for: 's-t' }, 'Qué necesitas'), tipo)); form.appendChild(provCampo); form.appendChild(datosCampo);
     form.appendChild(h('div', { class: 'field' }, h('label', { for: 's-d' }, 'Detalles (opcional)'), det));
     form.appendChild(h('button', { class: 'btn btn-primary', type: 'submit' }, 'Enviar')); form.appendChild(h('p', { class: 'form-status', role: 'status' }));
     var lista = h('div', { class: 'rows' });
@@ -88,7 +101,12 @@
     }
     form.addEventListener('submit', function (e) {
       e.preventDefault(); msg(form);
-      api('/solicitudes', { tipo: tipo.value, detalle: det.value, provincia_id: prov.value || undefined }).then(function () { det.value = ''; msg(form, 'Solicitud enviada. El equipo la revisará.'); cargar(); }).catch(function (err) { msg(form, err.message); });
+      var cuerpo = { tipo: tipo.value, detalle: det.value, provincia_id: prov.value || undefined };
+        if (tipo.value === 'cambio_datos') {
+          var cambios = {}; Object.keys(refs).forEach(function (k) { var v = refs[k].value.trim(); if (v !== String(yo[k] || '')) cambios[k] = v; });
+          if (Object.keys(cambios).length) cuerpo.cambios = cambios;
+        }
+        api('/solicitudes', cuerpo).then(function () { det.value = ''; msg(form, 'Solicitud enviada. El equipo la revisará.'); cargar(); }).catch(function (err) { msg(form, err.message); });
     });
     c.appendChild(form); c.appendChild(h('h3', { style: 'margin-top:26px' }, 'Tus solicitudes')); c.appendChild(lista); cargar();
     var pw = h('form', { class: 'form-card', style: 'margin-top:26px', novalidate: true }, h('h2', null, 'Cambiar contraseña'),

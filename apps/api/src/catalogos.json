@@ -1,0 +1,25 @@
+{
+  "situaciones": [
+    ["cuenta_ajena", "Trabajo por cuenta ajena"],
+    ["autonomo", "Trabajo por cuenta propia (autónomo/a)"],
+    ["empleo_publico", "Empleo público"],
+    ["desempleo", "En búsqueda de empleo"],
+    ["estudiante", "Estudiante"],
+    ["jubilacion", "Jubilado/a o pensionista"],
+    ["otra", "Otra situación"]
+  ],
+  "sectores": [
+    ["sanidad", "Sanidad"],
+    ["educacion", "Educación"],
+    ["transporte", "Transporte y movilidad"],
+    ["vivienda", "Vivienda y construcción"],
+    ["administracion", "Administración pública"],
+    ["comercio", "Comercio y hostelería"],
+    ["industria", "Industria y energía"],
+    ["tecnologia", "Tecnología"],
+    ["agricultura", "Agricultura y medio rural"],
+    ["finanzas_legal", "Finanzas, derecho y consultoría"],
+    ["cultura", "Cultura y comunicación"],
+    ["otro", "Otro sector"]
+  ]
+}

@@ -4,9 +4,9 @@ import { db } from './db.js';
 import { hashPassword, limitar, verificarPassword } from './seguridad.js';
 import { cerrarSesionPersona, iniciarSesionPersona, requerirPersona } from './sesion.js';
 import { ahoraISO, carneVigente, formatoNumero } from './servicios.js';
-import { datosCarne, generarCarnePdf } from './carne.js';
+import { datosCarne, generarCarnePdf, generarCertificadoPdf } from './carne.js';
 import { encuestaAbierta, encuestaPublica, registrarParticipacion } from './rutas-encuestas.js';
-import { limpio } from './validar.js';
+import { datosPerfil, limpio } from './validar.js';
 
 export const portal = Router();
 const FALSO = hashPassword('no-existe');
@@ -47,6 +47,7 @@ portal.get('/me', requerirPersona({ permiteCambio: true }), (req, res) => {
   const t = db.prepare('SELECT nombre FROM territorios WHERE id = ?').get(p.territorio_id);
   res.json({
     nombre: p.nombre, apellidos: p.apellidos, email: p.email, telefono: p.telefono, estado: p.estado,
+    direccion: p.direccion, poblacion: p.poblacion, codigo_postal: p.codigo_postal, ocupacion: p.ocupacion, situacion_laboral: p.situacion_laboral, sector: p.sector,
     numero_afiliado: formatoNumero(p.numero_afiliado), provincia: t?.nombre, fecha_alta: p.fecha_alta,
     carne: c ? { version: c.version, emitido_en: c.emitido_en, valido_hasta: c.valido_hasta } : null,
     historial: db.prepare('SELECT tipo, motivo, fecha FROM movimientos_afiliacion WHERE persona_id = ? ORDER BY fecha DESC, id DESC').all(p.id),
@@ -63,6 +64,17 @@ portal.get('/carne.pdf', requerirPersona(), async (req, res) => {
     res.setHeader('Content-Disposition', `attachment; filename="carne-plu-${p.numero_afiliado}.pdf"`);
     res.send(Buffer.from(bytes));
   } catch (e) { console.error('Error carné:', e.message); res.status(500).json({ error: 'No se pudo generar el carné' }); }
+});
+
+portal.get('/certificado.pdf', requerirPersona(), async (req, res) => {
+  const p = db.prepare('SELECT * FROM personas WHERE id = ?').get(req.persona.id);
+  if (!['activo', 'suspendido'].includes(p.estado)) return res.status(404).json({ error: 'No disponible' });
+  if (!limitar(`pcert:${p.id}`, 20, 3600_000)) return res.status(429).json({ error: 'Demasiadas descargas' });
+  try {
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="certificado-plu-${p.numero_afiliado}.pdf"`);
+    res.send(Buffer.from(await generarCertificadoPdf(p)));
+  } catch (e) { console.error('Error certificado:', e.message); res.status(500).json({ error: 'No se pudo generar el certificado' }); }
 });
 
 // ---- Solicitudes ----
@@ -82,6 +94,13 @@ portal.post('/solicitudes', requerirPersona(), (req, res) => {
     const t = db.prepare("SELECT id FROM territorios WHERE id = ? AND tipo = 'provincia'").get(Number(req.body?.provincia_id));
     if (!t) return res.status(400).json({ error: 'Elige una provincia' });
     detalle = JSON.stringify({ provincia_id: t.id, nota: limpio(req.body?.detalle, 300) });
+  }
+  if (tipo === 'cambio_datos' && req.body?.cambios && typeof req.body.cambios === 'object') {
+    // Cambios concretos (teléfono, dirección, municipio, ocupación…): el equipo los revisa y, al aceptar, se aplican
+    const perfil = datosPerfil(req.body.cambios, { parcial: true });
+    if (Object.keys(perfil.errores).length) return res.status(400).json({ error: 'Revisa los datos', errores: perfil.errores });
+    if (!Object.keys(perfil.datos).length) return res.status(400).json({ error: 'No hay ningún cambio' });
+    detalle = JSON.stringify({ cambios: perfil.datos, nota: limpio(req.body?.detalle, 300) });
   }
   const r = db.prepare('INSERT INTO solicitudes (persona_id, tipo, detalle) VALUES (?, ?, ?)').run(req.persona.id, tipo, detalle);
   res.status(201).json({ ok: true, id: Number(r.lastInsertRowid) });

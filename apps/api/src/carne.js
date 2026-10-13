@@ -89,3 +89,32 @@ export const DATOS_MUESTRA = {
   nombre: 'María', apellidos: 'García López', nombreCompleto: 'María García López', numeroAfiliado: '28-482915',
   territorio: 'Madrid', comunidad: 'Comunidad de Madrid', fechaAlta: '01/01/2027', validoHasta: '01/01/2032', codigo: 'MUESTRA-NO-VALIDO',
 };
+
+// Certificado de afiliación (A4). No incluye el documento de identidad. El QR lleva a la verificación.
+const ESTADO_TXT = { activo: 'afiliado/a en activo', suspendido: 'afiliado/a con la afiliación suspendida', baja: 'dado/a de baja', pendiente: 'pendiente de aprobación' };
+export async function generarCertificadoPdf(persona) {
+  const mm = 72 / 25.4;
+  const pdf = await PDFDocument.create();
+  const pg = pdf.addPage([210 * mm, 297 * mm]);
+  const f = await pdf.embedFont(StandardFonts.Helvetica), fb = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const t = db.prepare('SELECT nombre FROM territorios WHERE id = ?').get(persona.territorio_id);
+  const negro = rgb(0.08, 0.1, 0.09), gris = rgb(0.4, 0.43, 0.41);
+  pg.drawText('PLU', { x: 25 * mm, y: 262 * mm, size: 28, font: fb, color: negro });
+  pg.drawText('Plataforma Liberal Unida', { x: 25 * mm, y: 254 * mm, size: 10, font: f, color: gris });
+  pg.drawText('CERTIFICADO DE AFILIACIÓN', { x: 25 * mm, y: 225 * mm, size: 16, font: fb, color: negro });
+  const nombre = `${persona.nombre} ${persona.apellidos}`.trim();
+  const lineas = [
+    `PLU certifica que ${nombre}, con número de afiliado ${formatoNumero(persona.numero_afiliado)},`,
+    `figura en el registro de personas afiliadas como ${ESTADO_TXT[persona.estado] ?? persona.estado}`,
+    `${persona.fecha_alta ? `desde el ${fechaLarga(persona.fecha_alta)}` : ''}${t?.nombre ? `, con residencia en la provincia de ${t.nombre}` : ''}.`,
+    '',
+    `Y para que conste, se expide el presente certificado el ${fechaLarga(new Date().toISOString())}.`,
+  ];
+  lineas.forEach((l, i) => pg.drawText(l, { x: 25 * mm, y: (205 - i * 8) * mm, size: 11, font: f, color: negro }));
+  if (persona.codigo_verificacion) {
+    pg.drawImage(await pdf.embedPng(await qrPng(persona.codigo_verificacion)), { x: 25 * mm, y: 120 * mm, width: 30 * mm, height: 30 * mm });
+    pg.drawText('Comprueba la autenticidad de este certificado escaneando el código.', { x: 60 * mm, y: 133 * mm, size: 8, font: f, color: gris });
+  }
+  pg.drawText('Documento de carácter informativo. Los datos personales se tratan conforme a la política de privacidad de PLU.', { x: 25 * mm, y: 20 * mm, size: 7, font: f, color: gris });
+  return await pdf.save({ useObjectStreams: false });
+}

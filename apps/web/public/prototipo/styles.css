@@ -838,3 +838,21 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spac
 .tile:hover .in { background: #3a6c4a; }
 .tile .ph::after, .vidblock .ph::after { background: #2f8a55; mix-blend-mode: color; opacity: .8; }
 .tile .ph img, .vidblock .ph img { filter: grayscale(1) contrast(1.05) brightness(.85); }
+
+/* ===== Móvil: menú desplegable que cabe en pantalla, con grupos en dos columnas ===== */
+.menu { max-height: calc(100dvh - 96px); overflow-y: auto; overscroll-behavior: contain; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px; padding: 10px; }
+.menu a { padding: 12px 14px; font-size: 1rem; line-height: 1.25; }
+.menu-t { grid-column: 1 / -1; font: 500 .68rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); padding: 10px 14px 4px; }
+.menu-t:first-child { padding-top: 4px; }
+.menu[hidden] { display: none; }
+
+/* ===== Ficha de persona en la intranet ===== */
+.ficha-bloque { display: grid; gap: 10px; padding: 16px 0; border-top: 1px solid var(--line); }
+.ficha-bloque:first-child { border-top: 0; padding-top: 4px; }
+.ficha-bloque h3 { font: 500 .72rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.ficha-form { display: grid; gap: 12px; }
+@media (min-width: 640px) { .ficha-form { grid-template-columns: repeat(2, minmax(0, 1fr)); } .ficha-form .row-btns, .ficha-form .form-status { grid-column: 1 / -1; } }
+.ficha-bloque .row-btns .btn { flex: 1 1 auto; }
+@media (min-width: 640px) { .ficha-bloque .row-btns .btn { flex: 0 0 auto; } }
+.datos-cambio { display: grid; gap: 12px; }
+.ficha-bloque .field select, .ficha-form select { width: 100%; }

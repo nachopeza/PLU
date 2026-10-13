@@ -47,10 +47,13 @@
     (provincias || []).forEach(function (p) { s.appendChild(h('option', { value: p.id }, p.nombre)); });
     return h('div', { class: 'field' }, h('label', { for: id }, etiqueta), s);
   }
+  var catalogos = { situaciones: [], sectores: [] };
   function cargarProvincias() {
     if (provincias) return Promise.resolve();
+    fetch('/api/catalogos').then(function (r) { return r.json(); }).then(function (c) { catalogos = c; }).catch(function () { /* sin listas */ });
     return fetch('/api/provincias').then(function (r) { return r.json(); }).then(function (d) { provincias = d; }).catch(function () { provincias = []; });
   }
+  function etiquetaDe(lista, v) { var x = (lista || []).filter(function (o) { return o[0] === v; })[0]; return x ? x[1] : (v || '—'); }
   // Caja para datos que se muestran UNA sola vez (contraseñas temporales, enlaces)
   function secreto(titulo, texto, ayuda) {
     var area = h('textarea', { class: 'secret-area', readonly: true, rows: Math.min(8, texto.split('\n').length + 1) }); area.value = texto;
@@ -206,7 +209,9 @@
   }
   function datosFicha(f) {
     var dl = h('dl', { class: 'ficha-dl' });
-    [['Documento', (f.documento_tipo || '') + ' ' + (f.documento || '')], ['Nacimiento', f.fecha_nacimiento || '—'], ['Provincia', (f.provincia || '') + (f.codigo_postal ? ' (' + f.codigo_postal + ')' : '')], ['Teléfono', f.telefono || '—'], ['Correo', f.email], ['Estado', ESTADOS[f.estado] || f.estado]].forEach(function (x) {
+    [['Documento', (f.documento_tipo || '') + ' ' + (f.documento || '')], ['Nacimiento', f.fecha_nacimiento || '—'], ['Correo', f.email], ['Teléfono', f.telefono || '—'],
+      ['Dirección', f.direccion || '—'], ['Municipio', f.poblacion || '—'], ['Provincia', (f.provincia || '') + (f.codigo_postal ? ' (' + f.codigo_postal + ')' : '')],
+      ['Ocupación', f.ocupacion || '—'], ['Situación laboral', etiquetaDe(catalogos.situaciones, f.situacion_laboral)], ['Sector', etiquetaDe(catalogos.sectores, f.sector)], ['Estado', ESTADOS[f.estado] || f.estado]].forEach(function (x) {
       dl.appendChild(h('div', null, h('dt', null, x[0]), h('dd', null, x[1])));
     });
     return dl;
@@ -259,33 +264,95 @@
   }
   function fichaPersona(id, body, recargar) {
     api('/personas/' + id).then(function (f) {
-      limpiar(body).appendChild(datosFicha(f));
-      if (f.carne) body.appendChild(h('p', { class: 'muted' }, 'Carné v' + f.carne.version + ' · emitido ' + fecha(f.carne.emitido_en) + ' · válido hasta ' + fecha(f.carne.valido_hasta)));
-      if (f.movimientos.length) body.appendChild(h('p', { class: 'muted' }, 'Historial: ' + f.movimientos.map(function (m) { return (MOV[m.tipo] || m.tipo) + ' (' + fecha(m.fecha) + ')'; }).join(' · ')));
-      var salida = h('div'), st = h('p', { class: 'form-status err' });
-      if (['admin', 'gestor'].indexOf(usuario.rol) >= 0 && f.tipo === 'afiliado') {
-        var acciones = h('div', { class: 'row-btns' });
-        function estadoBtn(texto, accion, aviso) {
-          acciones.appendChild(h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () {
-            if (!confirmar(aviso)) return; var motivo = window.prompt('Motivo (opcional):'); if (motivo === null) return;
-            api('/personas/' + id + '/estado', { accion: accion, motivo: motivo }).then(recargar).catch(function (e) { st.textContent = e.message; });
-          } }, texto));
+      limpiar(body);
+      var puede = ['admin', 'gestor'].indexOf(usuario.rol) >= 0, afiliado = f.tipo === 'afiliado';
+      var st = h('p', { class: 'form-status err', role: 'status' }), salida = h('div');
+      function bloque(titulo) { var b = h('section', { class: 'ficha-bloque' }, h('h3', null, titulo)); body.appendChild(b); return b; }
+      function boton(texto, fn, cls) { return h('button', { class: 'btn ' + (cls || 'btn-ghost') + ' btn-sm', type: 'button', onclick: fn }, texto); }
+      function fallo(e) { st.textContent = e.message; }
+
+      // 1) Datos (con edición para gestión)
+      var bd = bloque('Datos');
+      var vista = h('div'); vista.appendChild(datosFicha(f)); bd.appendChild(vista);
+      if (puede) {
+        var editar = boton('Editar datos', function () { formulario(); }, 'btn-ghost'); bd.appendChild(h('div', { class: 'row-btns' }, editar));
+      }
+      function formulario() {
+        var campos = [['nombre', 'Nombre', 'text'], ['apellidos', 'Apellidos', 'text'], ['email', 'Correo', 'email'], ['telefono', 'Teléfono', 'tel'], ['direccion', 'Dirección', 'text'], ['poblacion', 'Municipio', 'text'], ['codigo_postal', 'Código postal', 'text'], ['ocupacion', 'Ocupación o profesión', 'text']];
+        var refs = {}, form = h('form', { class: 'ficha-form', novalidate: true });
+        campos.forEach(function (k) { if (!afiliado && ['direccion', 'poblacion', 'ocupacion'].indexOf(k[0]) >= 0) return; refs[k[0]] = h('input', { id: 'e' + id + k[0], type: k[2], value: f[k[0]] || '', maxlength: '160' }); form.appendChild(h('div', { class: 'field' }, h('label', { for: 'e' + id + k[0] }, k[1]), refs[k[0]])); });
+        if (afiliado) {
+          [['situacion_laboral', 'Situación laboral', catalogos.situaciones], ['sector', 'Sector', catalogos.sectores]].forEach(function (k) {
+            var s = h('select', { id: 'e' + id + k[0] }, [h('option', { value: '' }, 'Sin indicar')].concat(k[2].map(function (o) { return h('option', { value: o[0] }, o[1]); }))); s.value = f[k[0]] || ''; refs[k[0]] = s;
+            form.appendChild(h('div', { class: 'field' }, h('label', { for: 'e' + id + k[0] }, k[1]), s));
+          });
         }
-        if (f.estado === 'activo') { estadoBtn('Suspender', 'suspender', '¿Suspender a esta persona?'); }
+        var aviso = h('p', { class: 'form-status err', role: 'status' });
+        form.appendChild(h('div', { class: 'row-btns' }, h('button', { class: 'btn btn-primary btn-sm', type: 'submit' }, 'Guardar cambios'), boton('Cancelar', function () { recargar ? fichaPersona(id, body, recargar) : null; })));
+        form.appendChild(aviso);
+        form.addEventListener('submit', function (ev) {
+          ev.preventDefault(); aviso.textContent = '';
+          var cuerpo = {}; Object.keys(refs).forEach(function (k) { cuerpo[k] = refs[k].value.trim(); });
+          api('/personas/' + id, cuerpo, 'PATCH').then(function () { fichaPersona(id, body, recargar); })
+            .catch(function (e) { aviso.textContent = e.datos && e.datos.errores ? Object.keys(e.datos.errores).map(function (k) { return e.datos.errores[k]; }).join(' · ') : e.message; });
+        });
+        limpiar(vista).appendChild(form); if (editar) editar.hidden = true;
+      }
+
+      // 2) Carné y certificado
+      if (afiliado) {
+        var bc = bloque('Carné y certificado'), fila1 = h('div', { class: 'row-btns' });
+        if (f.carne) bc.appendChild(h('p', { class: 'muted' }, 'Carné v' + f.carne.version + ' · emitido ' + fecha(f.carne.emitido_en) + ' · válido hasta ' + fecha(f.carne.valido_hasta)));
+        else bc.appendChild(h('p', { class: 'muted' }, f.estado === 'activo' ? 'No tiene carné vigente.' : 'Sin carné vigente (la persona no está activa).'));
+        if (puede) {
+          if (f.carne && f.estado === 'activo') fila1.appendChild(h('a', { class: 'btn btn-ghost btn-sm', href: '/api/intranet/personas/' + id + '/carne.pdf', target: '_blank', rel: 'noopener' }, 'Ver carné (PDF)'));
+          if (f.estado === 'activo') {
+            fila1.appendChild(boton('Emitir duplicado', function () { if (!confirmar('Se emitirá un carné nuevo y el anterior dejará de ser válido. ¿Continuar?')) return; api('/personas/' + id + '/carne', { accion: 'duplicado' }).then(function () { fichaPersona(id, body, recargar); }).catch(fallo); }));
+            fila1.appendChild(boton('Renovar carné', function () { if (!confirmar('Se renovará el carné con una nueva fecha de validez. ¿Continuar?')) return; api('/personas/' + id + '/carne', { accion: 'renovacion' }).then(function () { fichaPersona(id, body, recargar); }).catch(fallo); }));
+          }
+          if (['activo', 'suspendido', 'baja'].indexOf(f.estado) >= 0) fila1.appendChild(h('a', { class: 'btn btn-ghost btn-sm', href: '/api/intranet/personas/' + id + '/certificado.pdf', target: '_blank', rel: 'noopener' }, 'Certificado de afiliación (PDF)'));
+          bc.appendChild(fila1);
+        }
+      }
+
+      // 3) Estado, provincia y acceso
+      if (puede && afiliado) {
+        var be = bloque('Afiliación y acceso'), acciones = h('div', { class: 'row-btns' });
+        function estadoBtn(texto, accion, aviso) {
+          acciones.appendChild(boton(texto, function () {
+            if (!confirmar(aviso)) return; var motivo = window.prompt('Motivo (opcional):'); if (motivo === null) return;
+            api('/personas/' + id + '/estado', { accion: accion, motivo: motivo }).then(function (r) {
+              if (r && r.password_temporal) { limpiar(salida).appendChild(secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal, 'Entrégala por un canal seguro. Caduca en 7 días.')); st.textContent = ''; return; }
+              recargar ? recargar() : fichaPersona(id, body, recargar);
+            }).catch(fallo);
+          }));
+        }
+        if (f.estado === 'activo') estadoBtn('Suspender', 'suspender', '¿Suspender a esta persona?');
         if (f.estado === 'suspendido') estadoBtn('Reactivar', 'reactivar', '¿Reactivar a esta persona?');
         if (f.estado === 'activo' || f.estado === 'suspendido') estadoBtn('Dar de baja', 'baja', 'La baja revoca el carné y cierra sus sesiones. ¿Continuar?');
+        if (f.estado === 'baja') estadoBtn('Readmitir', 'readmitir', 'Se reactivará la afiliación, se emitirá un carné nuevo y una contraseña temporal. ¿Continuar?');
         if (f.estado === 'activo') {
-          acciones.appendChild(h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () {
+          acciones.appendChild(boton('Nueva contraseña', function () {
             if (!confirmar('Se generará una contraseña temporal nueva y se cerrarán sus sesiones. ¿Continuar?')) return;
-            api('/personas/' + id + '/reset-password', {}).then(function (r) { limpiar(salida).appendChild(secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal)); }).catch(function (e) { st.textContent = e.message; });
-          } }, 'Nueva contraseña'));
+            api('/personas/' + id + '/reset-password', {}).then(function (r) { limpiar(salida).appendChild(secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal)); }).catch(fallo);
+          }));
+        }
+        be.appendChild(acciones);
+        if (f.estado === 'activo') {
           var sel = selectProvincias('pp-' + id, 'Cambiar de provincia', 'Elegir…');
           sel.querySelector('select').addEventListener('change', function (ev) {
             var v = ev.target.value; if (!v || !confirmar('Se cambiará la provincia y se emitirá un carné nuevo (el número de afiliado se mantiene). ¿Continuar?')) { ev.target.value = ''; return; }
-            api('/personas/' + id + '/provincia', { provincia_id: Number(v) }).then(recargar).catch(function (e) { st.textContent = e.message; });
+            api('/personas/' + id + '/provincia', { provincia_id: Number(v) }).then(function () { fichaPersona(id, body, recargar); }).catch(fallo);
           });
-          body.appendChild(acciones); body.appendChild(sel);
-        } else body.appendChild(acciones);
+          be.appendChild(sel);
+        }
+      }
+
+      // 4) Historial y solicitudes
+      if (f.movimientos.length || (f.solicitudes && f.solicitudes.length)) {
+        var bh = bloque('Historial');
+        if (f.movimientos.length) bh.appendChild(h('p', { class: 'muted' }, f.movimientos.map(function (m) { return (MOV[m.tipo] || m.tipo) + ' (' + fecha(m.fecha) + ')'; }).join(' · ')));
+        if (f.solicitudes && f.solicitudes.length) bh.appendChild(h('p', { class: 'muted' }, 'Solicitudes: ' + f.solicitudes.map(function (s) { return (TIPOS_SOL[s.tipo] || s.tipo) + ' (' + s.estado + ')'; }).join(' · ')));
       }
       body.appendChild(st); body.appendChild(salida);
     }).catch(function (e) { body.textContent = e.message; });
@@ -302,7 +369,7 @@
         vacio.hidden = filas.length > 0;
         filas.forEach(function (s) {
           lista.appendChild(fila(TIPOS_SOL[s.tipo] || s.tipo, s.nombre + ' ' + s.apellidos + ' · Nº ' + (s.numero_afiliado || '—'), fecha(s.creada_en), function (body) {
-            var detalle = s.detalle; try { var j = JSON.parse(s.detalle); if (j && j.provincia_id) { var pr = (provincias || []).filter(function (x) { return x.id === j.provincia_id; })[0]; detalle = 'Nueva provincia: ' + (pr ? pr.nombre : j.provincia_id) + (j.nota ? ' — ' + j.nota : ''); } } catch (e) { /* texto libre */ }
+            var detalle = s.detalle; try { var j = JSON.parse(s.detalle); if (j && j.provincia_id) { var pr = (provincias || []).filter(function (x) { return x.id === j.provincia_id; })[0]; detalle = 'Nueva provincia: ' + (pr ? pr.nombre : j.provincia_id) + (j.nota ? ' — ' + j.nota : ''); } else if (j && j.cambios) { var NOM = { direccion: 'Dirección', poblacion: 'Municipio', codigo_postal: 'Código postal', telefono: 'Teléfono', ocupacion: 'Ocupación', situacion_laboral: 'Situación laboral', sector: 'Sector' }; detalle = Object.keys(j.cambios).map(function (k) { var v = j.cambios[k]; if (k === 'situacion_laboral') v = etiquetaDe(catalogos.situaciones, v); if (k === 'sector') v = etiquetaDe(catalogos.sectores, v); return (NOM[k] || k) + ': ' + v; }).join(' · ') + (j.nota ? ' — ' + j.nota : ''); } } catch (e) { /* texto libre */ }
             body.appendChild(h('p', null, detalle || 'Sin detalle.'));
             if (s.resolucion) body.appendChild(h('p', { class: 'muted' }, 'Resolución: ' + s.resolucion));
             if (s.estado !== 'abierta' && s.estado !== 'en_revision') return;

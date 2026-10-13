@@ -37,11 +37,17 @@ ICON0 = {
  'hands': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M15 14.5c3 0 6 1.5 6 5.5"/></svg>',
 }
 
+import json as _json
+CATALOGOS = _json.load(open(pathlib.Path(__file__).resolve().parents[3] / 'api' / 'src' / 'catalogos.json', encoding='utf-8'))
+def opciones(k): return ''.join(f'<option value="{v}">{t}</option>' for v, t in CATALOGOS[k])
+
 NAV = [('proyecto.html', 'El proyecto'), ('propuestas.html', 'Propuestas'), ('ideas.html', 'Ideas'), ('eventos.html', 'Agenda'), ('participa.html', 'Participa'), ('como-funciona.html', 'Transparencia')]
 
 def page(fname, title, body, hero=''):
     links = ''.join(f'<a href="{h}"{" aria-current=\"page\"" if h == fname else ""}>{t}</a>' for h, t in NAV)
-    mlinks = ''.join(f'<a href="{h}">{t}</a>' for h, t in NAV) + '<a href="debate.html">Debate abierto</a><a href="consultas.html">Votaciones</a><a href="noticias.html">Noticias</a><a href="voluntariado.html">Voluntariado</a><a href="portal.html">Portal del afiliado</a>'
+    mlinks = ('<span class="menu-t">La web</span>' + ''.join(f'<a href="{h}">{t}</a>' for h, t in NAV)
+              + '<span class="menu-t">Participa</span><a href="debate.html">Debate abierto</a><a href="consultas.html">Votaciones</a><a href="noticias.html">Noticias</a><a href="voluntariado.html">Voluntariado</a>'
+              + '<span class="menu-t">Tu cuenta</span><a href="portal.html">Portal del afiliado</a><a href="afiliate.html">Afíliate</a>')
     return f'''<!doctype html>
 <html lang="es">
 <head>
@@ -421,7 +427,7 @@ afiliate = f'''
     <p class="muted">¿Solo quieres recibir avisos de campañas, eventos y encuestas? <a class="link" href="participa.html">Hazte simpatizante →</a></p>
   </div>
   <form class="form-card" data-api="/api/inscripciones" novalidate>
-    <div class="stepper" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="stepper" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     <div class="step">
       <h3>1. Tus datos</h3>
       <div class="field-pair"><div class="field"><label for="a-n">Nombre</label><input id="a-n" name="nombre" autocomplete="given-name" required maxlength="80"></div><div class="field"><label for="a-a">Apellidos</label><input id="a-a" name="apellidos" autocomplete="family-name" required maxlength="120"></div></div>
@@ -430,15 +436,24 @@ afiliate = f'''
       <button class="btn btn-primary" type="button" data-next>Siguiente</button>
     </div>
     <div class="step" hidden>
-      <h3>2. Identificación y provincia</h3>
+      <h3>2. Identificación</h3>
       <div class="field"><label for="a-d">DNI o NIE</label><input id="a-d" name="documento" required autocomplete="off" maxlength="12"></div>
       <div class="field"><label for="a-f">Fecha de nacimiento (mínimo 16 años)</label><input id="a-f" name="fecha_nacimiento" type="date" required></div>
-      <div class="field-pair"><div class="field"><label for="f-prov">Provincia de residencia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div><div class="field"><label for="a-cp">Código postal</label><input id="a-cp" name="codigo_postal" inputmode="numeric" required maxlength="5" pattern="[0-9]{{5}}"></div></div>
       <p class="muted" style="font-size:.92rem">Tu documento se guarda cifrado. No pedimos foto del DNI ni foto para el carné.</p>
       <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev>Atrás</button><button class="btn btn-primary" type="button" data-next>Siguiente</button></div>
     </div>
     <div class="step" hidden>
-      <h3>3. Consentimientos</h3>
+      <h3>3. Dónde vives y a qué te dedicas</h3>
+      <div class="field"><label for="a-dir">Dirección</label><input id="a-dir" name="direccion" autocomplete="street-address" required maxlength="160" placeholder="Calle, número, piso"></div>
+      <div class="field-pair"><div class="field"><label for="a-mun">Municipio</label><input id="a-mun" name="poblacion" autocomplete="address-level2" required maxlength="80"></div><div class="field"><label for="a-cp">Código postal</label><input id="a-cp" name="codigo_postal" inputmode="numeric" autocomplete="postal-code" required maxlength="5" pattern="[0-9]{5}"></div></div>
+      <div class="field"><label for="f-prov">Provincia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div>
+      <div class="field"><label for="a-ocu">Ocupación o profesión (opcional)</label><input id="a-ocu" name="ocupacion" maxlength="80" placeholder="Ej.: enfermera, profesor, conductor…"></div>
+      <div class="field-pair"><div class="field"><label for="a-sit">Situación laboral (opcional)</label><select id="a-sit" name="situacion_laboral"><option value="">Elige…</option>{opciones('situaciones')}</select></div><div class="field"><label for="a-sec">Sector (opcional)</label><select id="a-sec" name="sector"><option value="">Elige…</option>{opciones('sectores')}</select></div></div>
+      <p class="muted" style="font-size:.92rem">Con la ocupación y el sector sabremos de quién aprender en cada materia. Solo las verá el equipo autorizado.</p>
+      <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev>Atrás</button><button class="btn btn-primary" type="button" data-next>Siguiente</button></div>
+    </div>
+    <div class="step" hidden>
+      <h3>4. Consentimientos</h3>
       <label class="consent"><input type="checkbox" name="consentimiento_afiliacion" required><span>Acepto que PLU trate mis datos para gestionar mi afiliación. Mi afiliación es un dato especialmente protegido y solo la verá el equipo autorizado.</span></label>
       <label class="consent"><input type="checkbox" name="consentimiento_avisos"><span>Quiero recibir avisos de campañas, eventos y encuestas por correo (opcional).</span></label>
       <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev>Atrás</button><button class="btn btn-primary" type="submit">Solicitar afiliación</button></div>

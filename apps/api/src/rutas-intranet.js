@@ -139,6 +139,7 @@ intranet.get('/inscripciones/:id', requerirEquipo(...GESTION), (req, res) => {
   res.json({
     id: p.id, nombre: p.nombre, apellidos: p.apellidos, email: p.email, telefono: p.telefono, fecha_nacimiento: p.fecha_nacimiento,
     documento_tipo: p.documento_tipo, documento: completo ? doc : enmascarar(doc), codigo_postal: p.codigo_postal, provincia: p.provincia,
+    direccion: p.direccion, poblacion: p.poblacion, ocupacion: p.ocupacion, situacion_laboral: p.situacion_laboral, sector: p.sector,
     estado: p.estado, numero_afiliado: formatoNumero(p.numero_afiliado), creado_en: p.creado_en, movimientos,
   });
 });

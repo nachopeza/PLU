@@ -24,7 +24,7 @@
         <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
       </div>
     </div>
-    <nav class="menu" id="menu" aria-label="Menú móvil" hidden><a href="proyecto.html" data-cms="g:5368ad3d~2">El proyecto</a><a href="propuestas.html" data-cms="g:84174bdb~2">Propuestas</a><a href="ideas.html" data-cms="g:6a176af0~2">Ideas</a><a href="eventos.html" data-cms="g:891e9d6d~2">Agenda</a><a href="participa.html" data-cms="g:96a667e0~2">Participa</a><a href="como-funciona.html" data-cms="g:ebb5ec4a~2">Transparencia</a><a href="debate.html" data-cms="g:541d3207">Debate abierto</a><a href="consultas.html" data-cms="g:93fc9b91">Votaciones</a><a href="noticias.html" data-cms="g:07d1d619">Noticias</a><a href="voluntariado.html" data-cms="g:fc1bba02">Voluntariado</a><a href="portal.html" data-cms="g:935611a9">Portal del afiliado</a></nav>
+    <nav class="menu" id="menu" aria-label="Menú móvil" hidden><span class="menu-t">La web</span><a href="proyecto.html" data-cms="g:5368ad3d~2">El proyecto</a><a href="propuestas.html" data-cms="g:84174bdb~2">Propuestas</a><a href="ideas.html" data-cms="g:6a176af0~2">Ideas</a><a href="eventos.html" data-cms="g:891e9d6d~2">Agenda</a><a href="participa.html" data-cms="g:96a667e0~2">Participa</a><a href="como-funciona.html" data-cms="g:ebb5ec4a~2">Transparencia</a><span class="menu-t">Participa</span><a href="debate.html" data-cms="g:541d3207">Debate abierto</a><a href="consultas.html" data-cms="g:93fc9b91">Votaciones</a><a href="noticias.html" data-cms="g:07d1d619">Noticias</a><a href="voluntariado.html" data-cms="g:fc1bba02">Voluntariado</a><span class="menu-t">Tu cuenta</span><a href="portal.html" data-cms="g:935611a9">Portal del afiliado</a><a href="afiliate.html" data-cms="g:2715467c">Afíliate</a></nav>
   </div>
 </header>
 <main>
@@ -37,7 +37,7 @@
     <p class="muted" data-cms="afiliate:fdc3b303">¿Solo quieres recibir avisos de campañas, eventos y encuestas? <a class="link" href="participa.html">Hazte simpatizante →</a></p>
   </div>
   <form class="form-card" data-api="/api/inscripciones" novalidate>
-    <div class="stepper" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="stepper" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     <div class="step">
       <h3 data-cms="afiliate:e38163e2">1. Tus datos</h3>
       <div class="field-pair"><div class="field"><label for="a-n" data-cms="afiliate:e68491e9">Nombre</label><input id="a-n" name="nombre" autocomplete="given-name" required maxlength="80"></div><div class="field"><label for="a-a" data-cms="afiliate:9c58d41f">Apellidos</label><input id="a-a" name="apellidos" autocomplete="family-name" required maxlength="120"></div></div>
@@ -46,18 +46,27 @@
       <button class="btn btn-primary" type="button" data-next data-cms="afiliate:c4d83a3b">Siguiente</button>
     </div>
     <div class="step" hidden>
-      <h3 data-cms="afiliate:94045a5e">2. Identificación y provincia</h3>
+      <h3 data-cms="afiliate:08ec2ff8">2. Identificación</h3>
       <div class="field"><label for="a-d" data-cms="afiliate:0faf7c2b~2">DNI o NIE</label><input id="a-d" name="documento" required autocomplete="off" maxlength="12"></div>
       <div class="field"><label for="a-f" data-cms="afiliate:d859b619">Fecha de nacimiento (mínimo 16 años)</label><input id="a-f" name="fecha_nacimiento" type="date" required></div>
-      <div class="field-pair"><div class="field"><label for="f-prov" data-cms="afiliate:33965b23">Provincia de residencia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div><div class="field"><label for="a-cp" data-cms="afiliate:e73a93a1">Código postal</label><input id="a-cp" name="codigo_postal" inputmode="numeric" required maxlength="5" pattern="[0-9]{5}"></div></div>
       <p class="muted" style="font-size:.92rem" data-cms="afiliate:3d715afa">Tu documento se guarda cifrado. No pedimos foto del DNI ni foto para el carné.</p>
       <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev data-cms="afiliate:0e715a72">Atrás</button><button class="btn btn-primary" type="button" data-next data-cms="afiliate:c4d83a3b~2">Siguiente</button></div>
     </div>
     <div class="step" hidden>
-      <h3 data-cms="afiliate:15c68e86">3. Consentimientos</h3>
+      <h3 data-cms="afiliate:f08080c3">3. Dónde vives y a qué te dedicas</h3>
+      <div class="field"><label for="a-dir" data-cms="afiliate:04f478b2">Dirección</label><input id="a-dir" name="direccion" autocomplete="street-address" required maxlength="160" placeholder="Calle, número, piso"></div>
+      <div class="field-pair"><div class="field"><label for="a-mun" data-cms="afiliate:9e8609ca">Municipio</label><input id="a-mun" name="poblacion" autocomplete="address-level2" required maxlength="80"></div><div class="field"><label for="a-cp" data-cms="afiliate:e73a93a1">Código postal</label><input id="a-cp" name="codigo_postal" inputmode="numeric" autocomplete="postal-code" required maxlength="5" pattern="[0-9]5"></div></div>
+      <div class="field"><label for="f-prov" data-cms="afiliate:4cd516b3">Provincia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div>
+      <div class="field"><label for="a-ocu" data-cms="afiliate:0526c70d">Ocupación o profesión (opcional)</label><input id="a-ocu" name="ocupacion" maxlength="80" placeholder="Ej.: enfermera, profesor, conductor…"></div>
+      <div class="field-pair"><div class="field"><label for="a-sit" data-cms="afiliate:e7a567c9">Situación laboral (opcional)</label><select id="a-sit" name="situacion_laboral"><option value="">Elige…</option><option value="cuenta_ajena">Trabajo por cuenta ajena</option><option value="autonomo">Trabajo por cuenta propia (autónomo/a)</option><option value="empleo_publico">Empleo público</option><option value="desempleo">En búsqueda de empleo</option><option value="estudiante">Estudiante</option><option value="jubilacion">Jubilado/a o pensionista</option><option value="otra">Otra situación</option></select></div><div class="field"><label for="a-sec" data-cms="afiliate:2c40038f">Sector (opcional)</label><select id="a-sec" name="sector"><option value="">Elige…</option><option value="sanidad">Sanidad</option><option value="educacion">Educación</option><option value="transporte">Transporte y movilidad</option><option value="vivienda">Vivienda y construcción</option><option value="administracion">Administración pública</option><option value="comercio">Comercio y hostelería</option><option value="industria">Industria y energía</option><option value="tecnologia">Tecnología</option><option value="agricultura">Agricultura y medio rural</option><option value="finanzas_legal">Finanzas, derecho y consultoría</option><option value="cultura">Cultura y comunicación</option><option value="otro">Otro sector</option></select></div></div>
+      <p class="muted" style="font-size:.92rem" data-cms="afiliate:635b388a">Con la ocupación y el sector sabremos de quién aprender en cada materia. Solo las verá el equipo autorizado.</p>
+      <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev data-cms="afiliate:0e715a72~2">Atrás</button><button class="btn btn-primary" type="button" data-next data-cms="afiliate:c4d83a3b~3">Siguiente</button></div>
+    </div>
+    <div class="step" hidden>
+      <h3 data-cms="afiliate:c4b6128c">4. Consentimientos</h3>
       <label class="consent"><input type="checkbox" name="consentimiento_afiliacion" required><span data-cms="afiliate:68fd592c">Acepto que PLU trate mis datos para gestionar mi afiliación. Mi afiliación es un dato especialmente protegido y solo la verá el equipo autorizado.</span></label>
       <label class="consent"><input type="checkbox" name="consentimiento_avisos"><span data-cms="afiliate:a551382f">Quiero recibir avisos de campañas, eventos y encuestas por correo (opcional).</span></label>
-      <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev data-cms="afiliate:0e715a72~2">Atrás</button><button class="btn btn-primary" type="submit" data-cms="afiliate:2581f810">Solicitar afiliación</button></div>
+      <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev data-cms="afiliate:0e715a72~3">Atrás</button><button class="btn btn-primary" type="submit" data-cms="afiliate:2581f810">Solicitar afiliación</button></div>
       <p class="form-status" role="status" aria-live="polite"></p>
     </div>
   </form>

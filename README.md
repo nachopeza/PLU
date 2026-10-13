@@ -152,3 +152,9 @@ PLU es un movimiento: la política se construye a partir de lo que pide la ciuda
 
 ## Versión 1.1: tarjetas de foto
 - Fotos de Vivienda, Sanidad, Educación y Transporte: foto en duotono verde y banda verde sólida inferior (21 % de alto) con el título grande en blanco, como en el boceto. Bloque "v1.1" de `styles.css`.
+
+## v1.2 — Ficha de persona editable, datos de residencia y certificado
+- Afiliación en 4 pasos: dirección, municipio, CP, provincia, ocupación, situación laboral y sector (catálogos en `apps/api/src/catalogos.json`).
+- Gestión (admin/gestor) puede editar datos, ver el carné, emitir duplicado/renovación, certificado de afiliación (PDF sin DNI), readmitir bajas y cambiar provincia. El coordinador sigue en solo lectura.
+- Portal: certificado PDF y solicitud de cambio de datos estructurada (se aplica al resolverla).
+- Menú móvil agrupado y desplazable.

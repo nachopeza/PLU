@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { db } from './db.js';
 import { cifrar, huella } from './seguridad.js';
 import { limitar } from './seguridad.js';
-import { edadEn, esEmail, limpio, normalizarDocumento, tipoDocumento } from './validar.js';
+import { CATALOGOS, datosPerfil, edadEn, esEmail, limpio, normalizarDocumento, tipoDocumento } from './validar.js';
 
 export const publicas = Router();
 const VERSION_TEXTO = '2026-10-borrador'; // se cambiará cuando exista el texto legal definitivo
@@ -24,8 +24,7 @@ publicas.post('/inscripciones', (req, res) => {
   const doc = normalizarDocumento(b.documento);
   const docTipo = tipoDocumento(doc);
   const edad = edadEn(b.fecha_nacimiento);
-  const cp = limpio(b.codigo_postal, 5);
-  const tel = limpio(b.telefono, 20);
+  const perfil = datosPerfil(b);
 
   if (!nombre) errores.nombre = 'Escribe tu nombre';
   if (!apellidos) errores.apellidos = 'Escribe tus apellidos';
@@ -34,9 +33,8 @@ publicas.post('/inscripciones', (req, res) => {
   if (edad === null) errores.fecha_nacimiento = 'Fecha no válida';
   else if (edad < 16) errores.fecha_nacimiento = 'Hay que tener al menos 16 años';
   else if (edad > 120) errores.fecha_nacimiento = 'Fecha no válida';
-  if (!/^\d{5}$/.test(cp)) errores.codigo_postal = 'Código postal de 5 cifras';
+  Object.assign(errores, perfil.errores);
   if (!provinciaValida(b.provincia_id)) errores.provincia_id = 'Elige una provincia';
-  if (tel && !/^[+\d\s]{6,20}$/.test(tel)) errores.telefono = 'Teléfono no válido';
   if (b.consentimiento_afiliacion !== true) errores.consentimiento_afiliacion = 'Hace falta aceptar el tratamiento de datos para afiliarte';
   if (Object.keys(errores).length) return res.status(400).json({ error: 'Revisa el formulario', errores });
 
@@ -50,9 +48,11 @@ publicas.post('/inscripciones', (req, res) => {
   try {
     const r = db.prepare(
       `INSERT INTO personas (tipo, estado, nombre, apellidos, email, telefono, fecha_nacimiento,
-                             documento_tipo, documento_cifrado, documento_hash, codigo_postal, territorio_id)
-       VALUES ('afiliado', 'pendiente', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).run(nombre, apellidos, email, tel || null, b.fecha_nacimiento, docTipo, cifrar(doc), huella(doc), cp, Number(b.provincia_id));
+                             documento_tipo, documento_cifrado, documento_hash, codigo_postal, territorio_id,
+                             direccion, poblacion, ocupacion, situacion_laboral, sector)
+       VALUES ('afiliado', 'pendiente', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(nombre, apellidos, email, perfil.datos.telefono, b.fecha_nacimiento, docTipo, cifrar(doc), huella(doc), perfil.datos.codigo_postal, Number(b.provincia_id),
+      perfil.datos.direccion, perfil.datos.poblacion, perfil.datos.ocupacion, perfil.datos.situacion_laboral, perfil.datos.sector);
     const id = Number(r.lastInsertRowid);
     const cons = db.prepare('INSERT INTO consentimientos (persona_id, finalidad, version_texto, otorgado) VALUES (?, ?, ?, ?)');
     cons.run(id, 'afiliacion', VERSION_TEXTO, 1);
@@ -89,3 +89,6 @@ publicas.post('/simpatizantes', (req, res) => {
   }
   res.status(201).json({ ok: true, mensaje: 'Listo. Te avisaremos de campañas, eventos y encuestas.' });
 });
+
+// Listas para los desplegables (situación laboral y sector)
+publicas.get('/catalogos', (_req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.json(CATALOGOS); });

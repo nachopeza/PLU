@@ -6,7 +6,8 @@ import { auditar, requerirEquipo } from './sesion.js';
 import {
   ahoraISO, asignarPasswordTemporal, carneVigente, emitirCarne, formatoNumero, moverEstado, passwordTemporal, revocarCarnes, transaccion,
 } from './servicios.js';
-import { enmascarar, esEmail, limpio } from './validar.js';
+import { datosPerfil, enmascarar, esEmail, limpio } from './validar.js';
+import { datosCarne, generarCarnePdf, generarCertificadoPdf } from './carne.js';
 
 export const gestion = Router();
 const GESTION = ['admin', 'gestor', 'coordinador'];
@@ -53,7 +54,8 @@ gestion.get('/personas/:id', requerirEquipo(...GESTION), (req, res) => {
   res.json({
     id: p.id, tipo: p.tipo, estado: p.estado, nombre: p.nombre, apellidos: p.apellidos, email: p.email, telefono: p.telefono,
     fecha_nacimiento: p.fecha_nacimiento, documento_tipo: p.documento_tipo, documento: completo ? doc : enmascarar(doc),
-    codigo_postal: p.codigo_postal, poblacion: p.poblacion, provincia: p.provincia, territorio_id: p.territorio_id,
+    codigo_postal: p.codigo_postal, poblacion: p.poblacion, direccion: p.direccion, ocupacion: p.ocupacion, situacion_laboral: p.situacion_laboral, sector: p.sector,
+    provincia: p.provincia, territorio_id: p.territorio_id,
     numero_afiliado: formatoNumero(p.numero_afiliado), creado_en: p.creado_en, fecha_alta: p.fecha_alta, fecha_baja: p.fecha_baja,
     carne: carne ? { version: carne.version, emitido_en: carne.emitido_en, valido_hasta: carne.valido_hasta } : null,
     movimientos: db.prepare('SELECT tipo, desde, hasta, motivo, fecha FROM movimientos_afiliacion WHERE persona_id = ? ORDER BY fecha, id').all(p.id),
@@ -61,19 +63,65 @@ gestion.get('/personas/:id', requerirEquipo(...GESTION), (req, res) => {
   });
 });
 
-// Corrección de datos de contacto (no del documento ni de la fecha de nacimiento)
+// Corrección de datos de la persona (no del documento ni de la fecha de nacimiento)
 gestion.patch('/personas/:id', requerirEquipo('admin', 'gestor'), (req, res) => {
   const p = personaVisible(req);
   if (!p) return res.status(404).json({ error: 'No encontrada' });
   const nombre = limpio(req.body?.nombre ?? p.nombre, 80);
   const apellidos = limpio(req.body?.apellidos ?? p.apellidos, 120);
-  const telefono = limpio(req.body?.telefono ?? p.telefono, 30) || null;
   const email = limpio(req.body?.email ?? p.email, 254).toLowerCase();
-  if (!nombre || !apellidos || !esEmail(email)) return res.status(400).json({ error: 'Datos no válidos' });
+  const errores = {};
+  if (!nombre) errores.nombre = 'Escribe el nombre';
+  if (p.tipo === 'afiliado' && !apellidos) errores.apellidos = 'Escribe los apellidos';
+  if (!esEmail(email)) errores.email = 'Correo no válido';
+  const perfil = datosPerfil(req.body, { parcial: true, exigirResidencia: p.tipo === 'afiliado' });
+  Object.assign(errores, perfil.errores);
+  if (Object.keys(errores).length) return res.status(400).json({ error: 'Revisa los datos', errores });
   if (email !== p.email && db.prepare('SELECT 1 FROM personas WHERE email = ? AND id <> ?').get(email, p.id)) return res.status(409).json({ error: 'Ese correo ya está en uso' });
-  db.prepare('UPDATE personas SET nombre = ?, apellidos = ?, telefono = ?, email = ?, actualizado_en = ? WHERE id = ?').run(nombre, apellidos, telefono, email, ahoraISO(), p.id);
-  auditar(req.equipo.id, 'editar_persona', 'persona', p.id);
-  res.json({ ok: true });
+  const campos = { nombre, apellidos, email, ...perfil.datos };
+  const antes = {};
+  for (const k of Object.keys(campos)) antes[k] = p[k] ?? null;
+  const cambiados = Object.keys(campos).filter((k) => (campos[k] ?? null) !== (antes[k] ?? null));
+  if (cambiados.length) {
+    db.prepare(`UPDATE personas SET ${cambiados.map((k) => `${k} = ?`).join(', ')}, actualizado_en = ? WHERE id = ?`).run(...cambiados.map((k) => campos[k]), ahoraISO(), p.id);
+  }
+  // Solo se registran los nombres de los campos cambiados, no su contenido
+  auditar(req.equipo.id, 'editar_persona', 'persona', p.id, { campos: cambiados });
+  res.json({ ok: true, cambiados });
+});
+
+// Carné: ver/descargar el vigente y emitir duplicado o renovación
+gestion.get('/personas/:id/carne.pdf', requerirEquipo('admin', 'gestor'), async (req, res) => {
+  const p = personaVisible(req);
+  const c = p && carneVigente(p.id);
+  if (!p || p.estado !== 'activo' || !c) return res.status(404).json({ error: 'No tiene un carné vigente' });
+  try {
+    const { bytes } = await generarCarnePdf(datosCarne(p, c));
+    auditar(req.equipo.id, 'descargar_carne', 'persona', p.id);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="carne-plu-${p.numero_afiliado}.pdf"`);
+    res.send(Buffer.from(bytes));
+  } catch (e) { console.error('Error carné:', e.message); res.status(500).json({ error: 'No se pudo generar el carné' }); }
+});
+gestion.post('/personas/:id/carne', requerirEquipo('admin', 'gestor'), (req, res) => {
+  const p = personaVisible(req);
+  if (!p || p.tipo !== 'afiliado' || p.estado !== 'activo') return res.status(409).json({ error: 'Solo se puede emitir carné a una persona afiliada activa' });
+  const accion = req.body?.accion;
+  if (!['duplicado', 'renovacion'].includes(accion)) return res.status(400).json({ error: 'Acción no válida' });
+  const nuevo = transaccion(() => emitirCarne(p, accion === 'duplicado' ? 'duplicado' : 'renovación'));
+  auditar(req.equipo.id, accion === 'duplicado' ? 'carne_duplicado' : 'carne_renovacion', 'persona', p.id, { version: nuevo.version });
+  res.json({ ok: true, ...nuevo });
+});
+gestion.get('/personas/:id/certificado.pdf', requerirEquipo('admin', 'gestor'), async (req, res) => {
+  const p = personaVisible(req);
+  if (!p || p.tipo !== 'afiliado' || !['activo', 'suspendido', 'baja'].includes(p.estado)) return res.status(404).json({ error: 'No encontrada' });
+  try {
+    const bytes = await generarCertificadoPdf(p);
+    auditar(req.equipo.id, 'certificado_afiliacion', 'persona', p.id);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="certificado-plu-${p.numero_afiliado}.pdf"`);
+    res.send(Buffer.from(bytes));
+  } catch (e) { console.error('Error certificado:', e.message); res.status(500).json({ error: 'No se pudo generar el certificado' }); }
 });
 
 gestion.post('/personas/:id/estado', requerirEquipo('admin', 'gestor'), (req, res) => {
@@ -83,7 +131,16 @@ gestion.post('/personas/:id/estado', requerirEquipo('admin', 'gestor'), (req, re
   const motivo = limpio(req.body?.motivo, 300);
   if (accion === 'suspender' && p.estado === 'activo') transaccion(() => moverEstado(p.id, 'suspendido', 'suspension', motivo, req.equipo.id));
   else if (accion === 'reactivar' && p.estado === 'suspendido') transaccion(() => moverEstado(p.id, 'activo', 'reactivacion', motivo, req.equipo.id));
-  else if (accion === 'baja' && ['activo', 'suspendido'].includes(p.estado)) {
+  else if (accion === 'readmitir' && p.estado === 'baja') {
+    let t;
+    transaccion(() => {
+      moverEstado(p.id, 'activo', 'reactivacion', motivo || 'readmitida', req.equipo.id);
+      emitirCarne(p, 'readmisión');
+      t = asignarPasswordTemporal(p.id);
+    });
+    auditar(req.equipo.id, 'persona_readmitir', 'persona', p.id, { motivo });
+    return res.json({ ok: true, password_temporal: t.password, caduca: t.caduca });
+  } else if (accion === 'baja' && ['activo', 'suspendido'].includes(p.estado)) {
     transaccion(() => {
       moverEstado(p.id, 'baja', 'baja', motivo, req.equipo.id);
       revocarCarnes(p.id, 'baja');
@@ -146,6 +203,15 @@ gestion.post('/solicitudes/:id/resolver', requerirEquipo('admin', 'gestor'), (re
         db.prepare("DELETE FROM sesiones WHERE tipo = 'persona' AND sujeto_id = ?").run(p.id);
       } else if (['renovacion_carne', 'duplicado_carne'].includes(s.tipo) && p.estado === 'activo') {
         emitirCarne(p, s.tipo === 'duplicado_carne' ? 'duplicado' : 'renovación');
+      } else if (s.tipo === 'cambio_datos' && ['activo', 'suspendido'].includes(p.estado)) {
+        let pedido = null;
+        try { pedido = JSON.parse(s.detalle || '{}').cambios; } catch { /* texto libre */ }
+        if (pedido && typeof pedido === 'object') {
+          const perfil = datosPerfil(pedido, { parcial: true });
+          if (Object.keys(perfil.errores).length) throw new Error('DATOS_NO_VALIDOS');
+          const ks = Object.keys(perfil.datos);
+          if (ks.length) db.prepare(`UPDATE personas SET ${ks.map((k) => `${k} = ?`).join(', ')}, actualizado_en = ? WHERE id = ?`).run(...ks.map((k) => perfil.datos[k]), ahoraISO(), p.id);
+        }
       } else if (s.tipo === 'cambio_provincia' && p.estado === 'activo') {
         let destino = null;
         try { destino = JSON.parse(s.detalle || '{}').provincia_id; } catch { /* sin datos */ }
@@ -162,6 +228,7 @@ gestion.post('/solicitudes/:id/resolver', requerirEquipo('admin', 'gestor'), (re
 });
 gestion.use((e, _req, res, next) => {
   if (e?.message === 'SIN_PROVINCIA') return res.status(400).json({ error: 'La solicitud no indica una provincia válida' });
+  if (e?.message === 'DATOS_NO_VALIDOS') return res.status(400).json({ error: 'Los datos de la solicitud no son válidos; edítalos en la ficha de la persona' });
   next(e);
 });
 
@@ -272,10 +339,11 @@ const celdaCsv = (v) => {
 };
 gestion.get('/export/afiliados.csv', requerirEquipo('admin', 'gestor'), (req, res) => {
   const filas = db.prepare(
-    `SELECT p.numero_afiliado, p.nombre, p.apellidos, p.email, p.telefono, p.estado, p.fecha_alta, t.nombre AS provincia
+    `SELECT p.numero_afiliado, p.nombre, p.apellidos, p.email, p.telefono, p.estado, p.fecha_alta, t.nombre AS provincia,
+            p.poblacion, p.codigo_postal, p.direccion, p.ocupacion, p.situacion_laboral, p.sector
        FROM personas p LEFT JOIN territorios t ON t.id = p.territorio_id WHERE p.tipo = 'afiliado' ORDER BY p.creado_en`,
   ).all();
-  const cab = ['numero_afiliado', 'nombre', 'apellidos', 'email', 'telefono', 'estado', 'fecha_alta', 'provincia'];
+  const cab = ['numero_afiliado', 'nombre', 'apellidos', 'email', 'telefono', 'estado', 'fecha_alta', 'provincia', 'poblacion', 'codigo_postal', 'direccion', 'ocupacion', 'situacion_laboral', 'sector'];
   const csv = [cab.join(',')].concat(filas.map((f) => cab.map((c) => celdaCsv(c === 'numero_afiliado' ? formatoNumero(f[c]) : f[c])).join(','))).join('\r\n');
   auditar(req.equipo.id, 'exportar_afiliados', 'persona', null, { filas: filas.length });
   res.setHeader('Content-Type', 'text/csv; charset=utf-8');

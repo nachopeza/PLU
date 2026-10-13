@@ -50,3 +50,9 @@ asegurarColumna('encuestas', 'propuesta_id', 'INTEGER');
 asegurarColumna('noticias', 'imagen', 'TEXT');
 asegurarColumna('propuestas', 'tipo', "TEXT NOT NULL DEFAULT 'propuesta'");
 asegurarColumna('propuestas', 'provincia_id', 'INTEGER');
+
+// Datos de perfil de las personas afiliadas
+asegurarColumna('personas', 'direccion', 'TEXT');
+asegurarColumna('personas', 'ocupacion', 'TEXT');
+asegurarColumna('personas', 'situacion_laboral', 'TEXT');
+asegurarColumna('personas', 'sector', 'TEXT');
