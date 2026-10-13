@@ -445,8 +445,9 @@ afiliate = f'''
     <div class="step" hidden>
       <h3>3. Dónde vives y a qué te dedicas</h3>
       <div class="field"><label for="a-dir">Dirección</label><input id="a-dir" name="direccion" autocomplete="street-address" required maxlength="160" placeholder="Calle, número, piso"></div>
-      <div class="field-pair"><div class="field"><label for="a-mun">Municipio</label><input id="a-mun" name="poblacion" autocomplete="address-level2" required maxlength="80"></div><div class="field"><label for="a-cp">Código postal</label><input id="a-cp" name="codigo_postal" inputmode="numeric" autocomplete="postal-code" required maxlength="5" pattern="[0-9]{{5}}"></div></div>
       <div class="field"><label for="f-prov">Provincia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div>
+      <div class="field"><label for="a-mun">Municipio</label><input id="a-mun" name="poblacion" autocomplete="off" required maxlength="80" list="a-mun-l" placeholder="Empieza a escribir y elige"><datalist id="a-mun-l"></datalist></div>
+      <div class="field"><label for="a-cp">Código postal</label><input id="a-cp" name="codigo_postal" inputmode="numeric" autocomplete="postal-code" required maxlength="5" pattern="[0-9]{{5}}" list="a-cp-l" placeholder="5 cifras"><datalist id="a-cp-l"></datalist><span class="muted" id="a-cp-h" style="font-size:.85rem"></span></div>
       <div class="field"><label for="a-ocu">Ocupación o profesión (opcional)</label><input id="a-ocu" name="ocupacion" maxlength="80" placeholder="Ej.: enfermera, profesor, conductor…"></div>
       <div class="field-pair"><div class="field"><label for="a-sit">Situación laboral (opcional)</label><select id="a-sit" name="situacion_laboral"><option value="">Elige…</option>{opciones('situaciones')}</select></div><div class="field"><label for="a-sec">Sector (opcional)</label><select id="a-sec" name="sector"><option value="">Elige…</option>{opciones('sectores')}</select></div></div>
       <p class="muted" style="font-size:.92rem">Con la ocupación y el sector sabremos de quién aprender en cada materia. Solo las verá el equipo autorizado.</p>

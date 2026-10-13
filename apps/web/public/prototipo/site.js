@@ -196,9 +196,42 @@
   if (prov) {
     fetch('/api/provincias').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (lista) {
       prov.innerHTML = '<option value="">Elige…</option>';
-      lista.forEach(function (p) { var o = document.createElement('option'); o.value = p.id; o.textContent = p.nombre + ' (' + p.comunidad + ')'; prov.appendChild(o); });
+      lista.forEach(function (p) { var o = document.createElement('option'); o.value = p.id; o.dataset.codigo = p.codigo; o.textContent = p.nombre + ' (' + p.comunidad + ')'; prov.appendChild(o); });
     }).catch(function () { /* sin API: se queda la lista de demostración */ });
   }
+  /* Municipio y código postal con sugerencias (datos INE); el CP siempre se puede escribir a mano */
+  (function () {
+    var mun = $('a-mun'), cp = $('a-cp'), dlM = $('a-mun-l'), dlC = $('a-cp-l'), hint = $('a-cp-h');
+    if (!prov || !mun || !cp) return;
+    var datos = null, cargando = null;
+    function cargar() { if (datos) return Promise.resolve(datos); if (!cargando) cargando = fetch('municipios.json').then(function (r) { return r.json(); }).then(function (d) { datos = d; return d; }).catch(function () { datos = {}; return datos; }); return cargando; }
+    function codigoProv() { var o = prov.options[prov.selectedIndex]; return o && o.dataset.codigo ? o.dataset.codigo : ''; }
+    function norm(t) { return (t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim(); }
+    function buscar() { var c = codigoProv(); if (!datos || !c || !datos[c]) return null; var n = norm(mun.value); return datos[c].filter(function (m) { return norm(m[0]) === n; })[0] || null; }
+    function rellenarMunicipios() {
+      dlM.innerHTML = ''; var c = codigoProv(); if (!datos || !c || !datos[c]) return;
+      datos[c].forEach(function (m) { var o = document.createElement('option'); o.value = m[0]; dlM.appendChild(o); });
+    }
+    function rellenarCp(forzar) {
+      dlC.innerHTML = ''; hint.textContent = ''; var m = buscar(); if (!m || !m[1]) return;
+      m[1].forEach(function (x) { var o = document.createElement('option'); o.value = x; dlC.appendChild(o); });
+      if (m[1].length === 1) { cp.value = m[1][0]; }
+      else if (forzar && !/^\d{5}$/.test(cp.value)) { hint.textContent = 'Este municipio tiene varios códigos postales: elige el tuyo en la lista o escríbelo.'; }
+      else if (m[1].indexOf(cp.value) < 0 && /^\d{5}$/.test(cp.value)) { hint.textContent = 'Comprueba que ' + cp.value + ' es tu código postal.'; }
+    }
+    prov.addEventListener('focus', cargar);
+    mun.addEventListener('focus', function () { cargar().then(rellenarMunicipios); });
+    prov.addEventListener('change', function () { cargar().then(function () { rellenarMunicipios(); mun.value = ''; dlC.innerHTML = ''; hint.textContent = ''; if (codigoProv() && /^\d{5}$/.test(cp.value) && cp.value.slice(0, 2) !== codigoProv()) cp.value = ''; }); });
+    mun.addEventListener('input', function () { cargar().then(function () { rellenarCp(true); }); });
+    mun.addEventListener('change', function () { cargar().then(function () { rellenarCp(true); }); });
+    cp.addEventListener('input', function () {
+      cp.value = cp.value.replace(/\D/g, '').slice(0, 5);
+      if (cp.value.length >= 2) {
+        var pref = cp.value.slice(0, 2), opt = Array.prototype.filter.call(prov.options, function (o) { return o.dataset.codigo === pref; })[0];
+        if (opt && prov.value !== opt.value) { prov.value = opt.value; cargar().then(rellenarMunicipios); }
+      }
+    });
+  })();
   document.querySelectorAll('form[data-api]').forEach(function (form) {
     var status = form.querySelector('.form-status');
     form.addEventListener('submit', function (e) {
