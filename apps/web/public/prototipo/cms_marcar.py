@@ -4,10 +4,12 @@
 import hashlib, re, json
 from html.parser import HTMLParser
 
-LEAF = {'h1', 'h2', 'h3', 'h4', 'p', 'small', 'li', 'dt', 'dd', 'figcaption', 'blockquote'}
+LEAF = {'h1', 'h2', 'h3', 'h4', 'p', 'small', 'li', 'dt', 'dd', 'figcaption', 'blockquote', 'label', 'summary', 'legend'}
+CLASES = ('eyebrow', 'tag', 'btn', 'chip', 'link', 'link-arrow', 'split', 'fbtn', 'tab', 'status', 'pcard-head', 'cap', 'phase', 'gate-go', 'go')
+CON_ID = {'h1', 'h2', 'h3', 'h4', 'label', 'legend'}
 INLINE = {'em', 'strong', 'b', 'i', 'br', 'a'}
 VOID = {'br', 'img', 'input', 'meta', 'link', 'hr', 'source', 'wbr', 'path', 'circle', 'rect', 'line', 'polyline', 'polygon', 'ellipse'}
-OMITIR_DENTRO = {'script', 'style', 'svg', 'form', 'select', 'textarea', 'option', 'button', 'noscript'}
+OMITIR_DENTRO = {'script', 'style', 'svg', 'select', 'textarea', 'option', 'noscript'}
 
 
 class Nodo:
@@ -74,8 +76,15 @@ def marcar(html, pagina):
             omitir = True
         if n.tag == 'main':
             ambito = ''
-        if not omitir and n.fin is not None and 'id' not in n.attrs:
-            if n.tag in LEAF or (n.tag in ('span', 'a', 'b') and any(c in n.attrs.get('class', '').split() for c in ('eyebrow', 'tag', 'btn', 'chip', 'link', 'link-arrow', 'split')) ) or (n.tag == 'b' and n.padre is not None and n.padre.tag == 'span'):
+        cls = n.attrs.get('class', '').split()
+        pcls = (n.padre.attrs.get('class', '') if n.padre is not None else '').split()
+        simple_span = n.tag in ('span', 'b') and n.padre is not None and (n.padre.tag in ('label', 'li') or 'icoitem' in pcls) and 'icoc' not in cls
+        enlace_menu = n.tag == 'a' and ambito == 'g:' and not cls
+        marcable = (n.tag in LEAF or n.tag == 'button' or simple_span or enlace_menu
+                    or (n.tag in ('span', 'a', 'b', 'div') and any(c in cls for c in CLASES))
+                    or (n.tag == 'b' and n.padre is not None and n.padre.tag == 'span'))
+        if not omitir and n.fin is not None and ('id' not in n.attrs or n.tag in CON_ID):
+            if marcable and not (n.tag == 'button' and n.attrs.get('type') == 'button' and 'fbtn' not in cls and 'tab' not in cls and 'btn' not in cls):
                 if all(c.tag in INLINE and (c.tag != 'a' or not c.hijos or all(g.tag in INLINE - {'a'} for g in c.hijos)) for c in n.hijos):
                     interior = html[n.fin_ini:n.fin]
                     if re.sub(r'<[^>]+>|&nbsp;|\s', '', interior):

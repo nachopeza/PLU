@@ -16,7 +16,7 @@
   <div class="wrap">
     <div class="nav-pill">
       <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><img class="wordmark" src="brand/word.png" alt="PLU"></a>
-      <nav class="nav-links" aria-label="Principal"><a href="proyecto.html">El proyecto</a><a href="propuestas.html">Propuestas</a><a href="ideas.html">Ideas</a><a href="eventos.html">Agenda</a><a href="participa.html">Participa</a><a href="como-funciona.html">Transparencia</a></nav>
+      <nav class="nav-links" aria-label="Principal"><a href="proyecto.html" data-cms="g:5368ad3d">El proyecto</a><a href="propuestas.html" data-cms="g:84174bdb">Propuestas</a><a href="ideas.html" data-cms="g:6a176af0">Ideas</a><a href="eventos.html" data-cms="g:891e9d6d">Agenda</a><a href="participa.html" data-cms="g:96a667e0">Participa</a><a href="como-funciona.html" data-cms="g:ebb5ec4a">Transparencia</a></nav>
       <div class="nav-actions">
         <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
         <a class="btn btn-ghost btn-sm hide-s" href="portal.html" data-cms="g:ddd53342">Soy afiliado</a>
@@ -24,7 +24,7 @@
         <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
       </div>
     </div>
-    <nav class="menu" id="menu" aria-label="Menú móvil" hidden><a href="proyecto.html">El proyecto</a><a href="propuestas.html">Propuestas</a><a href="ideas.html">Ideas</a><a href="eventos.html">Agenda</a><a href="participa.html">Participa</a><a href="como-funciona.html">Transparencia</a><a href="debate.html">Debate abierto</a><a href="consultas.html">Votaciones</a><a href="noticias.html">Noticias</a><a href="voluntariado.html">Voluntariado</a><a href="portal.html">Portal del afiliado</a></nav>
+    <nav class="menu" id="menu" aria-label="Menú móvil" hidden><a href="proyecto.html" data-cms="g:5368ad3d~2">El proyecto</a><a href="propuestas.html" data-cms="g:84174bdb~2">Propuestas</a><a href="ideas.html" data-cms="g:6a176af0~2">Ideas</a><a href="eventos.html" data-cms="g:891e9d6d~2">Agenda</a><a href="participa.html" data-cms="g:96a667e0~2">Participa</a><a href="como-funciona.html" data-cms="g:ebb5ec4a~2">Transparencia</a><a href="debate.html" data-cms="g:541d3207">Debate abierto</a><a href="consultas.html" data-cms="g:93fc9b91">Votaciones</a><a href="noticias.html" data-cms="g:07d1d619">Noticias</a><a href="voluntariado.html" data-cms="g:fc1bba02">Voluntariado</a><a href="portal.html" data-cms="g:935611a9">Portal del afiliado</a></nav>
   </div>
 </header>
 <main>
@@ -39,25 +39,25 @@
   <form class="form-card" data-api="/api/inscripciones" novalidate>
     <div class="stepper" aria-hidden="true"><span></span><span></span><span></span></div>
     <div class="step">
-      <h3>1. Tus datos</h3>
-      <div class="field-pair"><div class="field"><label for="a-n">Nombre</label><input id="a-n" name="nombre" autocomplete="given-name" required maxlength="80"></div><div class="field"><label for="a-a">Apellidos</label><input id="a-a" name="apellidos" autocomplete="family-name" required maxlength="120"></div></div>
-      <div class="field"><label for="a-c">Correo</label><input id="a-c" name="email" type="email" autocomplete="email" required></div>
-      <div class="field"><label for="a-t">Teléfono</label><input id="a-t" name="telefono" type="tel" placeholder="Opcional"></div>
-      <button class="btn btn-primary" type="button" data-next>Siguiente</button>
+      <h3 data-cms="afiliate:e38163e2">1. Tus datos</h3>
+      <div class="field-pair"><div class="field"><label for="a-n" data-cms="afiliate:e68491e9">Nombre</label><input id="a-n" name="nombre" autocomplete="given-name" required maxlength="80"></div><div class="field"><label for="a-a" data-cms="afiliate:9c58d41f">Apellidos</label><input id="a-a" name="apellidos" autocomplete="family-name" required maxlength="120"></div></div>
+      <div class="field"><label for="a-c" data-cms="afiliate:98f00c3e">Correo</label><input id="a-c" name="email" type="email" autocomplete="email" required></div>
+      <div class="field"><label for="a-t" data-cms="afiliate:99af3763">Teléfono</label><input id="a-t" name="telefono" type="tel" placeholder="Opcional"></div>
+      <button class="btn btn-primary" type="button" data-next data-cms="afiliate:c4d83a3b">Siguiente</button>
     </div>
     <div class="step" hidden>
-      <h3>2. Identificación y provincia</h3>
-      <div class="field"><label for="a-d">DNI o NIE</label><input id="a-d" name="documento" required autocomplete="off" maxlength="12"></div>
-      <div class="field"><label for="a-f">Fecha de nacimiento (mínimo 16 años)</label><input id="a-f" name="fecha_nacimiento" type="date" required></div>
-      <div class="field-pair"><div class="field"><label for="f-prov">Provincia de residencia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div><div class="field"><label for="a-cp">Código postal</label><input id="a-cp" name="codigo_postal" inputmode="numeric" required maxlength="5" pattern="[0-9]{5}"></div></div>
-      <p class="muted" style="font-size:.92rem">Tu documento se guarda cifrado. No pedimos foto del DNI ni foto para el carné.</p>
-      <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev>Atrás</button><button class="btn btn-primary" type="button" data-next>Siguiente</button></div>
+      <h3 data-cms="afiliate:94045a5e">2. Identificación y provincia</h3>
+      <div class="field"><label for="a-d" data-cms="afiliate:0faf7c2b~2">DNI o NIE</label><input id="a-d" name="documento" required autocomplete="off" maxlength="12"></div>
+      <div class="field"><label for="a-f" data-cms="afiliate:d859b619">Fecha de nacimiento (mínimo 16 años)</label><input id="a-f" name="fecha_nacimiento" type="date" required></div>
+      <div class="field-pair"><div class="field"><label for="f-prov" data-cms="afiliate:33965b23">Provincia de residencia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div><div class="field"><label for="a-cp" data-cms="afiliate:e73a93a1">Código postal</label><input id="a-cp" name="codigo_postal" inputmode="numeric" required maxlength="5" pattern="[0-9]{5}"></div></div>
+      <p class="muted" style="font-size:.92rem" data-cms="afiliate:3d715afa">Tu documento se guarda cifrado. No pedimos foto del DNI ni foto para el carné.</p>
+      <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev data-cms="afiliate:0e715a72">Atrás</button><button class="btn btn-primary" type="button" data-next data-cms="afiliate:c4d83a3b~2">Siguiente</button></div>
     </div>
     <div class="step" hidden>
-      <h3>3. Consentimientos</h3>
-      <label class="consent"><input type="checkbox" name="consentimiento_afiliacion" required><span>Acepto que PLU trate mis datos para gestionar mi afiliación. Mi afiliación es un dato especialmente protegido y solo la verá el equipo autorizado.</span></label>
-      <label class="consent"><input type="checkbox" name="consentimiento_avisos"><span>Quiero recibir avisos de campañas, eventos y encuestas por correo (opcional).</span></label>
-      <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev>Atrás</button><button class="btn btn-primary" type="submit">Solicitar afiliación</button></div>
+      <h3 data-cms="afiliate:15c68e86">3. Consentimientos</h3>
+      <label class="consent"><input type="checkbox" name="consentimiento_afiliacion" required><span data-cms="afiliate:68fd592c">Acepto que PLU trate mis datos para gestionar mi afiliación. Mi afiliación es un dato especialmente protegido y solo la verá el equipo autorizado.</span></label>
+      <label class="consent"><input type="checkbox" name="consentimiento_avisos"><span data-cms="afiliate:a551382f">Quiero recibir avisos de campañas, eventos y encuestas por correo (opcional).</span></label>
+      <div class="row-btns"><button class="btn btn-ghost" type="button" data-prev data-cms="afiliate:0e715a72~2">Atrás</button><button class="btn btn-primary" type="submit" data-cms="afiliate:2581f810">Solicitar afiliación</button></div>
       <p class="form-status" role="status" aria-live="polite"></p>
     </div>
   </form>

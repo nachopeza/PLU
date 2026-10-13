@@ -123,31 +123,44 @@
   $('b-salir').addEventListener('click', function () { try { localStorage.removeItem('plu_editor'); } catch (e) { /* nada */ } api('/logout', {}).finally(function () { usuario = null; ver('v-login'); }); });
 
   // ---------- Panel y secciones por rol ----------
+  // [id, título, roles, grupo]
+  var GRUPOS = ['Afiliación', 'Participación', 'Web', 'Carné', 'Sistema'];
   var SECCIONES = [
-    ['resumen', 'Resumen', ['admin', 'gestor', 'coordinador']],
-    ['inscripciones', 'Inscripciones', ['admin', 'gestor', 'coordinador']],
-    ['personas', 'Personas', ['admin', 'gestor', 'coordinador']],
-    ['solicitudes', 'Solicitudes', ['admin', 'gestor', 'coordinador']],
-    ['propuestas', 'Ideas', ['admin', 'moderador', 'auditor']],
-    ['encuestas', 'Encuestas y votaciones', ['admin', 'moderador', 'auditor']],
-    ['eventos', 'Agenda', ['admin', 'moderador', 'gestor']],
-    ['contenido', 'Contenido web', ['admin', 'moderador']],
-    ['noticias', 'Noticias', ['admin', 'moderador']],
-    ['voluntarios', 'Voluntariado', ['admin', 'moderador', 'gestor']],
-    ['verificar', 'Verificar carné', ['admin', 'gestor', 'verificador']],
-    ['carne', 'Carné', ['admin', 'gestor']],
-    ['equipo', 'Equipo', ['admin']],
-    ['auditoria', 'Auditoría', ['admin', 'auditor']]
+    ['resumen', 'Resumen', ['admin', 'gestor', 'coordinador'], 0],
+    ['inscripciones', 'Inscripciones', ['admin', 'gestor', 'coordinador'], 0],
+    ['personas', 'Personas', ['admin', 'gestor', 'coordinador'], 0],
+    ['solicitudes', 'Solicitudes', ['admin', 'gestor', 'coordinador'], 0],
+    ['propuestas', 'Ideas', ['admin', 'moderador', 'auditor'], 1],
+    ['encuestas', 'Encuestas y votaciones', ['admin', 'moderador', 'auditor'], 1],
+    ['eventos', 'Agenda', ['admin', 'moderador', 'gestor'], 1],
+    ['voluntarios', 'Voluntariado', ['admin', 'moderador', 'gestor'], 1],
+    ['contenido', 'Contenido web', ['admin', 'moderador'], 2],
+    ['noticias', 'Noticias', ['admin', 'moderador'], 2],
+    ['verificar', 'Verificar carné', ['admin', 'gestor', 'verificador'], 3],
+    ['carne', 'Plantilla del carné', ['admin', 'gestor'], 3],
+    ['equipo', 'Equipo', ['admin'], 4],
+    ['auditoria', 'Registro de auditoría', ['admin', 'auditor'], 4]
   ];
   var VISTAS = { contenido: sContenido, propuestas: sPropuestas, eventos: sEventos, noticias: sNoticias, voluntarios: sVoluntarios, resumen: sResumen, inscripciones: sInscripciones, personas: sPersonas, solicitudes: sSolicitudes, encuestas: sEncuestas, verificar: sVerificar, carne: sCarne, equipo: sEquipo, auditoria: sAuditoria };
   var detenerCamara = function () {};
 
   function abrirPanel(u) {
     usuario = u; try { localStorage.setItem('plu_editor', (u.rol === 'admin' || u.rol === 'moderador') ? '1' : '0'); } catch (e) { /* sin almacenamiento */ }
-    $('p-nombre').textContent = u.nombre; $('p-rol').textContent = ROLES[u.rol] || u.rol;
+    var rolTxt = ROLES[u.rol] || u.rol; $('p-nombre').textContent = u.nombre;
+    // Si el nombre ya es el nombre del rol (p. ej. "Administración") no se repite
+    $('p-rol').textContent = String(u.nombre).trim().toLowerCase() === String(rolTxt).toLowerCase() ? '' : rolTxt;
     var tabs = limpiar($('p-tabs'));
     var propias = SECCIONES.filter(function (s) { return s[2].indexOf(u.rol) >= 0; });
-    propias.forEach(function (s) { tabs.appendChild(h('button', { class: 'fbtn', type: 'button', 'data-s': s[0], 'aria-pressed': 'false', onclick: function () { irA(s[0]); } }, s[1])); });
+    GRUPOS.forEach(function (g, gi) {
+      var items = propias.filter(function (s) { return s[3] === gi; });
+      if (!items.length) return;
+      var lista = h('div', { class: 'ip-grupo' }, h('span', { class: 'ip-grupo-t' }, g));
+      items.forEach(function (s) { lista.appendChild(h('button', { class: 'ip-btn', type: 'button', 'data-s': s[0], 'aria-pressed': 'false', onclick: function () { irA(s[0]); } }, s[1])); });
+      tabs.appendChild(lista);
+    });
+    // Si venimos de la web para editar, volvemos a la página que se estaba editando
+    var volver = new URLSearchParams(location.search).get('volver');
+    if (volver && /^[a-z0-9-]+\.html\?editar=1$/.test(volver) && (u.rol === 'admin' || u.rol === 'moderador')) { location.replace(volver); return; }
     ver('v-panel');
     cargarProvincias().then(function () {
       var codigo = new URLSearchParams(location.search).get('v'); // viene del QR de un carné
@@ -158,7 +171,9 @@
   }
   function irA(id, arg) {
     detenerCamara();
-    Array.prototype.forEach.call($('p-tabs').children, function (b) { b.setAttribute('aria-pressed', String(b.dataset.s === id)); });
+    var sec = SECCIONES.filter(function (s) { return s[0] === id; })[0];
+    Array.prototype.forEach.call($('p-tabs').querySelectorAll('.ip-btn'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.s === id)); });
+    $('p-titulo').textContent = sec ? sec[1] : '';
     var cont = limpiar($('sec')); VISTAS[id](cont, arg);
   }
 

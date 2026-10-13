@@ -84,9 +84,14 @@
     </div>
 
     <div id="v-panel" class="intra-view" hidden>
-      <div class="panel-head"><div><span class="eyebrow" id="p-rol"></span><h1 class="h2" id="p-nombre"></h1></div><button class="btn btn-ghost btn-sm" type="button" id="b-salir">Cerrar sesión</button></div>
-      <div class="filters" id="p-tabs" role="group" aria-label="Secciones"></div>
-      <div id="sec"></div>
+      <div class="ip-top">
+        <div class="ip-user"><span class="ip-avatar" aria-hidden="true"></span><div><b id="p-nombre"></b><span id="p-rol" class="ip-rol"></span></div></div>
+        <div class="ip-acciones"><a class="btn btn-ghost btn-sm" href="index.html">Ver la web</a><button class="btn btn-ghost btn-sm" type="button" id="b-salir">Cerrar sesión</button></div>
+      </div>
+      <div class="ip-layout">
+        <nav class="ip-nav" id="p-tabs" aria-label="Secciones de la intranet"></nav>
+        <div class="ip-main"><h1 class="ip-title" id="p-titulo"></h1><div id="sec"></div></div>
+      </div>
     </div>
   </div>
 </div></section>

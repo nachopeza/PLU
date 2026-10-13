@@ -48,8 +48,11 @@
       if (['admin', 'moderador'].indexOf(d.usuario.rol) < 0) throw new Error('rol');
       montar();
     }).catch(function () {
-      var av = document.createElement('div'); av.className = 'cms-barra'; av.textContent = 'Para editar esta página entra primero en la intranet con una cuenta de administración o moderación. ';
-      var a = document.createElement('a'); a.href = 'intranet.html'; a.textContent = 'Ir a la intranet'; av.appendChild(a); document.body.appendChild(av);
+      // Sin sesión válida no se muestra nada: la página se ve como la ve cualquier visitante.
+      // Quien edita y no ha entrado es llevado a la intranet; el resto no ve ni sabe que existe el editor.
+      var marca = false; try { marca = localStorage.getItem('plu_editor') === '1'; } catch (e) { /* sin almacenamiento */ }
+      if (marca) location.replace('intranet.html?volver=' + encodeURIComponent(location.pathname.split('/').pop() + '?editar=1'));
+      else history.replaceState(null, '', location.pathname);
     });
   }
 
@@ -66,7 +69,13 @@
       n.addEventListener('input', contar);
     });
     // Los enlaces no navegan mientras se edita
-    document.addEventListener('click', function (e) { var a = e.target.closest && e.target.closest('a'); if (a && !a.closest('.cms-barra')) e.preventDefault(); }, true);
+    document.addEventListener('click', function (e) {
+      var t = e.target; if (!t.closest || t.closest('.cms-barra') || t.closest('.cms-foto')) return;
+      if (t.closest('a, button, summary, [role=tab]')) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    document.addEventListener('submit', function (e) { e.preventDefault(); e.stopPropagation(); }, true);
+    // Todos los desplegables abiertos para poder editar su contenido
+    [].forEach.call(document.querySelectorAll('details'), function (d) { d.open = true; });
     // Fotos: botón para cambiarlas
     var cambiosImg = {};
     imagenes.forEach(function (img) {

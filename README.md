@@ -129,3 +129,10 @@ PLU es un movimiento: la política se construye a partir de lo que pide la ciuda
 - Portada reorientada: recoger → estudiar y clasificar → llevar a la ley → aplicar, con contadores y "Lo que pide la gente".
 - `/api/transparencia` incluye `necesidades_recogidas`.
 - Vía legal prevista: iniciativa legislativa popular.
+
+## Versión 0.7: aspecto institucional, editor ampliado e intranet reorganizada
+- Diseño sobrio: sin degradados, velos planos sobre las fotos y títulos de las tarjetas sobre banda verde sólida. Estados hover explícitos en modo oscuro y claro.
+- Textos: PLU se presenta como un movimiento que nace, escucha a quienes conocen cada sector y les ayuda a conseguir representación.
+- Editor visual: ahora también menú, etiquetas, botones, acordeones y títulos. Sin sesión de administración o moderación, `?editar=1` no muestra nada. Quien edita sin sesión es llevado a la intranet y vuelve a la página tras entrar. (El contenido que genera JavaScript, como las pestañas de Democracia, aún no es editable.)
+- Intranet: barra superior con usuario y rol (sin repetir), menú lateral agrupado (Afiliación, Participación, Web, Carné, Sistema) y un único título por sección.
+- Despliegue en Railway: `postinstall` instala la API; en producción son obligatorias `PLU_CLAVE_CIFRADO` y `PLU_CLAVE_HMAC` (64 hex), además de `PLU_DATA_DIR`, `PLU_PUBLIC_URL` y `PORT`.

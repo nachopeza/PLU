@@ -135,7 +135,7 @@ home_hero = f'''<section class="hero">{ph('walk', 1800)}
     <div style="display:grid;gap:22px">
       <span class="eyebrow" data-r>Un movimiento ciudadano</span>
       <h1><span class="split">Cuéntanos</span> <span class="split">qué necesitas.</span> <span class="split"><em>Lo llevamos a la ley.</em></span></h1>
-      <p data-r>PLU es un movimiento: la política se construye a partir de lo que pide la gente. Recogemos tus necesidades y propuestas, las estudiamos, las clasifica, las convierte en leyes y te cuenta qué pasa con cada una.</p>
+      <p data-r>PLU es un movimiento que está naciendo. No venimos con todas las respuestas: queremos escuchar a la ciudadanía y a quienes conocen la sanidad, el transporte o la educación desde dentro, estudiar lo que proponen y ayudarles a conseguir la representación necesaria para llevarlo a la ley.</p>
       <div class="cta-row" data-r><a class="btn btn-light magnet" href="ideas.html">Ver lo que pide la gente</a><a class="btn btn-line-light magnet" href="como-funciona.html">Cómo funciona →</a></div>
     </div>
     <form class="form-card hero-form" data-api="/api/necesidades" data-ok="¡Gracias, ya cuenta!" novalidate>
@@ -156,12 +156,12 @@ prin_li = ''.join(f'<li data-r><b>{a}</b><span>{b}</span></li>' for a, b in PRIN
 home = f'''
 <section class="section">
   <div class="wrap">
-    <div class="head"><span class="eyebrow" data-r>Cómo funciona PLU</span><h2 class="h2" data-r>De lo que necesitas a una ley, en cuatro pasos.</h2><p class="lede" data-r>Cada propuesta tiene un recorrido público. Sabrás en qué punto está y por qué.</p></div>
+    <div class="head"><span class="eyebrow" data-r>Cómo funciona PLU</span><h2 class="h2" data-r>De lo que necesitas a una ley, en cuatro pasos.</h2><p class="lede" data-r>Cada propuesta tiene un recorrido público. Sabrás en qué punto está y por qué. Estamos empezando, y el primer paso es escucharte.</p></div>
     <ol class="steps5 pasos4">
-      <li data-r>{ico('speech')}1. Recogemos<small>Cualquier persona cuenta lo que necesita, en una frase.</small></li>
-      <li data-r>{ico('chart')}2. Estudiamos y clasificamos<small>Las agrupamos por tema y por quién tiene la competencia.</small></li>
-      <li data-r>{ico('doc')}3. Las llevamos a la ley<small>Las convertimos en iniciativas y propuestas normativas.</small></li>
-      <li data-r>{ico('eye')}4. Aplicamos y rendimos cuentas<small>Publicamos qué se ha conseguido y qué no.</small></li>
+      <li data-r>{ico('speech')}<span>1. Recogemos</span><small>Cualquier persona cuenta lo que necesita o propone, en una frase.</small></li>
+      <li data-r>{ico('chart')}<span>2. Estudiamos y clasificamos</span><small>Las agrupamos por tema y por quién tiene la competencia, con ayuda de quienes saben del asunto.</small></li>
+      <li data-r>{ico('doc')}<span>3. Las llevamos a la ley</span><small>Buscamos la representación necesaria para convertirlas en iniciativas y propuestas normativas.</small></li>
+      <li data-r>{ico('eye')}<span>4. Aplicamos y rendimos cuentas</span><small>Publicamos qué se ha conseguido y qué no.</small></li>
     </ol>
     <div class="counters" id="home-contadores" style="margin-top:28px"></div>
   </div>
@@ -177,16 +177,16 @@ home = f'''
 
 <section class="section">
   <div class="wrap sec-split">
-    <div class="txt"><span class="eyebrow" data-r>¿Por qué PLU?</span><h2 data-r>Porque la política actual no está resolviendo los problemas reales.</h2>
-      <p class="lede" data-r>Queremos un sistema más libre, más justo y más eficiente, que devuelva el poder a la ciudadanía y ponga a las personas en el centro.</p>
-      <a class="link-arrow" data-r href="proyecto.html">Descubre cómo lo haremos →</a></div>
+    <div class="txt"><span class="eyebrow" data-r>¿Por qué PLU?</span><h2 data-r>Porque los problemas reales los conoce quien los vive y quien trabaja en ellos.</h2>
+      <p class="lede" data-r>PLU nace para que esas personas tengan voz y, con el tiempo, representación. Primero recogemos propuestas; después las estudiamos con quienes saben; y por último trabajamos para que lleguen a la ley.</p>
+      <a class="link-arrow" data-r href="proyecto.html">Conoce el proyecto →</a></div>
     <div data-r="img">{I(P['street'][0], 1000, P['street'][1], extra='corner')}</div>
   </div>
 </section>
 
 <section class="section alt">
   <div class="wrap">
-    <div class="head"><span class="eyebrow" data-r>Principios</span><h2 class="h2" data-r>Diez principios para una España mejor.</h2><p class="lede" data-r>Una base sólida para construir el futuro.</p></div>
+    <div class="head"><span class="eyebrow" data-r>Principios</span><h2 class="h2" data-r>Diez principios para empezar a hablar.</h2><p class="lede" data-r>Son una base de partida y están abiertos al debate: se concretan con lo que aporte la gente.</p></div>
     <ol class="principios10">{prin_li}</ol>
     <p style="margin-top:22px"><a class="link-arrow" href="proyecto.html#principios">Ver todos los principios →</a></p>
   </div>
@@ -201,8 +201,8 @@ home = f'''
 
 <section class="section greenband">
   <div class="wrap sec-split">
-    <div class="txt"><span class="eyebrow">Tu día a día</span><h2 data-r>Vivienda, sanidad, educación y transporte. <em style="font-style:normal;text-decoration:underline;text-decoration-color:var(--hl);text-underline-offset:6px">Cuatro pilares, un mismo compromiso.</em></h2>
-      <p data-r style="opacity:.85">Servicios públicos accesibles, de calidad y pensados para tu vida, no para los problemas de la política.</p><a class="link-arrow" style="color:var(--hl)" href="propuestas.html">Ver propuestas →</a></div>
+    <div class="txt"><span class="eyebrow">Tu día a día</span><h2 data-r>Vivienda, sanidad, educación y transporte. <em style="font-style:normal;text-decoration:underline;text-decoration-color:var(--hl);text-underline-offset:6px">Cuatro áreas donde queremos escuchar primero.</em></h2>
+      <p data-r style="opacity:.85">No tenemos cerradas las soluciones. Queremos recoger la experiencia de pacientes y sanitarios, de alumnado y docentes, de quienes buscan casa y de quienes se mueven cada día.</p><a class="link-arrow" style="color:var(--hl)" href="propuestas.html">Cuéntanos la tuya →</a></div>
     <div class="photo4">
       <a class="ptile tilt" href="propuestas.html#vivienda">{ph('viv', 600)}<span>Vivienda</span></a>
       <a class="ptile tilt" href="propuestas.html#sanidad">{ph('san', 600)}<span>Sanidad</span></a>
@@ -214,9 +214,9 @@ home = f'''
 
 <section class="section">
   <div class="wrap sec-split">
-    <div class="txt"><h2 data-r>Profesionales al frente, con mandato democrático.</h2><p class="lede" data-r>La última palabra la tiene la ciudadanía. La gestión, quienes saben hacerla bien.</p><a class="link-arrow" data-r href="como-funciona.html#responsables">Cómo funciona →</a></div>
+    <div class="txt"><h2 data-r>Queremos escuchar a quienes saben.</h2><p class="lede" data-r>Médicas, docentes, conductores, técnicos, funcionarios: personas que pueden mejorar su sector. Recogeremos su criterio y les ayudaremos a que tenga peso. La última palabra será de la ciudadanía.</p><a class="link-arrow" data-r href="como-funciona.html#responsables">Cómo funciona →</a></div>
     <ol class="steps5">
-      <li data-r>{ico('doc')}Requisitos públicos</li><li data-r>{ico('scale')}Evaluación independiente</li><li data-r>{ico('check')}Nombramiento legítimo</li><li data-r>{ico('chart')}Objetivos y resultados</li><li data-r>{ico('eye')}Control y rendición de cuentas</li>
+      <li data-r>{ico('doc')}<span>Requisitos públicos</span></li><li data-r>{ico('scale')}<span>Evaluación independiente</span></li><li data-r>{ico('check')}<span>Nombramiento legítimo</span></li><li data-r>{ico('chart')}<span>Objetivos y resultados</span></li><li data-r>{ico('eye')}<span>Control y rendición de cuentas</span></li>
     </ol>
   </div>
 </section>
@@ -231,8 +231,8 @@ home = f'''
 <section class="joinband">{ph('park', 1800)}
   <div class="wrap">
     <div style="display:grid;gap:18px;justify-items:start">
-      <h2 data-r>Únete a PLU. <em>Gratis.</em></h2>
-      <p data-r style="max-width:30rem;opacity:.9">No se trata de afiliarse a un partido. Es un movimiento ciudadano para construir una mejor España.</p>
+      <h2 data-r>Súmate al movimiento. <em>Gratis.</em></h2>
+      <p data-r style="max-width:30rem;opacity:.9">PLU está en construcción. Cuantas más personas aporten, más representación podremos conseguir para llevar sus propuestas a la ley.</p>
       <a class="btn btn-light magnet" href="afiliate.html">Únete ahora</a>
     </div>
     <div class="big clover" data-parallax="25" aria-hidden="true"></div>
@@ -263,11 +263,18 @@ road = '''<li class="now" data-r><span class="phase">Estamos aquí</span><h3>Def
 <li data-r><span class="phase">Fase 5-6</span><h3>Instituciones y programa</h3><p>Propuestas con coste, responsables e indicadores.</p></li>
 <li data-r><span class="phase">Fase 7</span><h3>Organización y viabilidad legal</h3><p>Estatutos, financiación y requisitos legales.</p></li>'''
 proyecto = f'''
-<section class="section">
+<section class="section"><div class="wrap sec-split">
+  <div class="txt"><span class="eyebrow" data-r>Qué es PLU ahora</span><h2 data-r>Un movimiento que está naciendo.</h2>
+    <p class="lede" data-r>Sabemos qué áreas importan: sanidad, transporte, educación, vivienda. Lo que queremos es recoger la experiencia de quienes las viven y las conocen desde dentro.</p>
+    <p class="muted" data-r>Escuchamos propuestas, las estudiamos con quienes saben del asunto y ayudamos a esas personas a reunir la representación necesaria para llevarlas a la ley. No prometemos soluciones cerradas: las construimos con vosotros.</p>
+    <a class="link-arrow" data-r href="ideas.html">Aportar una propuesta →</a></div>
+  <div class="icons4">{icoitem('speech','Escuchamos')}{icoitem('chart','Estudiamos')}{icoitem('people','Damos voz a quien sabe')}{icoitem('doc','Lo llevamos a la ley')}</div>
+</div></section>
+<section class="section alt">
   <div class="wrap sec-split">
     <div class="txt"><span class="eyebrow" data-r>Nuestra visión</span><h2 data-r>Una España más libre, más justa, más fuerte.</h2>
       <p class="lede" data-r>Un país donde cada persona pueda desarrollar su proyecto de vida con libertad, responsabilidad y oportunidades reales.</p>
-      <p class="muted" data-r>El cambio no es un eslogan. Es un compromiso.</p>
+      <p class="muted" data-r>El cambio empieza escuchando.</p>
       <details class="more" data-r><summary>Leer el manifiesto completo</summary><div>
         <p>Creemos en una sociedad donde cada persona pueda desarrollar su proyecto de vida con libertad, responsabilidad y oportunidades reales. Las instituciones deben proteger derechos, garantizar servicios esenciales y rendir cuentas.</p>
         <p>Defendemos una democracia que no se limite a elegir representantes cada cuatro años: con mecanismos para participar, deliberar, proponer y decidir sobre cuestiones relevantes.</p>
@@ -277,10 +284,10 @@ proyecto = f'''
     <div class="clover visionclover" data-parallax="-20" style="width:min(70%,260px)" aria-hidden="true"></div>
   </div>
 </section>
-<section class="section alt"><div class="wrap"><div class="head"><span class="eyebrow">Lo que nos diferencia</span><h2 class="h2" data-r>Cuatro ideas que lo cambian todo.</h2></div>
+<section class="section alt"><div class="wrap"><div class="head"><span class="eyebrow">Lo que nos diferencia</span><h2 class="h2" data-r>Cuatro ideas de partida, abiertas a debate.</h2></div>
   <div class="icons4">{icoitem('group','Democracia mixta')}{icoitem('map','Modelo territorial de competencias')}{icoitem('euro','Economía de mercado')}{icoitem('people','Gobierno profesionalizado')}</div></div></section>
 <section class="section" id="principios"><div class="wrap">
-  <div class="head"><span class="eyebrow">Los principios que nos guían</span><h2 class="h2" data-r>Una base sólida para construir el futuro.</h2></div>
+  <div class="head"><span class="eyebrow">Los principios que nos guían</span><h2 class="h2" data-r>Los principios de partida, que se concretan con lo que aporte la gente.</h2></div>
   <div class="vidblock tilt" style="margin-bottom:28px">{ph('circle', 1600)}<div class="cap">Una España más libre, más justa, más fuerte.</div></div>
   <div class="families">{fams}</div></div></section>
 <section class="section alt"><div class="wrap"><div class="head"><span class="eyebrow">Hoja de ruta</span><h2 class="h2" data-r>De las ideas a una organización abierta y responsable.</h2></div><ol class="road">{road}</ol></div></section>
@@ -321,11 +328,11 @@ como = f'''
 <section class="section"><div class="wrap">
   <div class="head"><span class="eyebrow">Así tomamos decisiones</span><h2 class="h2" data-r>Así tomamos decisiones, así nos organizamos, así rendimos cuentas.</h2></div>
   <ol class="steps5">
-    <li data-r>{ico('spark')}1. Propuesta ciudadana<small>Cualquier persona puede proponer una idea o plantear un problema.</small></li>
-    <li data-r>{ico('chart')}2. Evaluación de viabilidad<small>Se analiza su encaje legal, económico y social.</small></li>
-    <li data-r>{ico('group')}3. Deliberación<small>Se debate en la comunidad y en los órganos de PLU.</small></li>
-    <li data-r>{ico('ballot')}4. Decisión<small>Se define la propuesta y su implementación.</small></li>
-    <li data-r>{ico('eye')}5. Seguimiento<small>Se publican los resultados y se evalúa su impacto.</small></li>
+    <li data-r>{ico('spark')}<span>1. Propuesta ciudadana</span><small>Cualquier persona puede proponer una idea o plantear un problema.</small></li>
+    <li data-r>{ico('chart')}<span>2. Evaluación de viabilidad</span><small>Se analiza su encaje legal, económico y social.</small></li>
+    <li data-r>{ico('group')}<span>3. Deliberación</span><small>Se debate en la comunidad y en los órganos de PLU.</small></li>
+    <li data-r>{ico('ballot')}<span>4. Decisión</span><small>Se define la propuesta y su implementación.</small></li>
+    <li data-r>{ico('eye')}<span>5. Seguimiento</span><small>Se publican los resultados y se evalúa su impacto.</small></li>
   </ol>
 </div></section>
 <section class="section alt"><div class="wrap">
@@ -554,9 +561,14 @@ intranet = '''
     </div>
 
     <div id="v-panel" class="intra-view" hidden>
-      <div class="panel-head"><div><span class="eyebrow" id="p-rol"></span><h1 class="h2" id="p-nombre"></h1></div><button class="btn btn-ghost btn-sm" type="button" id="b-salir">Cerrar sesión</button></div>
-      <div class="filters" id="p-tabs" role="group" aria-label="Secciones"></div>
-      <div id="sec"></div>
+      <div class="ip-top">
+        <div class="ip-user"><span class="ip-avatar" aria-hidden="true"></span><div><b id="p-nombre"></b><span id="p-rol" class="ip-rol"></span></div></div>
+        <div class="ip-acciones"><a class="btn btn-ghost btn-sm" href="index.html">Ver la web</a><button class="btn btn-ghost btn-sm" type="button" id="b-salir">Cerrar sesión</button></div>
+      </div>
+      <div class="ip-layout">
+        <nav class="ip-nav" id="p-tabs" aria-label="Secciones de la intranet"></nav>
+        <div class="ip-main"><h1 class="ip-title" id="p-titulo"></h1><div id="sec"></div></div>
+      </div>
     </div>
   </div>
 </div></section>
