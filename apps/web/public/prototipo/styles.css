@@ -791,3 +791,32 @@ body { background: var(--bg); }
 .hero-form .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
 .hero-form select option { color: #141916; }
 .hero h1 { color: #fff; }
+
+/* ===== v1.0 · Se recupera la tipografía y el estilo original (Bricolage Grotesque, Figtree, DM Mono) ===== */
+:root {
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "DM Mono", ui-monospace, Menlo, Consolas, monospace;
+  --bg: #060f09; --fg: #eef5ef; --muted: #9db0a2;
+  --accent: #3dd070; --accent-strong: #3dd070; --on-accent: #05210f; --soft: rgba(61,208,112,.14);
+}
+:root[data-theme="light"] {
+  --bg: #f4f8f4; --fg: #141916; --muted: #55625a;
+  --accent: #209548; --accent-strong: #1a7a3d; --on-accent: #fff; --soft: rgba(32,149,72,.12);
+}
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.03em; }
+.h2, .head h2 { font-weight: 750; letter-spacing: -.03em; line-height: 1.05; }
+.hero h1 { font-weight: 800; letter-spacing: -.04em; line-height: 1; font-size: clamp(2.4rem, 7.4vw, 5rem); max-width: 14ch; }
+.page-hero h1 { font-weight: 800; letter-spacing: -.035em; line-height: 1.02; }
+.hero h1 em, .page-hero h1 em, .joinband h2 em { font-style: normal; color: var(--accent); }
+:is(.txt, .head, .section, .wrap, .panel, .hero, .page-hero, .joinband, .quoteband, .band, .ip-main, .family, .tile, .gate) :is(h1, h2, h3, h4) { font-weight: 750; letter-spacing: -.03em; }
+:is(.hero, .page-hero) :is(h1) { font-weight: 800; letter-spacing: -.04em; }
+.eyebrow, .band .eyebrow, .greenband .eyebrow, .page-hero .eyebrow { font: 500 .75rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; display: inline-block; color: var(--accent); }
+.eyebrow::before { content: none; }
+.page-hero .eyebrow, .hero .eyebrow { color: var(--hl); }
+.tag, .status, .phase, .panel-label, .ficha-dl dt, .audit-row .tag, .ip-rol, .ip-grupo-t { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .12em; }
+.ip-grupo-t { font-size: .68rem; font-weight: 500; }
+.counter b { font: 750 2rem var(--font-display); letter-spacing: -.03em; color: var(--accent); }
+.hero-form h2 { font-size: 1.5rem; font-weight: 750; }
+.hero p { font-size: clamp(1.1rem, 2vw, 1.4rem); max-width: 30rem; }
+.ticker span { font-family: var(--font-display); }

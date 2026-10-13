@@ -146,3 +146,6 @@ PLU es un movimiento: la política se construye a partir de lo que pide la ciuda
 ## Versión 0.9: cristal esmerilado sobre verde bosque
 - Se recupera el efecto cristal (cabecera en píldora, tarjetas y formulario translúcidos con desenfoque del fondo) y el modo oscuro por defecto, ahora sin degradados: velos planos, verde salvia apagado y títulos en serifa.
 - Los títulos de las fotos van sobre una banda de cristal verde. Sigue el bloque final de `styles.css` ("v0.9") como único lugar de ajuste.
+
+## Versión 1.0: estilo original con cristal y sin degradados
+- Vuelve la tipografía original (Bricolage Grotesque, Figtree, DM Mono), el verde de marca y los títulos en negrita; se mantiene el cristal y se eliminan los degradados. Bloque "v1.0" al final de `styles.css`.
