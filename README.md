@@ -136,3 +136,9 @@ PLU es un movimiento: la política se construye a partir de lo que pide la ciuda
 - Editor visual: ahora también menú, etiquetas, botones, acordeones y títulos. Sin sesión de administración o moderación, `?editar=1` no muestra nada. Quien edita sin sesión es llevado a la intranet y vuelve a la página tras entrar. (El contenido que genera JavaScript, como las pestañas de Democracia, aún no es editable.)
 - Intranet: barra superior con usuario y rol (sin repetir), menú lateral agrupado (Afiliación, Participación, Web, Carné, Sistema) y un único título por sección.
 - Despliegue en Railway: `postinstall` instala la API; en producción son obligatorias `PLU_CLAVE_CIFRADO` y `PLU_CLAVE_HMAC` (64 hex), además de `PLU_DATA_DIR`, `PLU_PUBLIC_URL` y `PORT`.
+
+## Versión 0.8: identidad elegante
+- Tema claro por defecto (papel y verde bosque); el oscuro usa verde bosque profundo y acento salvia, sin verde neón.
+- Tipografía: Newsreader (serifa) para títulos y Public Sans para texto; sin fuente monoespaciada ni rótulos en mayúsculas.
+- Cabecera lisa con filete, botones rectos, tarjetas de esquina casi recta; se quitan la cinta animada, el brillo del ratón y las inclinaciones.
+- Todo el aspecto vive en el último bloque de `styles.css` ("v0.8") para poder ajustarlo en un sitio.

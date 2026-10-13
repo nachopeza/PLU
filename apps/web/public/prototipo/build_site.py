@@ -43,14 +43,14 @@ def page(fname, title, body, hero=''):
     links = ''.join(f'<a href="{h}"{" aria-current=\"page\"" if h == fname else ""}>{t}</a>' for h, t in NAV)
     mlinks = ''.join(f'<a href="{h}">{t}</a>' for h, t in NAV) + '<a href="debate.html">Debate abierto</a><a href="consultas.html">Votaciones</a><a href="noticias.html">Noticias</a><a href="voluntariado.html">Voluntariado</a><a href="portal.html">Portal del afiliado</a>'
     return f'''<!doctype html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Figtree:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..500&family=Public+Sans:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="styles.css">
 <script>document.documentElement.classList.add("js","cms-pendiente");setTimeout(function(){{document.documentElement.classList.remove("cms-pendiente")}},1500)</script>
 </head>
