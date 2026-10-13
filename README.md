@@ -149,3 +149,6 @@ PLU es un movimiento: la política se construye a partir de lo que pide la ciuda
 
 ## Versión 1.0: estilo original con cristal y sin degradados
 - Vuelve la tipografía original (Bricolage Grotesque, Figtree, DM Mono), el verde de marca y los títulos en negrita; se mantiene el cristal y se eliminan los degradados. Bloque "v1.0" al final de `styles.css`.
+
+## Versión 1.1: tarjetas de foto
+- Fotos de Vivienda, Sanidad, Educación y Transporte: foto en duotono verde y banda verde sólida inferior (21 % de alto) con el título grande en blanco, como en el boceto. Bloque "v1.1" de `styles.css`.

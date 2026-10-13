@@ -820,3 +820,21 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spac
 .hero-form h2 { font-size: 1.5rem; font-weight: 750; }
 .hero p { font-size: clamp(1.1rem, 2vw, 1.4rem); max-width: 30rem; }
 .ticker span { font-family: var(--font-display); }
+
+/* ===== v1.1 · Tarjetas de foto: foto en duotono verde y banda verde sólida con el título grande ===== */
+.ptile { border-radius: 12px !important; aspect-ratio: 1 / 1; background: #1f3a2a; }
+.ptile .ph { position: absolute; inset: 0 0 21% 0; border-radius: 0 !important; }
+.ptile .ph img { filter: grayscale(1) contrast(1.05) brightness(.82); }
+.ptile .ph::after { content: ""; position: absolute; inset: 0; background: #2f8a55; mix-blend-mode: color; opacity: .85; pointer-events: none; }
+.ptile span {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 21%; display: flex; align-items: center; padding: 0 6%;
+  background: #325c40; color: #fff; border: 0; -webkit-backdrop-filter: none; backdrop-filter: none;
+  font: 500 clamp(1.25rem, 2.6vw, 2rem) var(--font-display); letter-spacing: -.01em;
+}
+.ptile span::before { content: none; }
+.ptile:hover span { background: #3a6c4a; }
+.tile, .vidblock { border-radius: 12px !important; }
+.tile .in, .vidblock .cap, .ph .cap { background: #325c40; color: #fff; border: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.tile:hover .in { background: #3a6c4a; }
+.tile .ph::after, .vidblock .ph::after { background: #2f8a55; mix-blend-mode: color; opacity: .8; }
+.tile .ph img, .vidblock .ph img { filter: grayscale(1) contrast(1.05) brightness(.85); }
