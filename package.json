@@ -2,9 +2,12 @@
   "name": "plu",
   "private": true,
   "description": "Plataforma Liberal Unida: web pública, portal del afiliado e intranet de gestión",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "npm run dev --prefix apps/api",
-    "start": "npm run start --prefix apps/api"
+    "start": "npm run start --prefix apps/api",
+    "postinstall": "npm ci --prefix apps/api --omit=dev"
   }
 }
