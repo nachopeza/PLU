@@ -1474,7 +1474,6 @@ html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .btn-primary { 
 html:not(.at-top)[data-theme="light"] .nav-pill, html[data-theme="light"]:not(:has(.hero, .page-hero)) .nav-pill { box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 12px 30px -14px rgba(18,34,26,.3); }
 /* Franja superior (zona segura del móvil): oscura mientras hay foto arriba; el contenido conserva su propio fondo */
 main, .site-footer { background-color: var(--bg); }
-html.at-top:has(.hero, .page-hero) body { background-color: #0a1810; }
 /* Botón principal sobre cristal: sin contorno */
 .nav-pill .btn-primary { border-color: transparent; }
 
@@ -1514,8 +1513,8 @@ html:has(.hero, .page-hero) body { background: linear-gradient(#0a1810 0, #0a181
 .nav-pill, .site-header.scrolled .nav-pill,
 html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill, :root[data-theme="light"] .site-header.scrolled .nav-pill, :root[data-theme="light"] .nav-pill {
   --fg: #fff; --muted: rgba(255,255,255,.8); --line: rgba(255,255,255,.16); color: #fff !important;
-  background: rgba(14,26,20,.46) !important; border: 1px solid rgba(255,255,255,.15) !important;
-  box-shadow: inset 0 1px 1px rgba(255,255,255,.22), 0 14px 36px -14px rgba(0,0,0,.5) !important;
+  background: rgba(14,26,20,.46) !important; border: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 14px 36px -14px rgba(0,0,0,.5) !important;
   -webkit-backdrop-filter: blur(14px) saturate(165%); backdrop-filter: blur(14px) saturate(165%);
   transition: background-color .35s ease, box-shadow .35s ease;
 }
@@ -1587,3 +1586,20 @@ main .rows { grid-template-columns: repeat(auto-fill, minmax(min(100%, 25rem), 1
 .post-side .post-docs { margin: 0; }
 .post-side .post-actions { margin: 0; padding: 14px 0 0; border: 0; border-top: 1px solid var(--line); }
 @media (max-width: 959px) { .post-cover { aspect-ratio: 16 / 10; border-radius: 18px; } }
+
+/* v3.1 · Revisión: separación bajo la cabecera en móvil, cabecera sin trazo */
+@media (max-width: 720px) { .hero { padding-top: 92px; } .page-hero { padding-top: 104px; } }
+
+/* v3.1 · Trébol legible sobre fondos claros (en cabecera/hero/zonas oscuras mantiene su verde vivo) */
+:root[data-theme="light"] .clover { filter: brightness(.6) saturate(1.5) contrast(1.1); }
+:root[data-theme="light"] .nav-pill .clover,
+:root[data-theme="light"] .hero .clover,
+:root[data-theme="light"] .page-hero .clover,
+:root[data-theme="light"] .joinband .clover,
+:root[data-theme="light"] .bcard-img.cover .clover,
+:root[data-theme="light"] .cover-fb .clover,
+:root[data-theme="light"] .menu .clover { filter: none; }
+/* La barra es siempre cristal ahumado; en claro algo más densa para que logo y letras no se pierdan sobre el contenido blanco */
+:root[data-theme="light"] .nav-pill { background: rgba(14,26,20,.66) !important; }
+:root[data-theme="light"] .site-header.scrolled .nav-pill { background: rgba(14,26,20,.74) !important; }
+:root[data-theme="light"] .ptile span::before { filter: brightness(.6) saturate(1.5); }
