@@ -2,7 +2,7 @@
 import express, { Router } from 'express';
 import { db } from './db.js';
 import { auditar, requerirEquipo } from './sesion.js';
-import { CAMPOS_OBLIGATORIOS, CAMPOS_OPCIONALES, DATOS_MUESTRA, generarCarnePdf, guardarPlantilla, inspeccionarPlantilla, plantillaActiva } from './carne.js';
+import { CAMPOS_OBLIGATORIOS, CAMPOS_OPCIONALES, DATOS_MUESTRA, generarCarnePdf, generarPlantillaEjemplo, guardarPlantilla, inspeccionarPlantilla, plantillaActiva } from './carne.js';
 
 export const rutasCarne = Router();
 const ROLES = ['admin', 'gestor'];
@@ -24,6 +24,14 @@ rutasCarne.get('/plantillas', requerirEquipo(...ROLES, 'auditor'), (_req, res) =
     activa: plantillaActiva()?.id ?? null, obligatorios: CAMPOS_OBLIGATORIOS, opcionales: CAMPOS_OPCIONALES,
     lista: db.prepare('SELECT id, activa, creada_en FROM plantillas_carne ORDER BY id DESC').all(),
   });
+});
+
+rutasCarne.get('/plantillas/ejemplo.pdf', requerirEquipo(...ROLES), async (_req, res) => {
+  try {
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="plantilla-carne-PLU-ejemplo.pdf"');
+    res.send(Buffer.from(await generarPlantillaEjemplo()));
+  } catch (e) { console.error('plantilla ejemplo:', e.message); res.status(500).json({ error: 'No se pudo generar la plantilla de ejemplo' }); }
 });
 
 rutasCarne.get('/plantillas/vista-previa.pdf', requerirEquipo(...ROLES), async (_req, res) => {

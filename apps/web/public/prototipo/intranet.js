@@ -515,6 +515,7 @@
             else { st.className = 'form-status err'; st.textContent = x[1].error + (x[1].faltan ? ': faltan ' + x[1].faltan.join(', ') : ''); }
           }).catch(function () { st.className = 'form-status err'; st.textContent = 'No se pudo subir.'; });
       } }, 'Subir y activar'),
+      h('a', { class: 'btn btn-ghost', href: '/api/intranet/plantillas/ejemplo.pdf' }, 'Descargar plantilla de ejemplo'),
       h('a', { class: 'btn btn-ghost', href: '/api/intranet/plantillas/vista-previa.pdf', target: '_blank', rel: 'noopener' }, 'Ver vista previa')));
     c.appendChild(st);
   }

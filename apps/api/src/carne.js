@@ -76,6 +76,42 @@ export async function generarCarnePdf(datos) {
   return { bytes: await pdf.save({ useObjectStreams: false }), plantillaId: null };
 }
 
+
+// Plantilla de ejemplo EDITABLE: PDF con los campos de formulario ya puestos (85,6 × 54 mm).
+// Se descarga, se rediseña (Acrobat, Illustrator, Affinity…) conservando los campos y los nombres, y se sube de nuevo.
+export async function generarPlantillaEjemplo() {
+  const mm = 72 / 25.4;
+  const pdf = await PDFDocument.create();
+  const W = 85.6 * mm, H = 54 * mm, pg = pdf.addPage([W, H]);
+  const f = await pdf.embedFont(StandardFonts.Helvetica), fb = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const blanco = rgb(1, 1, 1), gris = rgb(0.72, 0.76, 0.73), verde = rgb(0.24, 0.82, 0.44);
+  pg.drawRectangle({ x: 0, y: 0, width: W, height: H, color: rgb(0.04, 0.09, 0.07) });
+  pg.drawRectangle({ x: 0, y: H - 2 * mm, width: W, height: 2 * mm, color: verde });
+  pg.drawText('PLU', { x: 6 * mm, y: 44 * mm, size: 15, font: fb, color: blanco });
+  pg.drawText('PLATAFORMA LIBERAL UNIDA · CARNÉ DE AFILIADO', { x: 6 * mm, y: 40.5 * mm, size: 4.6, font: f, color: verde });
+  pg.drawRectangle({ x: 56 * mm, y: 8 * mm, width: 24 * mm, height: 24 * mm, color: blanco });
+  pg.drawText('Nº afiliado', { x: 6 * mm, y: 17.5 * mm, size: 4.6, font: f, color: gris });
+  pg.drawText('Alta', { x: 6 * mm, y: 7.2 * mm, size: 4.6, font: f, color: gris });
+  pg.drawText('Válido hasta', { x: 27 * mm, y: 7.2 * mm, size: 4.6, font: f, color: gris });
+  const form = pdf.getForm();
+  const campo = (nombre, x, y, w, h, size, font, color, valor) => {
+    const t = form.createTextField(nombre); t.setText(valor);
+    t.addToPage(pg, { x: x * mm, y: y * mm, width: w * mm, height: h * mm, borderWidth: 0, backgroundColor: rgb(0.04, 0.09, 0.07), textColor: color, font });
+    t.setFontSize(size);
+  };
+  campo('nombre', 6, 27.5, 48, 6, 13, fb, blanco, 'Nombre');
+  campo('apellidos', 6, 21, 48, 6, 13, fb, blanco, 'Apellidos');
+  campo('numeroAfiliado', 6, 11.5, 48, 5.5, 10, f, blanco, '00-000000');
+  campo('territorio', 6, 34.3, 48, 4, 7, f, gris, 'Provincia');
+  campo('fechaAlta', 6, 3.6, 20, 3.6, 6.5, f, blanco, '01/01/2026');
+  campo('validoHasta', 27, 3.6, 22, 3.6, 6.5, f, blanco, '01/01/2031');
+  // Opcionales (se pueden borrar sin problema): nombreCompleto, comunidad
+  campo('comunidad', 50, 3.6, 30, 3.6, 6.5, f, gris, 'Comunidad');
+  const qr = form.createButton('qr');
+  qr.addToPage('', pg, { x: 57.5 * mm, y: 9.5 * mm, width: 21 * mm, height: 21 * mm, borderWidth: 0 });
+  return pdf.save({ useObjectStreams: false });
+}
+
 export function guardarPlantilla(bytes) {
   mkdirSync(CARPETA_PLANTILLAS, { recursive: true });
   const nombre = `carne-${Date.now()}.pdf`;
