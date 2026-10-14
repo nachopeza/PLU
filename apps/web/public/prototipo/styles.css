@@ -1440,3 +1440,40 @@ html.at-top:has(.hero, .page-hero) { background-color: #0a1810; }
 /* Foco: aro fino y solo al navegar con teclado (no al pulsar con ratón o dedo) */
 .chip-e:focus, .fbtn:focus, .ip-btn:focus, .tab:focus { outline: none; }
 .chip-e:focus-visible, .fbtn:focus-visible, .ip-btn:focus-visible, .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ===== v2.7 · Cristal de verdad: desenfoque bajo (la foto se ve a través), fondo translúcido, borde translúcido y reflejo interno suave ===== */
+:root {
+  --g-bg: rgba(255,255,255,.12); --g-b: rgba(255,255,255,.22); --g-blur: blur(10px) saturate(150%);
+  --g-sh: inset 0 1px 1px rgba(255,255,255,.3), inset 0 -1px 1px rgba(255,255,255,.05), 0 14px 36px -14px rgba(0,0,0,.45);
+}
+:root[data-theme="light"] {
+  --g-bg: rgba(255,255,255,.4); --g-b: rgba(255,255,255,.55); --g-blur: blur(14px) saturate(160%);
+  --g-sh: inset 0 1px 1px rgba(255,255,255,.8), 0 14px 34px -14px rgba(18,34,26,.28);
+}
+.hero-form, .form-card, .panel, .gate, .menu, .ip-top, .ip-nav, .counter, .carnet, .nav-pill {
+  background: var(--g-bg); border: 1px solid var(--g-b); box-shadow: var(--g-sh);
+  -webkit-backdrop-filter: var(--g-blur); backdrop-filter: var(--g-blur);
+}
+:root:not([data-theme="light"]) .nav-pill, :root:not([data-theme="light"]) .menu, :root:not([data-theme="light"]) .site-header.scrolled .nav-pill { background: rgba(255,255,255,.1); }
+.hero-form, :root[data-theme="light"] .hero-form { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.22); box-shadow: inset 0 1px 1px rgba(255,255,255,.3), 0 24px 60px -20px rgba(0,0,0,.5); -webkit-backdrop-filter: blur(10px) saturate(150%); backdrop-filter: blur(10px) saturate(150%); }
+
+/* Cabecera sobre la foto del inicio (tema claro): cristal con texto blanco, igual que en oscuro */
+:root[data-theme="light"] html.at-top:has(.hero, .page-hero) .nav-pill,
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill {
+  --fg: #fff; --muted: rgba(255,255,255,.8); --line: rgba(255,255,255,.2); color: #fff;
+  background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.26);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.3), 0 14px 36px -14px rgba(0,0,0,.45);
+  -webkit-backdrop-filter: blur(10px) saturate(150%); backdrop-filter: blur(10px) saturate(150%);
+}
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .wordmark { filter: brightness(0) invert(1); }
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .btn-ghost,
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .icon-btn { background: rgba(255,255,255,.16); color: #fff; }
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .btn-primary { background: #fff; color: #0f3d24; }
+/* Al bajar en claro: cristal más claro con texto oscuro */
+:root[data-theme="light"] .site-header.scrolled .nav-pill { background: rgba(255,255,255,.55); border-color: rgba(255,255,255,.7); -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%); }
+html:not(.at-top)[data-theme="light"] .nav-pill, html[data-theme="light"]:not(:has(.hero, .page-hero)) .nav-pill { box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 12px 30px -14px rgba(18,34,26,.3); }
+/* Franja superior (zona segura del móvil): oscura mientras hay foto arriba; el contenido conserva su propio fondo */
+main, .site-footer { background-color: var(--bg); }
+html.at-top:has(.hero, .page-hero) body { background-color: #0a1810; }
+/* Botón principal sobre cristal: sin contorno */
+.nav-pill .btn-primary { border-color: transparent; }
