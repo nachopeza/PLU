@@ -193,8 +193,8 @@
     var tarjeta = function (n, grande) {
       var meta = [fecha(n.fecha)]; if (n.minutos) meta.push(n.minutos + ' min de lectura');
       var pie = []; if (n.documentos) pie.push(n.documentos + (n.documentos === 1 ? ' documento adjunto' : ' documentos adjuntos')); if (n.comentarios) pie.push(n.comentarios + (n.comentarios === 1 ? ' comentario' : ' comentarios'));
-      return h('a', { class: 'bcard' + (grande ? ' grande' : '') + (n.imagen ? '' : ' sin-img'), href: '/noticias?id=' + n.id },
-        n.imagen ? h('span', { class: 'bcard-img' }, h('img', { src: n.imagen, alt: '', loading: 'lazy' })) : null,
+      return h('a', { class: 'bcard' + (grande ? ' grande' : ''), href: '/noticias?id=' + n.id },
+        h('span', { class: 'bcard-img' + (n.imagen ? '' : ' cover') }, n.imagen ? h('img', { src: n.imagen, alt: '', loading: 'lazy' }) : h('span', { class: 'clover', 'aria-hidden': 'true' })),
         h('span', { class: 'bcard-t' }, etiqueta(n), h('span', { class: 'bcard-fecha' }, meta.join(' · ')), h('h3', null, n.titulo), n.resumen ? h('p', null, n.resumen) : null, pie.length ? h('span', { class: 'bcard-pie' }, pie.join(' · ')) : null));
     };
     if (nid) {
@@ -315,8 +315,8 @@
       var c = $('home-noticias');
       if (!l.length) { $('home-noticias-sec').hidden = true; return; }
       l.slice(0, 6).forEach(function (n) {
-        c.appendChild(h('a', { class: 'bcard' + (n.imagen ? '' : ' sin-img'), href: '/noticias?id=' + n.id },
-          n.imagen ? h('span', { class: 'bcard-img' }, h('img', { src: n.imagen, alt: '', loading: 'lazy' })) : null,
+        c.appendChild(h('a', { class: 'bcard', href: '/noticias?id=' + n.id },
+          h('span', { class: 'bcard-img' + (n.imagen ? '' : ' cover') }, n.imagen ? h('img', { src: n.imagen, alt: '', loading: 'lazy' }) : h('span', { class: 'clover', 'aria-hidden': 'true' })),
           h('span', { class: 'bcard-t' }, h('span', { class: 'post-cat' }, n.categoria || 'Noticia'), h('span', { class: 'bcard-fecha' }, fecha(n.fecha)), h('h3', null, n.titulo), n.resumen ? h('p', null, n.resumen) : null)));
       });
     }).catch(function () { $('home-noticias-sec').hidden = true; });

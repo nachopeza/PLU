@@ -1332,3 +1332,58 @@ input, select, textarea { border-radius: var(--r-ctl); }
 .flow-list li { border: 0; padding: 0; display: block; }
 .flow-list li::before { content: none !important; }
 @media (max-width: 520px) { .area-tabs { width: 100%; justify-content: space-between; } .area-tabs button { padding: 9px 10px; font-size: .88rem; } }
+
+/* ===== v2.5 · Cristal de verdad (translúcido + desenfoque moderado + borde suave), sin degradados ni reflejos ===== */
+:root {
+  --g-bg: rgba(255,255,255,.09); --g-b: rgba(255,255,255,.16); --g-blur: blur(18px) saturate(170%);
+  --g-sh: 0 12px 40px -12px rgba(0,0,0,.5);
+}
+:root[data-theme="light"] {
+  --g-bg: rgba(255,255,255,.58); --g-b: rgba(255,255,255,.75); --g-blur: blur(18px) saturate(170%);
+  --g-sh: 0 12px 36px -14px rgba(18,34,26,.28);
+}
+.hero-form, .form-card, .panel, .gate, .menu, .ip-top, .ip-nav, .counter, .carnet, .nav-pill {
+  background: var(--g-bg); background-image: none; border: 1px solid var(--g-b); border-radius: 22px;
+  -webkit-backdrop-filter: var(--g-blur); backdrop-filter: var(--g-blur); box-shadow: var(--g-sh);
+}
+.nav-pill { border-radius: 20px; }
+:root:not([data-theme="light"]) .nav-pill, :root:not([data-theme="light"]) .menu { background: rgba(18,30,24,.5); }
+.site-header.scrolled .nav-pill { background: var(--g-bg); }
+:root:not([data-theme="light"]) .site-header.scrolled .nav-pill { background: rgba(18,30,24,.62); }
+/* Formulario del héroe: vidrio ahumado sobre la foto (que es oscura en ambos temas), texto siempre claro */
+.hero-form, :root[data-theme="light"] .hero-form {
+  background: rgba(14,24,19,.38); border-color: rgba(255,255,255,.2); color: #fff;
+  -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
+}
+.hero-form h2, .hero-form label, :root[data-theme="light"] .hero-form h2, :root[data-theme="light"] .hero-form label { color: #fff; }
+.hero-form input, .hero-form select, .hero-form textarea, :root[data-theme="light"] .hero-form input, :root[data-theme="light"] .hero-form select, :root[data-theme="light"] .hero-form textarea { color: #fff; border-bottom-color: rgba(255,255,255,.35); }
+.hero-form ::placeholder { color: rgba(255,255,255,.6); }
+.hero-form .consent, :root[data-theme="light"] .hero-form .consent { color: rgba(255,255,255,.88); }
+/* Botones secundarios de la cabecera sobre cristal */
+.nav-actions .btn-ghost, .nav-actions .icon-btn { background: rgba(255,255,255,.12); }
+:root[data-theme="light"] .nav-actions .btn-ghost, :root[data-theme="light"] .nav-actions .icon-btn { background: rgba(18,34,26,.07); }
+
+/* ===== Noticias: caja con foto arriba (como antes) + acabado limpio actual ===== */
+.bcard { background: var(--surface); border: 0; border-radius: 20px; overflow: hidden; box-shadow: none; transition: transform .25s, background .25s; }
+:root[data-theme="light"] .bcard { background: rgba(255,255,255,.7); box-shadow: 0 8px 28px -16px rgba(18,34,26,.25); }
+.bcard:hover { transform: translateY(-3px); background: var(--surface-2); }
+.bcard-img { border-radius: 0; aspect-ratio: 16 / 10; }
+.bcard-t { padding: 18px 20px 22px; gap: 8px; }
+.bcard-t .post-cat { justify-self: start; padding: 4px 11px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 16%, transparent); font: 600 .78rem var(--font-body); }
+.bcard:hover h3 { text-decoration: none; }
+.bcard.grande { gap: 0; align-items: stretch; }
+.bcard.grande .bcard-img { aspect-ratio: auto; min-height: 300px; border-radius: 0; height: 100%; }
+.bcard.grande .bcard-t { padding: 32px; align-content: center; }
+.bcard.grande.sin-img { padding: 0; }
+#n-destacada { padding-bottom: 0; border-bottom: 0; margin-bottom: 28px; }
+.blog-grid { gap: 22px; }
+/* Portada de reserva cuando la noticia no tiene foto: verde de marca con el trébol */
+.bcard-img.cover { display: grid; place-items: center; background: #123524; }
+:root[data-theme="light"] .bcard-img.cover { background: #1f5a3c; }
+.bcard-img.cover .clover { width: 30%; max-width: 120px; opacity: .92; }
+.carrusel .bcard { background: var(--surface); }
+:root[data-theme="light"] .carrusel .bcard { background: rgba(255,255,255,.7); }
+/* El héroe tiene foto oscura en ambos temas: el acento debe ser el verde claro */
+:root[data-theme="light"] .hero h1 em, :root[data-theme="light"] .hero .eyebrow, :root[data-theme="light"] .hero-form .consent a { color: #5fd48f; }
+:root[data-theme="light"] .hero .eyebrow { color: #cfe9d8; }
+.head.row { max-width: none; width: 100%; }

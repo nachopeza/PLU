@@ -161,7 +161,7 @@ PRIN = [('Libertad individual','Tus decisiones, tus derechos.'),('Democracia rea
 prin_li = ''.join(f'<li data-r><b>{a}</b><span>{b}</span></li>' for a, b in PRIN)
 
 home = f'''
-<section class="strip" aria-label="PLU en cifras"><div class="wrap"><div class="counters" id="home-contadores"></div></div></section>
+<div id="home-contadores" hidden></div>
 
 <section class="section" id="como-funciona">
   <div class="wrap">
