@@ -1506,7 +1506,7 @@ html {
 }
 body, main, .site-footer { background: transparent; }
 html.at-top:has(.hero, .page-hero) { background-color: var(--bg); }
-html.pulling { background-color: #0a1810; background-image: none; }
+html.pulling:has(.hero, .page-hero) { background-color: #0a1810; background-image: none; }
 html:has(.hero, .page-hero) body { background: linear-gradient(#0a1810 0, #0a1810 12px, transparent 12px); }
 
 /* Cabecera: cristal ahumado constante (igual arriba y al bajar, claro u oscuro) */
