@@ -1237,3 +1237,98 @@ input, select, textarea { border-radius: var(--r-ctl); }
 .chip-e, .fbtn, .icon-btn, .btn-ghost { border-color: transparent; }
 .btn-ghost { background: color-mix(in srgb, var(--fg) 8%, transparent); }
 .btn-ghost:hover { background: color-mix(in srgb, var(--fg) 14%, transparent); }
+
+/* ===== v2.4 · Cristal brillante sin trazos + portada nueva ===== */
+/* La línea fina arriba/abajo era el degradado repitiéndose dentro del borde transparente: sin borde, no hay línea. */
+.hero-form, .form-card, .panel, .gate, .menu, .ip-top, .ip-nav, .counter, .carnet, .nav-pill { border: 0; background-origin: border-box; background-repeat: no-repeat; }
+.hero-form, .form-card, .panel, .gate, .menu, .ip-top, .ip-nav, .counter, .carnet, .nav-pill {
+  background-image:
+    radial-gradient(130% 90% at 8% 0%, rgba(255,255,255,.26) 0%, rgba(255,255,255,0) 58%),
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.05));
+  box-shadow: 0 30px 70px -26px rgba(0,0,0,.65);
+  -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(1.04); backdrop-filter: blur(36px) saturate(200%) brightness(1.04);
+}
+.hero-form { background-color: rgba(26,38,31,.46); }
+:root[data-theme="light"] .hero-form, :root[data-theme="light"] .form-card, :root[data-theme="light"] .panel, :root[data-theme="light"] .gate,
+:root[data-theme="light"] .menu, :root[data-theme="light"] .ip-top, :root[data-theme="light"] .ip-nav, :root[data-theme="light"] .counter,
+:root[data-theme="light"] .carnet, :root[data-theme="light"] .nav-pill {
+  background-image: radial-gradient(130% 90% at 8% 0%, rgba(255,255,255,.9) 0%, rgba(255,255,255,0) 60%), linear-gradient(180deg, rgba(255,255,255,.7), rgba(236,242,238,.6));
+  box-shadow: 0 22px 50px -24px rgba(18,34,26,.32);
+}
+:root[data-theme="light"] .hero-form { color: var(--fg); background-color: rgba(255,255,255,.35); }
+:root[data-theme="light"] .hero-form input, :root[data-theme="light"] .hero-form select, :root[data-theme="light"] .hero-form textarea { color: var(--fg); border-bottom-color: rgba(18,34,26,.25); }
+
+/* Cifras */
+.strip { padding-block: 28px 0; }
+.strip .counters { margin: 0; }
+
+/* Cabeceras de sección con enlace a la derecha */
+.head.row { display: flex; align-items: end; justify-content: space-between; gap: 16px 28px; flex-wrap: wrap; }
+.head.row .link-arrow { white-space: nowrap; padding-bottom: 6px; }
+
+/* Pasos con avance automático */
+.flow { display: grid; gap: 28px; }
+@media (min-width: 900px) { .flow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 56px; align-items: center; } }
+.flow-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.flow-list li { position: relative; border-radius: 16px; transition: background .25s; }
+.flow-list li.on { background: var(--surface-2); }
+.flow-list button { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 34px 1fr; gap: 14px; width: 100%; padding: 16px 18px 20px; cursor: pointer; }
+.flow-list button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 16px; }
+.flow-list b { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--surface-2); font: 700 .9rem var(--font-display); color: var(--muted); transition: .25s; }
+.flow-list li.on b { background: var(--accent); color: var(--on-accent); }
+.flow-list span { font: 650 1.1rem var(--font-display); letter-spacing: -.01em; color: var(--muted); transition: color .25s; }
+.flow-list li.on span { color: var(--fg); }
+.flow-list small { display: block; max-height: 0; opacity: 0; overflow: hidden; font: 400 .95rem/1.55 var(--font-body); color: var(--muted); letter-spacing: 0; transition: max-height .4s ease, opacity .3s, margin .3s; }
+.flow-list li.on small { max-height: 8em; opacity: 1; margin-top: 6px; }
+.flow-list .bar { position: absolute; left: 18px; right: 18px; bottom: 8px; height: 3px; border-radius: 3px; background: color-mix(in srgb, var(--fg) 10%, transparent); overflow: hidden; opacity: 0; }
+.flow-list li.on .bar { opacity: 1; }
+.flow-list .bar::after { content: ""; display: block; height: 100%; width: calc(var(--p, 0) * 100%); background: var(--accent); border-radius: 3px; }
+.flow-stage { position: relative; aspect-ratio: 5 / 4; border-radius: 28px; overflow: hidden; background: var(--surface-2); order: -1; }
+@media (min-width: 900px) { .flow-stage { order: 0; } }
+.fs { position: absolute; inset: 0; opacity: 0; transform: scale(1.06); transition: opacity .7s ease, transform 6s ease-out; }
+.fs.on { opacity: 1; transform: scale(1); }
+.fs .ph, .fs img { width: 100%; height: 100%; object-fit: cover; }
+.flow-pause { position: absolute; right: 14px; bottom: 14px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: rgba(8,16,12,.55); color: #fff; font: 700 .7rem var(--font-body); cursor: pointer; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+
+/* Áreas con ejemplos que rellenan el formulario */
+.areas { display: grid; gap: 20px; }
+.area-tabs { display: flex; gap: 6px; padding: 5px; width: max-content; max-width: 100%; overflow-x: auto; border-radius: 14px; background: var(--surface-2); }
+.area-tabs button { all: unset; box-sizing: border-box; padding: 9px 18px; border-radius: 10px; font: 600 .95rem var(--font-body); color: var(--muted); cursor: pointer; white-space: nowrap; transition: .2s; }
+.area-tabs button[aria-selected="true"] { background: var(--bg); color: var(--fg); box-shadow: 0 1px 6px rgba(0,0,0,.18); }
+.area-tabs button:focus-visible { outline: 2px solid var(--accent); }
+.area-body { display: grid; gap: 22px; }
+@media (min-width: 860px) { .area-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center; } }
+.area-photo { position: relative; aspect-ratio: 4 / 3; border-radius: 24px; overflow: hidden; }
+.ap { position: absolute; inset: 0; opacity: 0; transition: opacity .5s; }
+.ap.on { opacity: 1; }
+.ap .ph, .ap img { width: 100%; height: 100%; object-fit: cover; }
+.area-ex { display: grid; }
+.ae { display: none; gap: 10px; align-content: start; }
+.ae.on { display: grid; animation: aparece .35s ease; }
+@keyframes aparece { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.ex { all: unset; box-sizing: border-box; display: block; padding: 14px 18px; border-radius: 14px; background: var(--surface-2); color: var(--fg); font: 500 1rem/1.4 var(--font-body); cursor: pointer; transition: background .2s, transform .2s; }
+.ex:hover { background: color-mix(in srgb, var(--accent) 22%, var(--surface-2)); transform: translateX(3px); }
+.ex:focus-visible { outline: 2px solid var(--accent); }
+.ae .link-arrow { margin-top: 6px; }
+
+/* Carrusel de noticias */
+.carrusel { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 2px 18px; margin-inline: calc(-1 * clamp(16px, 4vw, 32px)); padding-inline: clamp(16px, 4vw, 32px); scrollbar-width: none; }
+.carrusel::-webkit-scrollbar { display: none; }
+.carrusel .bcard { flex: 0 0 min(84%, 340px); scroll-snap-align: start; border: 0; background: var(--surface); }
+@media (min-width: 900px) { .carrusel { margin-inline: 0; padding-inline: 2px; } .carrusel .bcard { flex-basis: calc((100% - 36px) / 3); } }
+
+/* Tres compromisos */
+.trio { display: grid; gap: 14px; }
+@media (min-width: 800px) { .trio { grid-template-columns: repeat(3, 1fr); gap: 18px; } }
+.trio-c { display: grid; gap: 10px; align-content: start; padding: 26px; border-radius: 24px; background: var(--surface); text-decoration: none; color: inherit; transition: transform .25s, background .25s; }
+.trio-c:hover { transform: translateY(-4px); background: var(--surface-2); }
+.trio-c h3 { font-size: 1.2rem; margin: 6px 0 0; }
+.trio-c p { margin: 0; color: var(--muted); }
+.trio-c .go { margin-top: 8px; font-weight: 600; color: var(--accent); }
+.areas, .area-body, .area-ex, .flow { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+@media (min-width: 860px) { .area-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+@media (min-width: 900px) { .flow { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); } }
+.area-photo, .flow-stage { max-width: 100%; }
+.flow-list li { border: 0; padding: 0; display: block; }
+.flow-list li::before { content: none !important; }
+@media (max-width: 520px) { .area-tabs { width: 100%; justify-content: space-between; } .area-tabs button { padding: 9px 10px; font-size: .88rem; } }
