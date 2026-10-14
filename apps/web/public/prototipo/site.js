@@ -257,7 +257,7 @@
         .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { ok: r.ok, d: d }; }); })
         .then(function (x) {
           btn.disabled = false;
-          if (x.ok) { if (!form.querySelector('.step')) Array.prototype.forEach.call(form.children, function (c) { c.hidden = true; }); form.querySelectorAll('.step').forEach(function (s) { s.hidden = true; }); var done = document.createElement('div'); done.className = 'step'; done.innerHTML = '<h3></h3><p class="muted"></p>'; done.querySelector('h3').textContent = form.getAttribute('data-ok') || '¡Solicitud enviada!'; done.querySelector('p').textContent = x.d.mensaje; form.appendChild(done); form.reset(); return; }
+          if (x.ok) { if (!form.querySelector('.step')) Array.prototype.forEach.call(form.children, function (c) { c.hidden = true; }); form.querySelectorAll('.step').forEach(function (s) { s.hidden = true; }); var done = document.createElement('div'); done.className = 'step'; done.innerHTML = '<h3></h3><p class="muted"></p>'; done.querySelector('h3').textContent = form.getAttribute('data-ok') || '¡Solicitud enviada!'; done.querySelector('p').textContent = x.d.mensaje; form.appendChild(done); form.reset(); try { done.setAttribute('tabindex', '-1'); form.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(function () { done.focus({ preventScroll: true }); }, 400); } catch (e) { /* sin scroll */ } return; }
           var det = x.d.errores ? Object.keys(x.d.errores).map(function (k) { return x.d.errores[k]; }).join(' · ') : x.d.error;
           status.style.color = '#ff8a80'; status.textContent = det || 'Error del servidor. Mira la Terminal donde corre la API.';
         })
