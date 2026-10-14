@@ -42,7 +42,7 @@ export function datosCarne(persona, carne) {
   };
 }
 
-const urlVerificacion = (codigo) => `${URL_PUBLICA}/prototipo/intranet.html?v=${encodeURIComponent(codigo)}`;
+const urlVerificacion = (codigo) => `${URL_PUBLICA}/intranet?v=${encodeURIComponent(codigo)}`;
 const qrPng = (codigo) => QRCode.toBuffer(urlVerificacion(codigo), { margin: 0, width: 600, errorCorrectionLevel: 'M' });
 
 export async function generarCarnePdf(datos) {

@@ -201,7 +201,7 @@ encuestasIntranet.post('/encuestas/:id/enlaces', requerirEquipo(...GESTIONAN), (
   const lista = transaccion(() => personas.map((p) => {
     const t = tokenAleatorio(24);
     ins.run(e.id, p.id, sha256(t), expira);
-    return { nombre: p.nombre, email: p.email, enlace: `${base}/prototipo/encuesta.html?t=${t}` };
+    return { nombre: p.nombre, email: p.email, enlace: `${base}/encuesta?t=${t}` };
   }));
   auditar(req.equipo.id, 'generar_enlaces_encuesta', 'encuesta', e.id, { cantidad: lista.length });
   res.json({ ok: true, cantidad: lista.length, enlaces: lista });

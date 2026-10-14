@@ -158,3 +158,8 @@ PLU es un movimiento: la política se construye a partir de lo que pide la ciuda
 - Gestión (admin/gestor) puede editar datos, ver el carné, emitir duplicado/renovación, certificado de afiliación (PDF sin DNI), readmitir bajas y cambiar provincia. El coordinador sigue en solo lectura.
 - Portal: certificado PDF y solicitud de cambio de datos estructurada (se aplica al resolverla).
 - Menú móvil agrupado y desplazable.
+
+## v1.5 — URLs limpias
+- La web se sirve en la raíz: `somosplu.com/afiliate`, `/portal`, `/intranet`… (sin `/prototipo` ni `.html`).
+- Las URLs antiguas (`/prototipo/x.html?…`) redirigen con 301 conservando la consulta, así los QR de carnés ya emitidos y los enlaces antiguos siguen funcionando.
+- Los enlaces de correos, carné y encuestas usan las rutas limpias.

@@ -1,3 +1,4 @@
+import re
 import pathlib
 OUT = pathlib.Path(__file__).parent
 
@@ -622,6 +623,7 @@ for f, (t, b, h) in PAGES.items():
     html = page(f, t, b, h)
     if f != 'intranet.html':
         html = marcar(html, f[:-5])
+    html = re.sub(r'href="([a-z0-9-]+)\.html(?=["?#])', lambda m: 'href="' + ('/' if m.group(1) == 'index' else '/' + m.group(1)), html)
     (OUT / f).write_text(html)
 indice_paginas([(f, v[0]) for f, v in PAGES.items()], OUT / 'paginas.json')
 print('ok', len(PAGES))

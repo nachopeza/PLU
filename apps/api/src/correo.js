@@ -58,5 +58,5 @@ const PIE = '\n\nPlataforma Liberal Unida\n' + URL_PUBLICA;
 export function textoAcceso({ nombre, email, password, caduca, numero, motivo }) {
   const dias = caduca ? ` Caduca el ${new Date(caduca).toLocaleDateString('es-ES')}.` : '';
   return `Hola ${nombre},\n\n${motivo}\n\n` + (numero ? `Tu número de afiliado es ${numero}.\n` : '') +
-    `Entra en ${URL_PUBLICA}/prototipo/portal.html\nCorreo: ${email}\nContraseña temporal: ${password}\n\nTe pediremos cambiarla en el primer acceso.${dias}\nSi no esperabas este mensaje, ignóralo.` + PIE;
+    `Entra en ${URL_PUBLICA}/portal\nCorreo: ${email}\nContraseña temporal: ${password}\n\nTe pediremos cambiarla en el primer acceso.${dias}\nSi no esperabas este mensaje, ignóralo.` + PIE;
 }

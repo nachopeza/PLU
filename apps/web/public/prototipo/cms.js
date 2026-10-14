@@ -51,7 +51,7 @@
       // Sin sesión válida no se muestra nada: la página se ve como la ve cualquier visitante.
       // Quien edita y no ha entrado es llevado a la intranet; el resto no ve ni sabe que existe el editor.
       var marca = false; try { marca = localStorage.getItem('plu_editor') === '1'; } catch (e) { /* sin almacenamiento */ }
-      if (marca) location.replace('intranet.html?volver=' + encodeURIComponent(location.pathname.split('/').pop() + '?editar=1'));
+      if (marca) location.replace('intranet.html?volver=' + encodeURIComponent(pagina + '.html?editar=1'));
       else history.replaceState(null, '', location.pathname);
     });
   }

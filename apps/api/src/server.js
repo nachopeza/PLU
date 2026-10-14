@@ -1,5 +1,6 @@
 // Servidor de la API de la PLU.
 // Sirve: comprobación de salud, provincias, inscripciones públicas, intranet (equipo) y la web de prototipo.
+import { existsSync } from 'node:fs';
 import express from 'express';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -63,12 +64,25 @@ app.use('/api/intranet', participacionIntranet);
 app.use('/api', (_req, res) => res.status(404).json({ error: 'No existe' }));
 
 app.use(medios);
-// Web: el prototipo nuevo es la página de inicio
-app.use('/prototipo', express.static(join(publicDir, 'prototipo')));
+// Web con URLs limpias: somosplu.com/afiliate (sin /prototipo ni .html). Las URLs antiguas redirigen.
+const webDir = join(publicDir, 'prototipo');
+const sufijo = (req) => { const i = req.originalUrl.indexOf('?'); return i >= 0 ? req.originalUrl.slice(i) : ''; };
+const limpia = (nombre) => (nombre === 'index' ? '/' : '/' + nombre);
+app.use('/prototipo', (req, res, next) => {
+  const m = /^\/([a-z0-9-]+)(?:\.html)?\/?$/.exec(req.path);
+  if (m) return res.redirect(301, limpia(m[1]) + sufijo(req));
+  if (req.path === '/') return res.redirect(301, '/' + sufijo(req));
+  // recursos (css, js, fotos…) que aún se pidan con la ruta antigua
+  return res.redirect(301, req.path + sufijo(req));
+});
+app.get(/^\/([a-z0-9-]+)\.html$/, (req, res) => res.redirect(301, limpia(req.params[0]) + sufijo(req)));
+app.use(express.static(webDir, { index: false, extensions: [] }));
+app.get('/', (_req, res) => res.sendFile(join(webDir, 'index.html')));
+app.get(/^\/([a-z0-9-]+)$/, (req, res, next) => {
+  const f = join(webDir, req.params[0] + '.html');
+  return existsSync(f) ? res.sendFile(f) : next();
+});
 app.use(express.static(publicDir));
-app.get('/', (_req, res) => res.redirect('/prototipo/index.html'));
-app.get('/intranet', (_req, res) => res.redirect('/prototipo/intranet.html'));
-app.get('/portal', (_req, res) => res.redirect('/prototipo/portal.html'));
 
 crearAdminInicial();
 
