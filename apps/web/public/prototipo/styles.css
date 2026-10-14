@@ -1628,3 +1628,8 @@ html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .btn-primary { 
 :root[data-theme="light"] .nav-pill .clover { filter: brightness(.6) saturate(1.5) contrast(1.1); }
 :root[data-theme="light"] .menu { background: rgba(255,255,255,.82) !important; color: #12221a; border-color: rgba(18,34,26,.1) !important; }
 :root[data-theme="light"] .menu a { color: #12221a; }
+
+/* v3.3 · Menú móvil: flota sobre la página (no empuja el contenido ni deja ver el fondo blanco al abrir arriba) */
+.site-header .menu { position: absolute; top: 100%; left: 16px; right: 16px; margin-top: 6px; z-index: 60; }
+:root[data-theme="light"] .menu { background: rgba(255,255,255,.94) !important; }
+:root:not([data-theme="light"]) .menu { background: rgba(14,26,20,.9) !important; }
