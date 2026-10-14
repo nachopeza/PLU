@@ -1224,3 +1224,16 @@ input, select, textarea { border-radius: var(--r-ctl); }
 .nav-actions .icon-btn { width: 35px; height: 35px; border-radius: 9px; }
 .nav-actions .icon-btn svg { width: 18px; height: 18px; }
 .nav-actions { gap: 8px; }
+
+/* ===== v2.3 · Botones y elementos de menú: planos, sin brillo ni contorno (el efecto de borde luminoso NO se usa en botones) ===== */
+.btn, .btn-ghost, .btn-primary, .btn-line-light, .fbtn, .icon-btn, .chip-e, .ip-btn, .ip-btn[aria-pressed], .fbtn[aria-pressed], .menu a, .nav-links a {
+  box-shadow: none !important; -webkit-backdrop-filter: none; backdrop-filter: none; outline-offset: 2px;
+}
+.ip-btn, .ip-btn[aria-pressed="true"], .fbtn[aria-pressed="true"] { border-color: transparent !important; }
+.ip-btn { background: transparent; border-left-width: 1px; }
+.ip-btn:hover { background: var(--surface-2); }
+.ip-btn[aria-pressed="true"] { background: var(--forest, #1f3a2c); color: #fff; }
+:root:not([data-theme="light"]) .ip-btn[aria-pressed="true"] { background: var(--accent-strong); }
+.chip-e, .fbtn, .icon-btn, .btn-ghost { border-color: transparent; }
+.btn-ghost { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.btn-ghost:hover { background: color-mix(in srgb, var(--fg) 14%, transparent); }
