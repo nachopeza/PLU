@@ -51,12 +51,28 @@ export async function generarCarnePdf(datos) {
   if (plantilla) {
     const pdf = await PDFDocument.load(readFileSync(join(CARPETA_PLANTILLAS, plantilla.archivo_path)));
     const form = pdf.getForm();
+    const normal = await pdf.embedFont(StandardFonts.Helvetica), negrita = await pdf.embedFont(StandardFonts.HelveticaBold);
     for (const [k, v] of Object.entries(datos)) {
       if (k === 'codigo') continue;
-      try { form.getTextField(k).setText(v); } catch { /* campo ausente: se ignora */ }
+      let campo;
+      try { campo = form.getTextField(k); } catch { continue; /* campo ausente: se ignora */ }
+      // InDesign exporta los campos con texto negro (0 g) y fuente Minion sin incrustar: se usa blanco y Helvetica.
+      // Para otro color, ponlo en InDesign en cualquier tono distinto del negro puro.
+      const da = campo.acroField.getDefaultAppearance() ?? '';
+      const tam = Number((da.match(/([\d.]+)\s+Tf/) || [])[1] ?? 0);
+      const color = da.match(/((?:[\d.]+\s+){1,4}(?:g|rg|k))\s*$/)?.[1]?.trim() ?? '0 g';
+      const esNegro = /^0(\s+0)*\s+(g|rg)$/.test(color) || /^0 0 0 1 k$/.test(color);
+      const fuente = ['nombre', 'apellidos', 'numeroAfiliado', 'nombreCompleto'].includes(k) ? negrita : normal;
+      // Si el texto no cabe en el ancho del campo, se reduce el tamaño (mínimo 5 pt) en vez de cortarlo
+      let tamFinal = tam || 12;
+      const ancho = campo.acroField.getWidgets()[0].getRectangle().width - 4;
+      while (tamFinal > 5 && fuente.widthOfTextAtSize(String(v), tamFinal) > ancho) tamFinal -= 0.5;
+      campo.acroField.setDefaultAppearance(`/Helv ${tamFinal} Tf ${esNegro ? '1 1 1 rg' : color}`);
+      campo.setText(v);
+      campo.updateAppearances(fuente);
     }
     try { form.getButton('qr').setImage(await pdf.embedPng(png)); } catch { /* sin campo qr */ }
-    form.flatten();
+    form.flatten({ updateFieldAppearances: false });
     return { bytes: await pdf.save({ useObjectStreams: false }), plantillaId: plantilla.id };
   }
   // Carné de prueba (85,6 × 54 mm) mientras no haya plantilla

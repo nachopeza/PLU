@@ -1132,3 +1132,71 @@ input, select, textarea { border-radius: var(--r-ctl); }
 .blog-filtros .tab { border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; padding: 10px 0; }
 .blog-filtros .tab[aria-pressed="true"] { border-bottom-color: var(--accent); background: none; color: var(--fg); }
 .bcard.grande.sin-img { border-bottom: 0; padding: 0; }
+
+/* ===== v2.1 · Cristal estilo Spotify Connect + pie de página ===== */
+:root {
+  --sheet: linear-gradient(180deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.06) 38%, rgba(255,255,255,.07) 100%);
+  --sheet-b: rgba(255,255,255,.16);
+  --sheet-hi: inset 0 1px 0 rgba(255,255,255,.22), inset 0 0 0 .5px rgba(255,255,255,.06);
+  --sheet-sh: 0 24px 60px -18px rgba(0,0,0,.55), 0 2px 10px rgba(0,0,0,.18);
+  --card-in: rgba(255,255,255,.075);
+  --blur-sheet: blur(34px) saturate(190%) brightness(.92);
+}
+:root[data-theme="light"] {
+  --sheet: linear-gradient(180deg, rgba(255,255,255,.82) 0%, rgba(255,255,255,.62) 100%);
+  --sheet-b: rgba(255,255,255,.9);
+  --sheet-hi: inset 0 1px 0 rgba(255,255,255,.95), inset 0 0 0 .5px rgba(18,34,26,.05);
+  --sheet-sh: 0 22px 50px -20px rgba(18,34,26,.28), 0 1px 6px rgba(18,34,26,.06);
+  --card-in: rgba(255,255,255,.7);
+  --blur-sheet: blur(30px) saturate(170%);
+}
+/* Hoja grande: formulario del héroe, paneles, menú, tarjetas */
+.hero-form, .form-card, .panel, .gate, .menu, .ip-top, .ip-nav, .counter, .carnet {
+  background: var(--sheet); border: 1px solid var(--sheet-b); border-radius: 28px;
+  -webkit-backdrop-filter: var(--blur-sheet); backdrop-filter: var(--blur-sheet);
+  box-shadow: var(--sheet-hi), var(--sheet-sh);
+}
+.hero-form { color: #fff; padding: clamp(22px, 3vw, 34px); background: linear-gradient(180deg, rgba(255,255,255,.16) 0%, rgba(40,52,46,.5) 40%, rgba(20,30,25,.58) 100%); }
+/* Tarjetas interiores (como la tarjeta "Salón"): más pequeñas, algo más claras */
+.rowitem, .pcard, .qq, .res-q, .secret, .audit-row, .opt, .family {
+  background: var(--card-in); border: 1px solid var(--sheet-b); border-radius: 20px;
+  -webkit-backdrop-filter: blur(22px) saturate(170%); backdrop-filter: blur(22px) saturate(170%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+}
+/* Cabecera: píldora de cristal */
+.nav-pill {
+  background: var(--sheet); border: 1px solid var(--sheet-b); border-radius: 22px;
+  -webkit-backdrop-filter: var(--blur-sheet); backdrop-filter: var(--blur-sheet);
+  box-shadow: var(--sheet-hi), 0 14px 34px -14px rgba(0,0,0,.5);
+}
+/* Botones secundarios y chips: cápsulas de cristal */
+.btn-ghost, .fbtn, .icon-btn, .chip-e, .ip-btn {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.14);
+  -webkit-backdrop-filter: blur(16px) saturate(170%); backdrop-filter: blur(16px) saturate(170%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+}
+:root[data-theme="light"] .btn-ghost, :root[data-theme="light"] .fbtn, :root[data-theme="light"] .icon-btn, :root[data-theme="light"] .chip-e, :root[data-theme="light"] .ip-btn {
+  background: rgba(255,255,255,.7); border-color: rgba(18,34,26,.1); box-shadow: inset 0 1px 0 #fff;
+}
+/* Menú móvil desplegable: hoja con borde superior suave */
+.menu { padding: 10px; }
+.menu a { border-radius: 14px; }
+.menu a:hover { background: rgba(255,255,255,.1); }
+/* Campos: línea fina sobre el cristal */
+.hero-form input, .hero-form select, .hero-form textarea { background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,.28); border-radius: 0; color: #fff; }
+.hero-form button[type="submit"], .hero-form .btn-primary { border-radius: 16px; }
+
+/* Pie de página: columnas ordenadas y con aire */
+.site-footer { padding-block: 72px 48px; }
+.footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px 28px; }
+.footer-grid > div:first-child { grid-column: 1 / -1; }
+@media (min-width: 900px) {
+  .footer-grid { grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr)); gap: 40px clamp(28px, 4vw, 64px); }
+  .footer-grid > div:first-child { grid-column: auto; }
+}
+.footer-grid h3 { margin: 0 0 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); font-size: .7rem; letter-spacing: .16em; }
+.footer-links { gap: 12px; }
+.footer-links a { color: var(--fg); opacity: .86; line-height: 1.35; font-size: .95rem; }
+.footer-links a:hover { opacity: 1; text-decoration: none; color: var(--accent); }
+.footer-grid p.muted { line-height: 1.6; font-size: .95rem; }
+.legal { margin-top: 56px; padding-top: 24px; max-width: none; font-size: .82rem; line-height: 1.7; }
