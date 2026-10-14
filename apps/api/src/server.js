@@ -17,6 +17,7 @@ import { participacionIntranet, participacionPortal, participacionPublica } from
 import { rutasCarne } from './rutas-carne.js';
 import { soloJson } from './sesion.js';
 import { sembrarNoticias } from './noticias-ejemplo.js';
+import { privacidad, WEB_PRIVADA } from './privacidad.js';
 
 const aquí = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(aquí, '..', '..', 'web', 'public');
@@ -36,6 +37,7 @@ app.use('/api', (req, res, next) => (req.method === 'POST' && (((req.path === '/
 // Los datos de la API nunca se guardan en caché
 app.use('/api', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
 
+privacidad(app); // web en privado si PLU_WEB_PRIVADA lo indica
 app.get('/api/health', (_req, res) => {
   const { total } = db.prepare("SELECT COUNT(*) AS total FROM territorios WHERE tipo = 'provincia'").get();
   res.json({ ok: true, servicio: 'plu-api', version: '0.5.0', provincias: total });
@@ -104,4 +106,4 @@ crearAdminInicial();
 sembrarNoticias().catch((e) => console.error('Noticias de ejemplo:', e.message));
 
 const puerto = Number(process.env.PORT ?? 8787);
-app.listen(puerto, () => console.log(`PLU API escuchando en http://localhost:${puerto}`));
+app.listen(puerto, () => console.log(`PLU API escuchando en http://localhost:${puerto}${WEB_PRIVADA ? ' · web PRIVADA (solo equipo)' : ''}`));
