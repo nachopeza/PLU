@@ -36,8 +36,8 @@ async function pdfNotaDePrensa() {
 }
 
 export async function sembrarNoticias() {
-  if (db.prepare("SELECT 1 FROM semillas WHERE nombre = 'noticias_ejemplo'").get()) return;
-  if (db.prepare('SELECT COUNT(*) AS n FROM noticias').get().n > 0) { db.prepare("INSERT INTO semillas (nombre) VALUES ('noticias_ejemplo')").run(); return; }
+  // v2: se añaden las que falten aunque ya existan otras noticias (se comparan por título), una sola vez
+  if (db.prepare("SELECT 1 FROM semillas WHERE nombre = 'noticias_ejemplo_v2'").get()) return;
   let adjuntos = '[]';
   try {
     const bytes = Buffer.from(await pdfNotaDePrensa());
@@ -67,9 +67,36 @@ export async function sembrarNoticias() {
     { dias: 14, cat: 'Noticia', img: 'photo-1768299947895-06b676197f74',
       t: 'Tu carné de afiliado, siempre a mano', r: 'Descárgalo en PDF desde el portal y pide un duplicado cuando lo necesites.',
       c: 'El carné de PLU es digital. Lo recibes por correo al afiliarte y puedes volver a descargarlo cuando quieras desde tu portal.\n\n## Qué incluye\n\n- Tu nombre y número de afiliado.\n- Tu provincia y la fecha de validez.\n- Un código QR que permite comprobar que el carné es auténtico.\n\nSi lo pierdes o cambias de provincia, pídelo en la sección Solicitudes del portal y te enviaremos el nuevo por correo. El anterior deja de ser válido.' },
+    { dias: 16, cat: 'Opinión', img: 'photo-1758691461935-202e2ef6b69f',
+      t: 'Sanidad: cuando pedir cita es una carrera de fondo', r: 'Recogemos vuestras experiencias para entender dónde se atascan las listas de espera.',
+      c: 'Una de las cosas que más nos cuentan es lo difícil que resulta conseguir cita con el especialista. No tenemos todas las respuestas, pero sí una forma de trabajar.\n\n## Qué estamos haciendo\n\n- Recoger casos concretos, sin datos personales.\n- Hablar con profesionales que conocen el sistema desde dentro.\n- Publicar lo que aprendemos para que se pueda debatir.\n\n> Si trabajas en sanidad o has esperado una cita durante meses, tu experiencia nos ayuda.\n\nCuéntanos tu caso desde el formulario de la portada.' },
+    { dias: 19, cat: 'Noticia', img: 'photo-1752747115265-1e4cfb2c1212',
+      t: 'Educación: lo que nos pide el alumnado y el profesorado', r: 'Formación que conecte con el empleo y menos burocracia en las aulas, entre lo más repetido.',
+      c: 'En las primeras semanas hemos recibido propuestas muy distintas sobre educación. Hay dos temas que se repiten.\n\n## Lo más repetido\n\n- Que la formación profesional conecte mejor con el empleo.\n- Menos carga burocrática para el profesorado.\n- Becas y ayudas más fáciles de pedir.\n\nTodas las propuestas pasan por el mismo recorrido público: se leen, se estudian y se votan.' },
+    { dias: 23, cat: 'Evento', img: 'photo-1529209076408-5a115ec9f1c6',
+      t: 'Taller abierto: cómo escribir una buena propuesta', r: 'Una hora para aprender a convertir un problema cotidiano en una propuesta clara.',
+      c: 'Una buena propuesta empieza con un problema concreto y termina con algo que se pueda decidir. En este taller lo practicamos juntas y juntos.\n\n## Programa\n\n- Cómo describir un problema en una frase.\n- Qué diferencia una queja de una propuesta.\n- Ejercicio en grupos pequeños.\n\nLa participación es gratuita y no hace falta ser afiliado.' },
+    { dias: 27, cat: 'Comunicado', img: 'photo-1519313825-713a373f2bce',
+      t: 'Transporte: queremos saber cómo te mueves cada día', r: 'Abrimos una consulta para conocer los trayectos que más cuestan en cada provincia.',
+      c: 'El transporte público no es igual en una capital que en un pueblo. Para entenderlo, abrimos una consulta abierta.\n\n## Qué preguntamos\n\n- Cómo te mueves habitualmente.\n- Qué trayecto te cuesta más tiempo o dinero.\n- Qué mejorarías primero.\n\nLas respuestas se publicarán agrupadas y sin datos personales.' },
+    { dias: 31, cat: 'Noticia', img: 'photo-1556798542-13bfa5d6d01e',
+      t: 'Transparencia: así se publicarán nuestras cuentas', r: 'Ingresos, gastos y decisiones, explicados de forma que cualquiera pueda entenderlos.',
+      c: 'Pedir transparencia a los demás obliga a practicarla primero. Estas son las reglas que nos damos desde el principio.\n\n## Nuestros compromisos\n\n- Publicar de dónde viene el dinero y en qué se gasta.\n- Declarar los posibles conflictos de interés.\n- Explicar cada decisión importante.\n\nVerás la información actualizada en la sección de transparencia.' },
+    { dias: 36, cat: 'Nota de prensa', img: 'photo-1663162550938-60f70fab5d31',
+      t: 'PLU arranca: un movimiento que nace escuchando', r: 'Presentamos la plataforma y las ideas con las que empezamos a trabajar.',
+      c: 'PLU nace con una idea sencilla: antes de proponer, escuchar. Nuestra primera tarea es recoger lo que la gente necesita y ordenarlo.\n\n## Los primeros pasos\n\n- Abrimos la web con un formulario para contar qué necesitas.\n- Publicamos los principios de partida para debatirlos.\n- Preparamos los primeros encuentros abiertos.\n\nNada de esto está cerrado: se concreta con lo que aporte la gente.' },
+    { dias: 41, cat: 'Opinión', img: 'photo-1520127877998-122c33e8eb38',
+      t: 'Participar también es escuchar a quien piensa distinto', r: 'Por qué las normas de debate son parte del proyecto y no un adorno.',
+      c: 'Un movimiento abierto necesita un debate sano. Escuchar a quien piensa distinto no es una concesión: es la forma de acertar más.\n\n## Tres hábitos\n\n- Leer antes de responder.\n- Criticar la idea, no a la persona.\n- Cambiar de opinión cuando hay buenos argumentos.\n\nSi un comentario rompe las normas, el equipo de moderación lo explica y lo retira.' },
+    { dias: 46, cat: 'Evento', img: 'photo-1758613171176-ea64579c2dcf',
+      t: 'Voluntariado: cómo echar una mano desde tu ciudad', r: 'Hay tareas para todos los tiempos: desde difundir hasta organizar un encuentro.',
+      c: 'Muchas personas nos preguntan cómo ayudar. Hay formas para todos los tiempos y capacidades.\n\n## Formas de colaborar\n\n- Difundir las propuestas en tu entorno.\n- Ayudar a organizar encuentros locales.\n- Aportar tu conocimiento profesional.\n\nApúntate desde la sección de voluntariado y te escribimos.' },
   ];
   const ins = db.prepare('INSERT INTO noticias (titulo, resumen, cuerpo, imagen, categoria, adjuntos, publicada, fecha) VALUES (?, ?, ?, ?, ?, ?, 1, ?)');
-  for (const n of N) ins.run(n.t, n.r, n.c, foto(n.img), n.cat, n.adj ?? '[]', dias(n.dias));
-  db.prepare("INSERT INTO semillas (nombre) VALUES ('noticias_ejemplo')").run();
+  for (const n of N) {
+    if (db.prepare('SELECT 1 FROM noticias WHERE titulo = ?').get(n.t)) continue;
+    ins.run(n.t, n.r, n.c, foto(n.img), n.cat, n.adj ?? '[]', dias(n.dias));
+  }
+  db.prepare("INSERT INTO semillas (nombre) VALUES ('noticias_ejemplo_v2')").run();
   console.log('Noticias de ejemplo creadas.');
 }

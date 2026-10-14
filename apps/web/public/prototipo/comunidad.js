@@ -208,7 +208,7 @@
           $('n-fecha').textContent = fecha(n.fecha); $('n-min').textContent = n.minutos + ' min de lectura';
           $('n-ncom').textContent = String(n.comentarios_lista.length);
           $('n-titulo').textContent = n.titulo; if (n.resumen) { $('n-resumen').hidden = false; $('n-resumen').textContent = n.resumen; }
-          if (n.imagen) { $('n-img').src = n.imagen; $('n-img').hidden = false; }
+          if (n.imagen) { $('n-img').src = n.imagen; $('n-img').hidden = false; $('n-cover-fb').hidden = true; } else { $('n-img').hidden = true; $('n-cover-fb').hidden = false; }
           var c = $('n-cuerpo'); c.textContent = ''; cuerpoHtml(n.cuerpo, c);
           var dl = $('n-docs-l'); dl.textContent = ''; $('n-docs').hidden = !n.adjuntos.length;
           n.adjuntos.forEach(function (d) {

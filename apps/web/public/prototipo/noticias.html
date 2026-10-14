@@ -43,21 +43,29 @@
     <p class="muted" id="n-vacio" hidden>Todavía no hay publicaciones en esta categoría.</p>
   </div>
   <article id="n-detalle" class="post" hidden>
-    <p data-cms="noticias:58f75dc4"><a class="link" href="/noticias">← Todas las noticias</a></p>
-    <p class="post-meta"><span class="post-cat" id="n-cat"></span><span id="n-fecha"></span><span id="n-min"></span></p>
-    <h1 class="post-title" id="n-titulo"></h1>
-    <p class="post-lede" id="n-resumen" hidden></p>
-    <img id="n-img" class="post-cover" alt="" hidden>
-    <div class="post-body" id="n-cuerpo"></div>
+    <p class="post-back" data-cms="noticias:58f75dc4"><a class="link" href="/noticias">← Todas las noticias</a></p>
+    <header class="post-head">
+      <p class="post-meta"><span class="post-cat" id="n-cat"></span><span id="n-fecha"></span><span id="n-min"></span></p>
+      <h1 class="post-title" id="n-titulo"></h1>
+      <p class="post-lede" id="n-resumen" hidden></p>
+    </header>
+    <figure class="post-cover" id="n-cover"><img id="n-img" alt="" hidden><div class="cover-fb" id="n-cover-fb" hidden><span class="clover" aria-hidden="true"></span></div></figure>
+    <div class="post-grid">
+      <div class="post-main">
+        <div class="post-body" id="n-cuerpo"></div>
+    <p class="muted" id="n-login" hidden>Para comentar y dar me gusta, <a class="link" href="/portal" data-cms="noticias:13ce341c">entra en el portal del afiliado</a>. ¿Aún no eres afiliado? <a class="link" href="/afiliate" data-cms="noticias:2715467c">Afíliate</a>.</p>
+    <h2 class="post-h">Comentarios <small id="n-ncom">0</small></h2>
+    <div class="rows" id="n-comentarios"></div><p class="muted" id="n-sin-com">Sé la primera persona en comentar.</p>
+    <form class="form-card" id="n-form" hidden novalidate><div class="field"><label for="n-c" data-cms="noticias:d721708d">Tu comentario (respetuoso y sobre la noticia)</label><textarea id="n-c" rows="3" maxlength="1000" required></textarea></div><button class="btn btn-primary" type="submit" data-cms="noticias:f5da8885">Comentar</button><p class="form-status err" role="alert"></p></form>
+      </div>
+      <aside class="post-side">
     <section class="post-docs" id="n-docs" hidden><h2 data-cms="noticias:364da6cb">Documentos</h2><div id="n-docs-l"></div></section>
     <div class="post-actions">
       <button class="act" type="button" id="n-like" aria-pressed="false" aria-label="Me gusta"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg><span id="n-likes">0</span></button>
       <div class="share" id="n-share" role="group" aria-label="Compartir esta noticia"></div>
     </div>
-    <p class="muted" id="n-login" hidden>Para comentar y dar me gusta, <a class="link" href="/portal" data-cms="noticias:13ce341c">entra en el portal del afiliado</a>. ¿Aún no eres afiliado? <a class="link" href="/afiliate" data-cms="noticias:2715467c">Afíliate</a>.</p>
-    <h2 class="post-h">Comentarios <small id="n-ncom">0</small></h2>
-    <div class="rows" id="n-comentarios"></div><p class="muted" id="n-sin-com">Sé la primera persona en comentar.</p>
-    <form class="form-card" id="n-form" hidden novalidate><div class="field"><label for="n-c" data-cms="noticias:d721708d">Tu comentario (respetuoso y sobre la noticia)</label><textarea id="n-c" rows="3" maxlength="1000" required></textarea></div><button class="btn btn-primary" type="submit" data-cms="noticias:f5da8885">Comentar</button><p class="form-status err" role="alert"></p></form>
+      </aside>
+    </div>
     <h2 class="post-h" id="n-mas-t" hidden data-cms="noticias:801dd536">Sigue leyendo</h2><div class="blog-grid" id="n-mas"></div>
   </article>
 </div></section>
