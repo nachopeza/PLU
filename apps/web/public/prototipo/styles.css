@@ -1200,3 +1200,22 @@ input, select, textarea { border-radius: var(--r-ctl); }
 .footer-links a:hover { opacity: 1; text-decoration: none; color: var(--accent); }
 .footer-grid p.muted { line-height: 1.6; font-size: .95rem; }
 .legal { margin-top: 56px; padding-top: 24px; max-width: none; font-size: .82rem; line-height: 1.7; }
+
+/* ===== v2.2 · Cristal sin trazos (como Spotify): el borde lo da la luz, no una línea ===== */
+.hero-form, .form-card, .panel, .gate, .menu, .ip-top, .ip-nav, .counter, .carnet, .nav-pill,
+.rowitem, .pcard, .qq, .res-q, .secret, .audit-row, .opt, .family,
+.btn-ghost, .fbtn, .icon-btn, .chip-e, .ip-btn {
+  border-color: transparent;
+}
+.hero-form, .form-card, .panel, .gate, .menu, .ip-top, .ip-nav, .counter, .carnet, .nav-pill {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 30px 70px -24px rgba(0,0,0,.6);
+}
+.rowitem, .pcard, .qq, .res-q, .secret, .audit-row, .opt, .family { box-shadow: none; }
+.btn-ghost, .fbtn, .icon-btn, .chip-e, .ip-btn { box-shadow: none; background: rgba(255,255,255,.11); }
+:root[data-theme="light"] .hero-form, :root[data-theme="light"] .form-card, :root[data-theme="light"] .panel, :root[data-theme="light"] .gate,
+:root[data-theme="light"] .menu, :root[data-theme="light"] .ip-top, :root[data-theme="light"] .ip-nav, :root[data-theme="light"] .counter,
+:root[data-theme="light"] .carnet, :root[data-theme="light"] .nav-pill { box-shadow: 0 22px 50px -22px rgba(18,34,26,.3); }
+:root[data-theme="light"] .btn-ghost, :root[data-theme="light"] .fbtn, :root[data-theme="light"] .icon-btn,
+:root[data-theme="light"] .chip-e, :root[data-theme="light"] .ip-btn { box-shadow: none; background: rgba(18,34,26,.06); border-color: transparent; }
+/* Separadores internos: solo una línea tenue, nunca un marco */
+.hero-form input, .hero-form select, .hero-form textarea { border-bottom-color: rgba(255,255,255,.2); }
