@@ -77,6 +77,22 @@
     // Todos los desplegables abiertos para poder editar su contenido
     [].forEach.call(document.querySelectorAll('details'), function (d) { d.open = true; });
     // Fotos: botón para cambiarlas
+    // Reduce las fotos antes de subirlas (las del móvil pesan mucho): máx. 2200 px y JPEG
+    function prepararImagen(archivo) {
+      return new Promise(function (resolve) {
+        var url = URL.createObjectURL(archivo), im = new Image();
+        im.onload = function () {
+          URL.revokeObjectURL(url);
+          var w = im.naturalWidth, hh = im.naturalHeight, k = Math.min(1, 2200 / Math.max(w, hh));
+          if (k === 1 && /^image\/(jpeg|png|webp)$/.test(archivo.type) && archivo.size < 4 * 1024 * 1024) return resolve(archivo);
+          var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(hh * k);
+          var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height);
+          c.toBlob(function (b) { resolve(b || archivo); }, 'image/jpeg', 0.86);
+        };
+        im.onerror = function () { URL.revokeObjectURL(url); resolve(archivo); };
+        im.src = url;
+      });
+    }
     var cambiosImg = {};
     imagenes.forEach(function (img) {
       var cont = img.parentElement; if (getComputedStyle(cont).position === 'static') cont.style.position = 'relative';
@@ -86,7 +102,7 @@
       f.addEventListener('change', function () {
         var a = f.files[0]; if (!a) return;
         b.textContent = 'Subiendo…';
-        api('/intranet/medios', 'POST', a, a.type).then(function (r) { img.onerror = null; img.src = r.url; cambiosImg[img.getAttribute('data-cmsimg')] = r.url; b.textContent = 'Cambiar foto'; contar(); })
+        prepararImagen(a).then(function (bl) { return api('/intranet/medios', 'POST', bl, bl.type); }).then(function (r) { img.onerror = null; img.src = r.url; cambiosImg[img.getAttribute('data-cmsimg')] = r.url; b.textContent = 'Cambiar foto'; contar(); })
           .catch(function (er) { b.textContent = 'Cambiar foto'; aviso(er.message, true); });
       });
       cont.appendChild(b); cont.appendChild(f);

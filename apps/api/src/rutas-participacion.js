@@ -315,7 +315,7 @@ function datosNoticia(b) {
   const titulo = limpio(b?.titulo, 150), cuerpo = String(b?.cuerpo ?? '').trim().slice(0, 30000);
   if (!titulo || !cuerpo) throw new Error('Faltan el título o el texto');
   const imagen = b?.imagen ? String(b.imagen) : null;
-  if (imagen && !/^\/media\/[a-f0-9]{32}\.(png|jpg|webp)$/.test(imagen)) throw new Error('Imagen no válida');
+  if (imagen && !/^(\/media\/[a-f0-9]{32}\.(png|jpg|webp)|https:\/\/images\.unsplash\.com\/photo-[\w-]+\?[\w=&.%-]+)$/.test(imagen)) throw new Error('Imagen no válida');
   const categoria = CATEGORIAS_NOTICIA.includes(b?.categoria) ? b.categoria : 'Noticia';
   const adjuntos = (Array.isArray(b?.adjuntos) ? b.adjuntos : []).slice(0, 8).map((a) => {
     const url = String(a?.url ?? '');

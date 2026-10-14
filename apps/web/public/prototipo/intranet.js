@@ -697,8 +697,24 @@
 
 
   // --- Contenido web: editor visual de textos e imágenes ---
-  function subirImagen(archivo) {
-    return fetch('/api/intranet/medios', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': archivo.type }, body: archivo })
+  // Reduce las fotos antes de subirlas (las del móvil pesan mucho): máx. 2200 px y JPEG
+  function prepararImagen(archivo) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(archivo), im = new Image();
+      im.onload = function () {
+        URL.revokeObjectURL(url);
+        var w = im.naturalWidth, hh = im.naturalHeight, k = Math.min(1, 2200 / Math.max(w, hh));
+        if (k === 1 && /^image\/(jpeg|png|webp)$/.test(archivo.type) && archivo.size < 4 * 1024 * 1024) return resolve(archivo);
+        var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(hh * k);
+        var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(im, 0, 0, c.width, c.height);
+        c.toBlob(function (b) { resolve(b || archivo); }, 'image/jpeg', 0.86);
+      };
+      im.onerror = function () { URL.revokeObjectURL(url); resolve(archivo); };
+      im.src = url;
+    });
+  }
+  function subirImagen(original) {
+    return prepararImagen(original).then(function (archivo) { return fetch('/api/intranet/medios', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': archivo.type }, body: archivo }); })
       .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || 'No se pudo subir'); return d; }); });
   }
   function sContenido(c) {
@@ -855,9 +871,9 @@
     }
     function editor(n) {
       limpiar(zona); var pub = h('input', { type: 'checkbox', id: 'nt-p' }); pub.checked = n ? !!n.publicada : false;
-      var imagen = n ? n.imagen || '' : '', vista = h('img', { class: 'noticia-img', alt: '', hidden: !imagen, src: imagen || null }), estadoImg = h('span', { class: 'muted' });
+      var imagen = n ? n.imagen || '' : '', vista = h('img', { class: 'noticia-img', alt: '', hidden: !imagen, src: imagen || null }), estadoImg = h('p', { class: 'form-status' });
       var archivo = h('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp', id: 'nt-i' });
-      archivo.addEventListener('change', function () { if (!archivo.files[0]) return; estadoImg.textContent = 'Subiendo…'; subirImagen(archivo.files[0]).then(function (r) { imagen = r.url; vista.src = r.url; vista.hidden = false; estadoImg.textContent = 'Imagen lista'; }).catch(function (e) { estadoImg.textContent = e.message; }); });
+      archivo.addEventListener('change', function () { if (!archivo.files[0]) return; estadoImg.className = 'form-status'; estadoImg.textContent = 'Preparando y subiendo la foto…'; subirImagen(archivo.files[0]).then(function (r) { imagen = r.url; vista.src = r.url; vista.hidden = false; estadoImg.textContent = 'Foto lista ✓'; }).catch(function (e) { estadoImg.className = 'form-status err'; estadoImg.textContent = 'No se pudo subir la foto: ' + e.message; }); });
       var portada = h('div', { class: 'field' }, h('label', { for: 'nt-i' }, 'Imagen de portada (opcional, PNG/JPG/WebP hasta 6 MB)'), archivo, estadoImg, vista, h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { imagen = ''; vista.hidden = true; archivo.value = ''; } }, 'Quitar imagen'));
       // Documentos PDF adjuntos (nota de prensa, comunicado, dossier…)
       var adj = n ? n.adjuntos.slice() : [], listaAdj = h('div', { class: 'rows' }), estadoDoc = h('span', { class: 'muted' });

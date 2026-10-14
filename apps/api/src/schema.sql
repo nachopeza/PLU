@@ -468,3 +468,9 @@ CREATE TABLE IF NOT EXISTS noticia_likes (
   persona_id INTEGER NOT NULL REFERENCES personas(id),
   PRIMARY KEY (noticia_id, persona_id)
 );
+
+-- Contenido de ejemplo que se crea una sola vez (para que la web no arranque vacía)
+CREATE TABLE IF NOT EXISTS semillas (
+  nombre    TEXT PRIMARY KEY,
+  creada_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);

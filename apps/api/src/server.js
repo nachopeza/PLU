@@ -16,6 +16,7 @@ import { contenidoIntranet, contenidoPublico, medios } from './rutas-contenido.j
 import { participacionIntranet, participacionPortal, participacionPublica } from './rutas-participacion.js';
 import { rutasCarne } from './rutas-carne.js';
 import { soloJson } from './sesion.js';
+import { sembrarNoticias } from './noticias-ejemplo.js';
 
 const aquí = dirname(fileURLToPath(import.meta.url));
 const publicDir = join(aquí, '..', '..', 'web', 'public');
@@ -89,7 +90,7 @@ app.get('/noticias', (req, res, next) => {
   const desc = (n.resumen || n.cuerpo).replace(/\s+/g, ' ').slice(0, 200);
   const meta = `<title>${escAttr(n.titulo)} · PLU</title>\n<meta property="og:type" content="article"><meta property="og:site_name" content="PLU · Plataforma Liberal Unida">` +
     `<meta property="og:title" content="${escAttr(n.titulo)}"><meta property="og:description" content="${escAttr(desc)}"><meta property="og:url" content="${escAttr(`${URL_PUBLICA}/noticias?id=${id}`)}">` +
-    (n.imagen ? `<meta property="og:image" content="${escAttr(URL_PUBLICA + n.imagen)}"><meta name="twitter:card" content="summary_large_image">` : '<meta name="twitter:card" content="summary">') +
+    (n.imagen ? `<meta property="og:image" content="${escAttr(/^https?:/.test(n.imagen) ? n.imagen : URL_PUBLICA + n.imagen)}"><meta name="twitter:card" content="summary_large_image">` : '<meta name="twitter:card" content="summary">') +
     `<meta name="description" content="${escAttr(desc)}">`;
   res.type('html').send(readFileSync(f, 'utf8').replace(/<title>[^<]*<\/title>/, meta));
 });
@@ -100,6 +101,7 @@ app.get(/^\/([a-z0-9-]+)$/, (req, res, next) => {
 app.use(express.static(publicDir));
 
 crearAdminInicial();
+sembrarNoticias().catch((e) => console.error('Noticias de ejemplo:', e.message));
 
 const puerto = Number(process.env.PORT ?? 8787);
 app.listen(puerto, () => console.log(`PLU API escuchando en http://localhost:${puerto}`));

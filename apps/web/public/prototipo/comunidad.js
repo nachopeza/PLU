@@ -166,8 +166,8 @@
     var tam = function (b) { return b > 1048576 ? (b / 1048576).toFixed(1).replace('.', ',') + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB'; };
     // Texto → elementos: "## " título, "- " lista, **negrita**, [texto](https://…) y enlaces sueltos; sin HTML libre
     var inline = function (t) {
-      var f = document.createDocumentFragment(), re = /(\*\*[^*]+\*\*|\[[^\]]+\]\(https?:\/\/[^\s)]+\)|https?:\/\/[^\s<]+)/g, i = 0, m;
-      var enlace = function (url, txt) { return h('a', { href: url, target: '_blank', rel: 'noopener noreferrer nofollow', class: 'link' }, txt); };
+      var f = document.createDocumentFragment(), re = /(\*\*[^*]+\*\*|\[[^\]]+\]\((?:https?:\/\/|\/)[^\s)]+\)|https?:\/\/[^\s<]+)/g, i = 0, m;
+      var enlace = function (url, txt) { return url.charAt(0) === '/' ? h('a', { href: url, class: 'link' }, txt) : h('a', { href: url, target: '_blank', rel: 'noopener noreferrer nofollow', class: 'link' }, txt); };
       while ((m = re.exec(t))) {
         if (m.index > i) f.appendChild(document.createTextNode(t.slice(i, m.index)));
         var x = m[0];
