@@ -896,3 +896,17 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spac
   .row-btns .btn { flex: 1 1 100%; }
 }
 .aviso-ok { scroll-margin-top: 170px; }
+
+/* ===== v1.6 · Pantalla de aprobación ===== */
+.aprobada { display: flex; align-items: center; gap: 16px; padding: 18px 20px; border-radius: 16px; background: var(--forest, #24553a); color: #f4f7f1; margin: 0 0 12px; scroll-margin-top: 170px; }
+.aprobada strong { font: 700 1.25rem var(--font-display); }
+.aprobada p { margin: 2px 0 0; color: #d6e8dc; }
+.aprobada-ic { flex: 0 0 auto; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: #3dd070; color: #06180e; font-size: 1.6rem; font-weight: 800; }
+.chip-correo { margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; font-size: .95rem; }
+.chip-correo.ok { background: color-mix(in srgb, #3dd070 18%, transparent); border: 1px solid color-mix(in srgb, #3dd070 50%, transparent); }
+.chip-correo.aviso { background: color-mix(in srgb, #f2b84b 16%, transparent); border: 1px solid color-mix(in srgb, #f2b84b 55%, transparent); }
+.datos-plegable { margin: 12px 0; }
+.datos-plegable summary { cursor: pointer; font-weight: 600; padding: 8px 0; }
+.btn.cargando { opacity: .8; pointer-events: none; }
+.btn.cargando::after { content: ""; display: inline-block; width: .9em; height: .9em; margin-left: 8px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; vertical-align: -.1em; animation: giro .7s linear infinite; }
+@keyframes giro { to { transform: rotate(360deg); } }

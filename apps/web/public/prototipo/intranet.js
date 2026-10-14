@@ -226,16 +226,26 @@
       var ok = h('button', { class: 'btn btn-primary btn-sm', type: 'button' }, 'Aprobar'), no = h('button', { class: 'btn btn-ghost btn-sm', type: 'button' }, 'Rechazar');
       body.appendChild(h('div', { class: 'row-btns' }, ok, no)); body.appendChild(st); body.appendChild(salida);
       ok.addEventListener('click', function () {
-        ok.disabled = no.disabled = true;
+        ok.disabled = no.disabled = true; ok.textContent = 'Aprobando…'; ok.classList.add('cargando');
         api('/inscripciones/' + f.id + '/aprobar', {}).then(function (r) {
-          // La inscripción deja de estar pendiente: se actualiza la ficha y desaparecen Aprobar/Rechazar
           f.estado = 'activo'; f.numero_afiliado = r.numero_afiliado;
-          var aviso = h('p', { class: 'aviso-ok', role: 'status' }, '✓ Afiliación aprobada · Nº ' + r.numero_afiliado + ' · carné emitido'); limpiar(body).appendChild(aviso);
-          body.appendChild(datosFicha(f));
-          body.appendChild(secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal, 'Caduca en 7 días y deberá cambiarla al entrar.'));
+          var d = body.closest('details'), tag = d && d.querySelector('.tag'); if (tag) tag.textContent = 'Aprobada · ' + r.numero_afiliado;
+          var enviado = r.correo === 'enviado';
+          var cab = h('div', { class: 'aprobada', role: 'status' },
+            h('span', { class: 'aprobada-ic', 'aria-hidden': 'true' }, '✓'),
+            h('div', null, h('strong', null, 'Afiliación aprobada'), h('p', null, 'Nº ' + r.numero_afiliado + ' · carné emitido')));
+          var estadoCorreo = h('p', { class: 'chip-correo ' + (enviado ? 'ok' : 'aviso') },
+            enviado ? '✉ Correo enviado a ' + f.email : '✉ Correo no enviado' + (r.correo_motivo ? ' · ' + r.correo_motivo : '') + ' — entrégale tú la contraseña.');
+          var datos = h('details', { class: 'datos-plegable' }, h('summary', null, 'Ver datos de la persona'), datosFicha(f));
+          limpiar(body).appendChild(cab);
+          body.appendChild(estadoCorreo);
+          ultimoCorreo = null; ultimoMotivo = null;
+          if (!enviado) body.appendChild(secreto('Contraseña temporal · solo se muestra ahora', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal, 'Caduca en 7 días; deberá cambiarla al entrar.'));
+          else body.appendChild(h('p', { class: 'muted' }, 'La persona ya tiene su contraseña temporal por correo (caduca en 7 días).'));
+          body.appendChild(datos);
           body.appendChild(h('div', { class: 'row-btns' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: function () { recargar(); } }, 'Hecho · siguiente inscripción')));
-          try { aviso.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) { /* sin scroll */ }
-        }).catch(function (e) { ok.disabled = no.disabled = false; st.textContent = e.message; });
+          try { cab.scrollIntoView({ block: 'start', behavior: 'smooth' }); } catch (e) { /* sin scroll */ }
+        }).catch(function (e) { ok.disabled = no.disabled = false; ok.textContent = 'Aprobar'; ok.classList.remove('cargando'); st.textContent = e.message; });
       });
       no.addEventListener('click', function () {
         var motivo = window.prompt('Motivo del rechazo (opcional):'); if (motivo === null) return;

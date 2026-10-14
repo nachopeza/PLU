@@ -11,7 +11,7 @@ const DESDE = SMTP_FROM || (SMTP_USER ? `PLU <${SMTP_USER}>` : '');
 const transporte = CORREO_ACTIVO
   ? nodemailer.createTransport({
       host: SMTP_HOST, port: Number(SMTP_PORT || 465), secure: Number(SMTP_PORT || 465) === 465,
-      requireTLS: Number(SMTP_PORT || 465) === 587, auth: { user: SMTP_USER, pass: SMTP_PASS }, connectionTimeout: 10000, socketTimeout: 15000
+      requireTLS: Number(SMTP_PORT || 465) === 587, auth: { user: SMTP_USER, pass: SMTP_PASS }, connectionTimeout: 4000, greetingTimeout: 4000, socketTimeout: 8000
     })
   : null;
 
@@ -36,13 +36,17 @@ function motivo(e) {
 }
 
 // Devuelve { ok, motivo }. Nunca lanza.
-export async function enviarCorreo({ personaId, tipo, para, asunto, texto }) {
+export async function enviarCorreo(datos) {
+  const espera = new Promise((res) => setTimeout(() => res({ ok: false, motivo: 'El servidor de correo tarda demasiado en responder.' }), 5000));
+  return Promise.race([enviarCorreoInterno(datos), espera]);
+}
+async function enviarCorreoInterno({ personaId, tipo, para, asunto, texto }) {
   if (!CORREO_DISPONIBLE) { registrar(personaId, tipo, para, 'omitido', 'correo no configurado'); return { ok: false, motivo: 'Correo no configurado en el servidor.' }; }
   try {
     if (CORREO_ACTIVO_API) {
       const r = await fetch('https://api.resend.com/emails', {
         method: 'POST', headers: { Authorization: 'Bearer ' + RESEND_API_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: DESDE_API, to: [para], subject: asunto, text: texto }), signal: AbortSignal.timeout(15000)
+        body: JSON.stringify({ from: DESDE_API, to: [para], subject: asunto, text: texto }), signal: AbortSignal.timeout(6000)
       });
       if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.message || ('HTTP ' + r.status)); }
     } else {
