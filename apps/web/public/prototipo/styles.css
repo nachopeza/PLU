@@ -1603,3 +1603,28 @@ main .rows { grid-template-columns: repeat(auto-fill, minmax(min(100%, 25rem), 1
 :root[data-theme="light"] .nav-pill { background: rgba(14,26,20,.66) !important; }
 :root[data-theme="light"] .site-header.scrolled .nav-pill { background: rgba(14,26,20,.74) !important; }
 :root[data-theme="light"] .ptile span::before { filter: brightness(.6) saturate(1.5); }
+
+/* v3.2 · Cabecera en modo claro: cristal claro (blanco translúcido) con texto oscuro, constante arriba y al bajar */
+:root[data-theme="light"] .nav-pill,
+:root[data-theme="light"] .site-header.scrolled .nav-pill,
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill {
+  --fg: #12221a; --muted: #3f4f45; --line: rgba(18,34,26,.12);
+  color: #12221a !important;
+  background: rgba(255,255,255,.62) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 14px 36px -14px rgba(18,34,26,.35) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(170%); backdrop-filter: blur(16px) saturate(170%);
+}
+:root[data-theme="light"] .site-header.scrolled .nav-pill { background: rgba(255,255,255,.72) !important; }
+:root[data-theme="light"] .nav-pill .wordmark,
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .wordmark { filter: none !important; }
+:root[data-theme="light"] .nav-pill .nav-links a, :root[data-theme="light"] .nav-pill .brand { color: #1d2e24; }
+:root[data-theme="light"] .nav-pill .nav-links a:hover,
+:root[data-theme="light"] .nav-pill .nav-links a[aria-current="page"] { color: #0b1a10; background: rgba(18,34,26,.08); }
+:root[data-theme="light"] .nav-pill .btn-ghost, :root[data-theme="light"] .nav-pill .icon-btn,
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .btn-ghost,
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .icon-btn { background: rgba(18,34,26,.08) !important; color: #12221a !important; }
+:root[data-theme="light"] .nav-pill .btn-primary,
+html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .btn-primary { background: #14803f !important; color: #fff !important; }
+:root[data-theme="light"] .nav-pill .clover { filter: brightness(.6) saturate(1.5) contrast(1.1); }
+:root[data-theme="light"] .menu { background: rgba(255,255,255,.82) !important; color: #12221a; border-color: rgba(18,34,26,.1) !important; }
+:root[data-theme="light"] .menu a { color: #12221a; }
