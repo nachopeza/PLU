@@ -445,3 +445,10 @@ CREATE TABLE IF NOT EXISTS medios (
   subido_en  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
   usuario_id INTEGER REFERENCES usuarios_intranet(id)
 );
+
+-- Recuperación de contraseña por correo (el enlace caduca en 1 hora; solo se guarda el hash del token)
+CREATE TABLE IF NOT EXISTS recuperaciones (
+  token_hash TEXT PRIMARY KEY,
+  persona_id INTEGER NOT NULL REFERENCES personas(id) ON DELETE CASCADE,
+  expira_en  TEXT NOT NULL
+);

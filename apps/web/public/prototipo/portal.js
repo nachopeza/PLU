@@ -3,7 +3,7 @@
   var app = document.getElementById('app-portal');
   if (!app) return;
   function $(id) { return document.getElementById(id); }
-  var vistas = ['w-login', 'w-cambio', 'w-panel'];
+  var vistas = ['w-login', 'w-cambio', 'w-panel', 'w-recuperar', 'w-nueva'];
   function ver(id) { vistas.forEach(function (v) { $(v).hidden = v !== id; }); window.scrollTo({ top: 0 }); }
   var provincias = [], yo = null;
   function api(ruta, cuerpo) {
@@ -33,6 +33,23 @@
   $('f-cambio').addEventListener('submit', function (e) {
     e.preventDefault(); var f = e.target; msg(f);
     api('/password', { actual: $('c-a').value, nueva: $('c-n').value }).then(function () { $('c-a').value = $('c-n').value = ''; entrar(); }).catch(function (err) { msg(f, err.message); });
+  });
+
+  // Recuperación de contraseña por correo
+  var tokenRec = (new URLSearchParams(location.search)).get('recuperar');
+  $('l-olvido').addEventListener('click', function (e) { e.preventDefault(); $('r-c').value = $('p-c').value; ver('w-recuperar'); $('r-c').focus(); });
+  $('l-volver').addEventListener('click', function (e) { e.preventDefault(); ver('w-login'); });
+  $('f-recuperar').addEventListener('submit', function (e) {
+    e.preventDefault(); var f = e.target; msg(f);
+    var b = f.querySelector('button'); b.disabled = true;
+    api('/recuperar', { email: $('r-c').value }).then(function () { msg(f, 'Si ese correo es de un afiliado, te hemos enviado un enlace. Revisa también la carpeta de spam.'); }).catch(function (err) { msg(f, err.message); }).then(function () { b.disabled = false; });
+  });
+  $('f-nueva').addEventListener('submit', function (e) {
+    e.preventDefault(); var f = e.target; msg(f);
+    api('/recuperar/confirmar', { token: tokenRec, nueva: $('n-n').value }).then(function () {
+      $('n-n').value = ''; history.replaceState(null, '', location.pathname); tokenRec = null; ver('w-login');
+      var s = $('f-login').querySelector('.form-status'); s.classList.remove('err'); s.textContent = 'Contraseña cambiada. Ya puedes entrar con la nueva.';
+    }).catch(function (err) { msg(f, err.message); });
   });
   $('w-salir').addEventListener('click', function () { api('/logout', {}).finally(function () { ver('w-login'); }); });
   document.querySelectorAll('[data-w]').forEach(function (b) { b.addEventListener('click', function () { irA(b.dataset.w); }); });
@@ -146,5 +163,5 @@
     }).catch(function (err) { c.appendChild(h('p', { class: 'form-status err' }, err.message)); });
   }
 
-  entrar();
+  if (tokenRec) ver('w-nueva'); else entrar();
 })();

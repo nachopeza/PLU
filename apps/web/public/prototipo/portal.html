@@ -41,9 +41,28 @@
           <div class="field"><label for="p-c" data-cms="portal:98f00c3e">Correo</label><input id="p-c" type="email" autocomplete="username" required></div>
           <div class="field"><label for="p-p" data-cms="portal:5a6d1c61">Contraseña</label><input id="p-p" type="password" autocomplete="current-password" required></div>
           <button class="btn btn-primary" type="submit" data-cms="portal:7573ba85~2">Entrar</button><p class="form-status err" role="alert"></p>
-          <p class="muted" style="font-size:.9rem" data-cms="portal:9b8dddff">¿Has olvidado tu contraseña? Escribe a la organización y te daremos una nueva temporal. La recuperación automática por correo se activará con el dominio propio.</p>
+          <p class="muted" style="font-size:.9rem" data-cms="portal:e4aa502c"><a class="link" href="#" id="l-olvido">¿Has olvidado tu contraseña?</a></p>
         </form>
       </div>
+    </div>
+
+    <div id="w-recuperar" class="intra-view" hidden>
+      <form class="form-card" id="f-recuperar" style="max-width:32rem;margin-inline:auto" novalidate>
+        <h2 data-cms="portal:c655cfba">Recuperar contraseña</h2>
+        <p class="muted" data-cms="portal:4184f344">Escribe tu correo de afiliado. Si existe, te enviaremos un enlace para elegir una contraseña nueva (caduca en 1 hora).</p>
+        <div class="field"><label for="r-c" data-cms="portal:98f00c3e~2">Correo</label><input id="r-c" type="email" autocomplete="username" required></div>
+        <button class="btn btn-primary" type="submit" data-cms="portal:25aef72a">Enviarme el enlace</button><p class="form-status" role="status"></p>
+        <p class="muted" style="font-size:.9rem" data-cms="portal:0804f250"><a class="link" href="#" id="l-volver">← Volver a entrar</a></p>
+      </form>
+    </div>
+
+    <div id="w-nueva" class="intra-view" hidden>
+      <form class="form-card" id="f-nueva" style="max-width:32rem;margin-inline:auto" novalidate>
+        <h2 data-cms="portal:c1bf8b6a">Elige tu nueva contraseña</h2>
+        <p class="muted" data-cms="portal:379309c7">Usa al menos 10 caracteres.</p>
+        <div class="field"><label for="n-n" data-cms="portal:5c4fd97e">Nueva contraseña</label><input id="n-n" type="password" autocomplete="new-password" minlength="10" required></div>
+        <button class="btn btn-primary" type="submit" data-cms="portal:147b925b">Guardar contraseña</button><p class="form-status err" role="alert"></p>
+      </form>
     </div>
 
     <div id="w-cambio" class="intra-view" hidden>
@@ -51,7 +70,7 @@
         <h2 data-cms="portal:ffb0bf6d">Elige tu contraseña</h2>
         <p class="muted" data-cms="portal:26b4bc66">La contraseña temporal solo sirve para este primer paso. Usa al menos 10 caracteres.</p>
         <div class="field"><label for="c-a" data-cms="portal:d0b307fe">Contraseña temporal</label><input id="c-a" type="password" autocomplete="current-password" required></div>
-        <div class="field"><label for="c-n" data-cms="portal:5c4fd97e">Nueva contraseña</label><input id="c-n" type="password" autocomplete="new-password" minlength="10" required></div>
+        <div class="field"><label for="c-n" data-cms="portal:5c4fd97e~2">Nueva contraseña</label><input id="c-n" type="password" autocomplete="new-password" minlength="10" required></div>
         <button class="btn btn-primary" type="submit" data-cms="portal:8825cf3e">Guardar y entrar</button><p class="form-status err" role="alert"></p>
       </form>
     </div>

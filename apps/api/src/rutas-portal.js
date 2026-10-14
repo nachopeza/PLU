@@ -1,7 +1,9 @@
 // Portal del afiliado: acceso, ficha, carné, solicitudes y encuestas.
 import { Router } from 'express';
 import { db } from './db.js';
-import { hashPassword, limitar, verificarPassword } from './seguridad.js';
+import { hashPassword, limitar, sha256, tokenAleatorio, verificarPassword } from './seguridad.js';
+import { enviarCorreo } from './correo.js';
+import { URL_PUBLICA } from './config.js';
 import { cerrarSesionPersona, iniciarSesionPersona, requerirPersona } from './sesion.js';
 import { ahoraISO, carneVigente, formatoNumero } from './servicios.js';
 import { datosCarne, generarCarnePdf, generarCertificadoPdf } from './carne.js';
@@ -23,6 +25,34 @@ portal.post('/login', (req, res) => {
   }
   iniciarSesionPersona(res, p.id);
   res.json({ ok: true, cambiar_password: !!p.debe_cambiar_password });
+});
+
+
+// Recuperación de contraseña: la respuesta es siempre la misma exista o no el correo (no revela quién es afiliado).
+portal.post('/recuperar', (req, res) => {
+  const email = limpio(req.body?.email, 254).toLowerCase();
+  if (!limitar(`prec:${req.ip}`, 10, 3600_000) || !limitar(`prec-u:${email}`, 3, 3600_000)) return res.status(429).json({ error: 'Demasiados intentos. Prueba más tarde.' });
+  res.json({ ok: true });
+  const p = db.prepare("SELECT * FROM personas WHERE email = ? AND tipo = 'afiliado' AND estado IN ('activo','suspendido') AND password_hash IS NOT NULL").get(email);
+  if (!p) return;
+  const token = tokenAleatorio(32), expira = new Date(Date.now() + 3600_000).toISOString();
+  db.prepare('DELETE FROM recuperaciones WHERE persona_id = ?').run(p.id);
+  db.prepare('INSERT INTO recuperaciones (token_hash, persona_id, expira_en) VALUES (?,?,?)').run(sha256(token), p.id, expira);
+  enviarCorreo({ personaId: p.id, tipo: 'recuperacion', para: p.email, asunto: 'Recupera tu contraseña de PLU',
+    texto: `Hola ${p.nombre},\n\nHas pedido recuperar tu contraseña del portal de PLU. Pulsa aquí para elegir una nueva (el enlace caduca en 1 hora):\n\n${URL_PUBLICA}/portal?recuperar=${token}\n\nSi no has sido tú, ignora este mensaje: tu contraseña actual sigue funcionando.\n\nPlataforma Liberal Unida\n${URL_PUBLICA}` })
+    .catch(() => {});
+});
+
+portal.post('/recuperar/confirmar', (req, res) => {
+  if (!limitar(`prec-c:${req.ip}`, 20, 3600_000)) return res.status(429).json({ error: 'Demasiados intentos. Prueba más tarde.' });
+  const token = String(req.body?.token ?? ''), nueva = String(req.body?.nueva ?? '');
+  if (nueva.length < 10) return res.status(400).json({ error: 'La contraseña debe tener al menos 10 caracteres' });
+  const r = db.prepare('SELECT * FROM recuperaciones WHERE token_hash = ?').get(sha256(token));
+  if (!r || r.expira_en < new Date().toISOString()) return res.status(400).json({ error: 'El enlace no es válido o ha caducado. Pide uno nuevo.' });
+  db.prepare('UPDATE personas SET password_hash = ?, debe_cambiar_password = 0, password_temporal_expira_en = NULL, actualizado_en = ? WHERE id = ?').run(hashPassword(nueva), ahoraISO(), r.persona_id);
+  db.prepare('DELETE FROM recuperaciones WHERE persona_id = ?').run(r.persona_id);
+  db.prepare("DELETE FROM sesiones WHERE tipo = 'persona' AND sujeto_id = ?").run(r.persona_id);
+  res.json({ ok: true });
 });
 
 portal.post('/logout', (req, res) => { cerrarSesionPersona(req, res); res.json({ ok: true }); });

@@ -478,9 +478,28 @@ portal = '''
           <div class="field"><label for="p-c">Correo</label><input id="p-c" type="email" autocomplete="username" required></div>
           <div class="field"><label for="p-p">Contraseña</label><input id="p-p" type="password" autocomplete="current-password" required></div>
           <button class="btn btn-primary" type="submit">Entrar</button><p class="form-status err" role="alert"></p>
-          <p class="muted" style="font-size:.9rem">¿Has olvidado tu contraseña? Escribe a la organización y te daremos una nueva temporal. La recuperación automática por correo se activará con el dominio propio.</p>
+          <p class="muted" style="font-size:.9rem"><a class="link" href="#" id="l-olvido">¿Has olvidado tu contraseña?</a></p>
         </form>
       </div>
+    </div>
+
+    <div id="w-recuperar" class="intra-view" hidden>
+      <form class="form-card" id="f-recuperar" style="max-width:32rem;margin-inline:auto" novalidate>
+        <h2>Recuperar contraseña</h2>
+        <p class="muted">Escribe tu correo de afiliado. Si existe, te enviaremos un enlace para elegir una contraseña nueva (caduca en 1 hora).</p>
+        <div class="field"><label for="r-c">Correo</label><input id="r-c" type="email" autocomplete="username" required></div>
+        <button class="btn btn-primary" type="submit">Enviarme el enlace</button><p class="form-status" role="status"></p>
+        <p class="muted" style="font-size:.9rem"><a class="link" href="#" id="l-volver">← Volver a entrar</a></p>
+      </form>
+    </div>
+
+    <div id="w-nueva" class="intra-view" hidden>
+      <form class="form-card" id="f-nueva" style="max-width:32rem;margin-inline:auto" novalidate>
+        <h2>Elige tu nueva contraseña</h2>
+        <p class="muted">Usa al menos 10 caracteres.</p>
+        <div class="field"><label for="n-n">Nueva contraseña</label><input id="n-n" type="password" autocomplete="new-password" minlength="10" required></div>
+        <button class="btn btn-primary" type="submit">Guardar contraseña</button><p class="form-status err" role="alert"></p>
+      </form>
     </div>
 
     <div id="w-cambio" class="intra-view" hidden>
