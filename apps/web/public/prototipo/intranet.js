@@ -476,26 +476,41 @@
     c.appendChild(form);
     var video = h('video', { class: 'scan', playsinline: true, muted: true, hidden: true });
     var btnCam = h('button', { class: 'btn btn-ghost', type: 'button' }, 'Escanear QR con la cámara');
-    if (window.BarcodeDetector) {
-      btnCam.addEventListener('click', function () {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (stream) {
-          video.srcObject = stream; video.hidden = false; video.play(); var vivo = true;
-          detenerCamara = function () { vivo = false; stream.getTracks().forEach(function (t) { t.stop(); }); video.hidden = true; detenerCamara = function () {}; };
-          var det = new BarcodeDetector({ formats: ['qr_code'] });
-          (function bucle() {
-            if (!vivo) return;
-            det.detect(video).then(function (r) {
-              if (r.length) {
-                var m = /[?&]v=([^&]+)/.exec(r[0].rawValue || '');
-                if (m) { detenerCamara(); consulta('codigo=' + m[1]); return; }
-              }
-              setTimeout(bucle, 250);
-            }).catch(function () { setTimeout(bucle, 400); });
-          })();
-        }).catch(function () { res.appendChild(h('p', { class: 'form-status err' }, 'No se pudo abrir la cámara. Escribe el número de afiliado.')); });
+    // Lector de QR: BarcodeDetector si existe (Chrome/Android); si no (Safari de iPhone, Firefox), jsQR sobre un lienzo.
+    var cargarJsQR = function () {
+      return new Promise(function (ok, ko) {
+        if (window.jsQR) return ok();
+        var sc = document.createElement('script'); sc.src = 'jsQR.js'; sc.onload = function () { ok(); }; sc.onerror = ko; document.head.appendChild(sc);
       });
-      c.appendChild(btnCam); c.appendChild(video);
-    } else c.appendChild(h('p', { class: 'muted' }, 'Este navegador no puede leer QR desde aquí. Con la cámara del móvil, abre el enlace del QR (te traerá a esta pantalla), o escribe el número.'));
+    };
+    btnCam.addEventListener('click', function () {
+      res.innerHTML = '';
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { res.appendChild(h('p', { class: 'form-status err' }, 'Este navegador no da acceso a la cámara. Abre el enlace del QR con la cámara del móvil o escribe el número.')); return; }
+      var lector = window.BarcodeDetector ? Promise.resolve() : cargarJsQR();
+      lector.then(function () { return navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false }); }).then(function (stream) {
+        video.muted = true; video.setAttribute('playsinline', ''); video.srcObject = stream; video.hidden = false; video.play(); var vivo = true;
+        detenerCamara = function () { vivo = false; stream.getTracks().forEach(function (t) { t.stop(); }); video.hidden = true; detenerCamara = function () {}; };
+        var det = window.BarcodeDetector ? new BarcodeDetector({ formats: ['qr_code'] }) : null;
+        var lienzo = document.createElement('canvas'), ctx = lienzo.getContext('2d', { willReadFrequently: true });
+        var leer = function () {
+          if (det) return det.detect(video).then(function (r) { return r.length ? (r[0].rawValue || '') : ''; });
+          if (!video.videoWidth) return Promise.resolve('');
+          var k = Math.min(1, 640 / video.videoWidth); lienzo.width = Math.round(video.videoWidth * k); lienzo.height = Math.round(video.videoHeight * k);
+          ctx.drawImage(video, 0, 0, lienzo.width, lienzo.height);
+          var q = window.jsQR(ctx.getImageData(0, 0, lienzo.width, lienzo.height).data, lienzo.width, lienzo.height, { inversionAttempts: 'dontInvert' });
+          return Promise.resolve(q ? q.data : '');
+        };
+        (function bucle() {
+          if (!vivo) return;
+          leer().then(function (texto) {
+            var m = /[?&]v=([^&]+)/.exec(texto || '');
+            if (m) { detenerCamara(); consulta('codigo=' + m[1]); return; }
+            setTimeout(bucle, 200);
+          }).catch(function () { setTimeout(bucle, 400); });
+        })();
+      }).catch(function () { res.appendChild(h('p', { class: 'form-status err' }, 'No se pudo abrir la cámara (revisa el permiso del navegador). Escribe el número de afiliado.')); });
+    });
+    c.appendChild(btnCam); c.appendChild(video);
     c.appendChild(res);
     if (codigoInicial) { history.replaceState(null, '', location.pathname); consulta('codigo=' + encodeURIComponent(codigoInicial)); }
   }
