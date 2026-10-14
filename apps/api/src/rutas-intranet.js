@@ -8,7 +8,7 @@ import {
 } from './seguridad.js';
 import { auditar, cerrarSesion, iniciarSesion, requerirEquipo } from './sesion.js';
 import { enmascarar, limpio } from './validar.js';
-import { enviarCorreo, textoAcceso } from './correo.js';
+import { adjuntoCarne, avisarPersona, enviarCorreo, estadoCorreo, textoAcceso } from './correo.js';
 import { asignarPasswordTemporal, emitirCarne, formatoNumero as fmtNum, transaccion } from './servicios.js';
 
 export const intranet = Router();
@@ -172,13 +172,13 @@ intranet.post('/inscripciones/:id/aprobar', requerirEquipo(...GESTION), async (r
       return asignarPasswordTemporal(p.id);
     });
   } catch (e) { console.error(e.message); return res.status(500).json({ error: 'No se pudo aprobar' }); }
-  const envio = await enviarCorreo({ personaId: p.id, tipo: 'bienvenida', para: p.email, asunto: 'Bienvenida a PLU: tu acceso al portal', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: temp.password, caduca: temp.caduca, numero: formatoNumero(numero), motivo: 'Tu afiliación a PLU ha sido aprobada. Gracias por sumarte.' }) });
+  const envio = await enviarCorreo({ personaId: p.id, tipo: 'bienvenida', para: p.email, asunto: 'Bienvenida a PLU: tu acceso al portal', adjuntos: await adjuntoCarne(p), texto: textoAcceso({ nombre: p.nombre, email: p.email, password: temp.password, caduca: temp.caduca, numero: formatoNumero(numero), motivo: 'Tu afiliación a PLU ha sido aprobada. Gracias por sumarte.' }) });
   auditar(req.equipo.id, 'aprobar_inscripcion', 'persona', p.id, { numero });
   // Sin correo todavía: la contraseña temporal se muestra UNA vez al equipo para que la entregue a la persona.
   res.json({ ok: true, numero_afiliado: formatoNumero(numero), password_temporal: temp.password, caduca: temp.caduca, correo: envio.ok ? 'enviado' : 'no enviado', correo_motivo: envio.ok ? undefined : envio.motivo });
 });
 
-intranet.post('/inscripciones/:id/rechazar', requerirEquipo(...GESTION), (req, res) => {
+intranet.post('/inscripciones/:id/rechazar', requerirEquipo(...GESTION), async (req, res) => {
   const f = filtroAlcance(req.equipo);
   const p = db.prepare(`SELECT p.id, p.estado FROM personas p WHERE p.id = ? AND p.tipo = 'afiliado'${f.sql}`).get(Number(req.params.id), ...f.args);
   if (!p) return res.status(404).json({ error: 'No encontrada' });
@@ -191,5 +191,7 @@ intranet.post('/inscripciones/:id/rechazar', requerirEquipo(...GESTION), (req, r
     db.exec('COMMIT');
   } catch (e) { db.exec('ROLLBACK'); return res.status(500).json({ error: 'No se pudo rechazar' }); }
   auditar(req.equipo.id, 'rechazar_inscripcion', 'persona', p.id, { motivo });
-  res.json({ ok: true });
+  const completo = db.prepare('SELECT * FROM personas WHERE id = ?').get(p.id);
+  const envio = await avisarPersona(completo, 'rechazo', 'Sobre tu solicitud de afiliación a PLU', 'No hemos podido aceptar tu solicitud de afiliación por ahora.' + (motivo ? `\n\nMotivo: ${motivo}` : ''), { portal: false });
+  res.json({ ok: true, ...estadoCorreo(envio) });
 });

@@ -11,7 +11,10 @@ import { transaccion } from './servicios.js';
 export const contenidoPublico = Router();
 export const contenidoIntranet = Router();
 export const medios = Router();
-const EDITORES = ['admin', 'moderador'];
+// Editar páginas de la web: solo el perfil de contenido (moderador). La administración no edita la web.
+const EDITORES = ['moderador'];
+// Subir imágenes y PDF (también para publicar noticias)
+const MEDIOS_ROLES = ['admin', 'moderador'];
 const CARPETA_MEDIOS = join(DATA_DIR, 'media');
 const PAGINA = /^[a-z0-9-]{1,40}$/;
 const CLAVE = /^(?:[a-z0-9-]{1,40}|g|img):[a-f0-9]{8}(?:~\d{1,3})?$/;
@@ -120,7 +123,7 @@ function extension(b) {
   if (b.subarray(0, 4).toString() === 'RIFF' && b.subarray(8, 12).toString() === 'WEBP') return 'webp';
   return null; // SVG y otros formatos no se aceptan: podrían llevar código
 }
-contenidoIntranet.post('/medios', requerirEquipo(...EDITORES), express.raw({ type: ['image/png', 'image/jpeg', 'image/webp'], limit: '6mb' }), (req, res) => {
+contenidoIntranet.post('/medios', requerirEquipo(...MEDIOS_ROLES), express.raw({ type: ['image/png', 'image/jpeg', 'image/webp'], limit: '6mb' }), (req, res) => {
   if (!limitar(`medios:${req.equipo.id}`, 60, 3600_000)) return res.status(429).json({ error: 'Demasiadas subidas' });
   const b = req.body;
   const ext = Buffer.isBuffer(b) && b.length > 100 ? extension(b) : null;
@@ -132,17 +135,31 @@ contenidoIntranet.post('/medios', requerirEquipo(...EDITORES), express.raw({ typ
   auditar(req.equipo.id, 'subir_medio', 'medio', null, { id });
   res.status(201).json({ ok: true, url: `/media/${id}.${ext}` });
 });
-contenidoIntranet.get('/medios', requerirEquipo(...EDITORES), (_req, res) => {
+contenidoIntranet.get('/medios', requerirEquipo(...MEDIOS_ROLES), (_req, res) => {
   res.json(db.prepare('SELECT id, ext, bytes, subido_en FROM medios ORDER BY subido_en DESC LIMIT 200').all().map((m) => ({ ...m, url: `/media/${m.id}.${m.ext}` })));
+});
+
+// Documentos PDF (notas de prensa, comunicados…): se guardan como medios y se enlazan desde las noticias
+contenidoIntranet.post('/documentos', requerirEquipo(...MEDIOS_ROLES), express.raw({ type: 'application/pdf', limit: '15mb' }), (req, res) => {
+  if (!limitar(`docs:${req.equipo.id}`, 40, 3600_000)) return res.status(429).json({ error: 'Demasiadas subidas' });
+  const b = req.body;
+  if (!Buffer.isBuffer(b) || b.length < 100 || b.subarray(0, 5).toString() !== '%PDF-') return res.status(400).json({ error: 'Sube un archivo PDF de hasta 15 MB' });
+  mkdirSync(CARPETA_MEDIOS, { recursive: true });
+  const id = randomBytes(16).toString('hex');
+  writeFileSync(join(CARPETA_MEDIOS, `${id}.pdf`), b);
+  db.prepare('INSERT INTO medios (id, ext, bytes, usuario_id) VALUES (?, ?, ?, ?)').run(id, 'pdf', b.length, req.equipo.id);
+  auditar(req.equipo.id, 'subir_documento', 'medio', null, { id });
+  res.status(201).json({ ok: true, url: `/media/${id}.pdf`, bytes: b.length });
 });
 
 // Entrega pública de las imágenes subidas
 medios.get('/media/:archivo', (req, res) => {
-  const m = /^([a-f0-9]{32})\.(png|jpg|webp)$/.exec(req.params.archivo);
+  const m = /^([a-f0-9]{32})\.(png|jpg|webp|pdf)$/.exec(req.params.archivo);
   if (!m || !db.prepare('SELECT 1 FROM medios WHERE id = ?').get(m[1])) return res.status(404).end();
   const ruta = join(CARPETA_MEDIOS, req.params.archivo);
   if (!existsSync(ruta)) return res.status(404).end();
-  res.setHeader('Content-Type', { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp' }[m[2]]);
+  res.setHeader('Content-Type', { png: 'image/png', jpg: 'image/jpeg', webp: 'image/webp', pdf: 'application/pdf' }[m[2]]);
+  if (m[2] === 'pdf') res.setHeader('Content-Disposition', 'inline');
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.send(readFileSync(ruta));

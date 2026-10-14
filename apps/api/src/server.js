@@ -1,11 +1,11 @@
 // Servidor de la API de la PLU.
 // Sirve: comprobación de salud, provincias, inscripciones públicas, intranet (equipo) y la web de prototipo.
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import express from 'express';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db } from './db.js';
-import './config.js';
+import { URL_PUBLICA } from './config.js';
 import { crearAdminInicial } from './admin-inicial.js';
 import { publicas } from './rutas-publicas.js';
 import { intranet } from './rutas-intranet.js';
@@ -31,7 +31,7 @@ app.use((_req, res, next) => {
 });
 app.use(express.json({ limit: '100kb' }));
 // Solo la subida de la plantilla del carné es binaria (PDF); el resto de peticiones que cambian datos deben ser JSON
-app.use('/api', (req, res, next) => (req.method === 'POST' && ((req.path === '/intranet/plantillas' && req.is('application/pdf')) || (req.path === '/intranet/medios' && req.is(['image/png', 'image/jpeg', 'image/webp']))) ? next() : soloJson(req, res, next)));
+app.use('/api', (req, res, next) => (req.method === 'POST' && (((req.path === '/intranet/plantillas' || req.path === '/intranet/documentos') && req.is('application/pdf')) || (req.path === '/intranet/medios' && req.is(['image/png', 'image/jpeg', 'image/webp']))) ? next() : soloJson(req, res, next)));
 // Los datos de la API nunca se guardan en caché
 app.use('/api', (_req, res, next) => { res.setHeader('Cache-Control', 'no-store'); next(); });
 
@@ -78,6 +78,21 @@ app.use('/prototipo', (req, res, next) => {
 app.get(/^\/([a-z0-9-]+)\.html$/, (req, res) => res.redirect(301, limpia(req.params[0]) + sufijo(req)));
 app.use(express.static(webDir, { index: false, extensions: [] }));
 app.get('/', (_req, res) => res.sendFile(join(webDir, 'index.html')));
+// Cada noticia lleva su vista previa al compartirla (WhatsApp, X, Facebook…): título, resumen e imagen en la propia página
+const escAttr = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+app.get('/noticias', (req, res, next) => {
+  const id = Number(req.query.id);
+  if (!Number.isInteger(id) || id < 1) return next();
+  const n = db.prepare('SELECT titulo, resumen, cuerpo, imagen FROM noticias WHERE id = ? AND publicada = 1').get(id);
+  const f = join(webDir, 'noticias.html');
+  if (!n || !existsSync(f)) return next();
+  const desc = (n.resumen || n.cuerpo).replace(/\s+/g, ' ').slice(0, 200);
+  const meta = `<title>${escAttr(n.titulo)} · PLU</title>\n<meta property="og:type" content="article"><meta property="og:site_name" content="PLU · Plataforma Liberal Unida">` +
+    `<meta property="og:title" content="${escAttr(n.titulo)}"><meta property="og:description" content="${escAttr(desc)}"><meta property="og:url" content="${escAttr(`${URL_PUBLICA}/noticias?id=${id}`)}">` +
+    (n.imagen ? `<meta property="og:image" content="${escAttr(URL_PUBLICA + n.imagen)}"><meta name="twitter:card" content="summary_large_image">` : '<meta name="twitter:card" content="summary">') +
+    `<meta name="description" content="${escAttr(desc)}">`;
+  res.type('html').send(readFileSync(f, 'utf8').replace(/<title>[^<]*<\/title>/, meta));
+});
 app.get(/^\/([a-z0-9-]+)$/, (req, res, next) => {
   const f = join(webDir, req.params[0] + '.html');
   return existsSync(f) ? res.sendFile(f) : next();

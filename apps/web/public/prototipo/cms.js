@@ -38,14 +38,14 @@
     var marca = false; try { marca = localStorage.getItem('plu_editor') === '1'; } catch (e) { /* sin almacenamiento */ }
     if (!marca || !nodos.length) return;
     api('/intranet/me').then(function (d) {
-      if (['admin', 'moderador'].indexOf(d.usuario.rol) < 0) return;
+      if (d.usuario.rol !== 'moderador') return;
       var a = document.createElement('a'); a.className = 'cms-fab'; a.href = location.pathname + '?editar=1'; a.textContent = '✎ Editar esta página'; document.body.appendChild(a);
     }).catch(function () { try { localStorage.removeItem('plu_editor'); } catch (e) { /* nada */ } });
   }
 
   function iniciarEdicion() {
     api('/intranet/me').then(function (d) {
-      if (['admin', 'moderador'].indexOf(d.usuario.rol) < 0) throw new Error('rol');
+      if (d.usuario.rol !== 'moderador') throw new Error('rol');
       montar();
     }).catch(function () {
       // Sin sesión válida no se muestra nada: la página se ve como la ve cualquier visitante.

@@ -3,6 +3,8 @@
 import nodemailer from 'nodemailer';
 import { db } from './db.js';
 import { URL_PUBLICA } from './config.js';
+import { carneVigente } from './servicios.js';
+import { datosCarne, generarCarnePdf } from './carne.js';
 
 const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM } = process.env;
 export const CORREO_ACTIVO = Boolean(SMTP_HOST && SMTP_USER && SMTP_PASS);
@@ -40,17 +42,17 @@ export async function enviarCorreo(datos) {
   const espera = new Promise((res) => setTimeout(() => res({ ok: false, motivo: 'El servidor de correo tarda demasiado en responder.' }), 5000));
   return Promise.race([enviarCorreoInterno(datos), espera]);
 }
-async function enviarCorreoInterno({ personaId, tipo, para, asunto, texto }) {
+async function enviarCorreoInterno({ personaId, tipo, para, asunto, texto, adjuntos }) {
   if (!CORREO_DISPONIBLE) { registrar(personaId, tipo, para, 'omitido', 'correo no configurado'); return { ok: false, motivo: 'Correo no configurado en el servidor.' }; }
   try {
     if (CORREO_ACTIVO_API) {
       const r = await fetch('https://api.resend.com/emails', {
         method: 'POST', headers: { Authorization: 'Bearer ' + RESEND_API_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from: DESDE_API, to: [para], subject: asunto, text: texto }), signal: AbortSignal.timeout(6000)
+        body: JSON.stringify({ from: DESDE_API, to: [para], subject: asunto, text: texto, ...(adjuntos?.length ? { attachments: adjuntos.map((a) => ({ filename: a.nombre, content: Buffer.from(a.bytes).toString('base64') })) } : {}) }), signal: AbortSignal.timeout(6000)
       });
       if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.message || ('HTTP ' + r.status)); }
     } else {
-      await transporte.sendMail({ from: DESDE, to: para, subject: asunto, text: texto });
+      await transporte.sendMail({ from: DESDE, to: para, subject: asunto, text: texto, attachments: (adjuntos ?? []).map((a) => ({ filename: a.nombre, content: Buffer.from(a.bytes) })) });
     }
     registrar(personaId, tipo, para, 'enviado'); return { ok: true };
   } catch (e) {
@@ -64,3 +66,27 @@ export function textoAcceso({ nombre, email, password, caduca, numero, motivo })
   return `Hola ${nombre},\n\n${motivo}\n\n` + (numero ? `Tu número de afiliado es ${numero}.\n` : '') +
     `Entra en ${URL_PUBLICA}/portal\nCorreo: ${email}\nContraseña temporal: ${password}\n\nTe pediremos cambiarla en el primer acceso.${dias}\nSi no esperabas este mensaje, ignóralo.` + PIE;
 }
+
+// Aviso a una persona afiliada sobre algo que ha cambiado en su afiliación (carné, estado, provincia, solicitudes…).
+// Con { carne: true } adjunta su carné vigente en PDF. Devuelve { ok, motivo } y nunca lanza.
+export async function adjuntoCarne(p) {
+  try {
+    const persona = db.prepare('SELECT * FROM personas WHERE id = ?').get(p.id), c = carneVigente(p.id);
+    if (!c) return undefined;
+    const { bytes } = await generarCarnePdf(datosCarne(persona, c));
+    return [{ nombre: `carne-plu-${persona.numero_afiliado}.pdf`, bytes }];
+  } catch (e) { console.error('adjuntar carné:', e.message); return undefined; }
+}
+export async function avisarPersona(p, tipo, asunto, mensaje, { carne = false, portal = true } = {}) {
+  let adjuntos;
+  if (carne) {
+    try {
+      const c = carneVigente(p.id);
+      if (c) { const { bytes } = await generarCarnePdf(datosCarne(p, c)); adjuntos = [{ nombre: `carne-plu-${p.numero_afiliado}.pdf`, bytes }]; }
+    } catch (e) { console.error('adjuntar carné:', e.message); }
+  }
+  const texto = `Hola ${p.nombre},\n\n${mensaje}` + (adjuntos ? '\n\nTu carné actualizado va adjunto en este correo.' : '') +
+    (portal ? `\n\nPuedes verlo todo en tu portal: ${URL_PUBLICA}/portal` : '') + '\n\nSi no esperabas este mensaje, escribe a hola@somosplu.com.' + PIE;
+  return enviarCorreo({ personaId: p.id, tipo, para: p.email, asunto, texto, adjuntos });
+}
+export const estadoCorreo = (envio) => ({ correo: envio.ok ? 'enviado' : 'no enviado', correo_motivo: envio.ok ? undefined : envio.motivo });

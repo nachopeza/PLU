@@ -247,26 +247,87 @@ participacionIntranet.get('/eventos/:id/inscritos', requerirEquipo(...EVENTOS_RO
 });
 
 // ---------- Noticias ----------
-participacionPublica.get('/noticias', (_req, res) => {
-  res.json(db.prepare('SELECT id, titulo, resumen, imagen, fecha FROM noticias WHERE publicada = 1 ORDER BY fecha DESC LIMIT 50').all());
+const CATEGORIAS_NOTICIA = ['Noticia', 'Nota de prensa', 'Comunicado', 'Opinión', 'Evento'];
+const parseAdjuntos = (j) => { try { const a = JSON.parse(j || '[]'); return Array.isArray(a) ? a : []; } catch { return []; } };
+const CONTADORES_NOTICIA = `(SELECT COUNT(*) FROM noticia_comentarios c WHERE c.noticia_id = n.id AND c.oculto = 0) AS comentarios, (SELECT COUNT(*) FROM noticia_likes l WHERE l.noticia_id = n.id) AS me_gusta`;
+
+participacionPublica.get('/noticias', (req, res) => {
+  const cat = CATEGORIAS_NOTICIA.includes(req.query.categoria) ? req.query.categoria : null;
+  const filas = db.prepare(`SELECT n.id, n.titulo, n.resumen, n.imagen, n.fecha, n.categoria, n.adjuntos, length(n.cuerpo) AS largo, ${CONTADORES_NOTICIA} FROM noticias n WHERE n.publicada = 1${cat ? ' AND n.categoria = ?' : ''} ORDER BY n.fecha DESC LIMIT 60`).all(...(cat ? [cat] : []));
+  res.json(filas.map(({ adjuntos, largo, ...n }) => ({ ...n, documentos: parseAdjuntos(adjuntos).length, minutos: Math.max(1, Math.round(largo / 1100)) })));
 });
 participacionPublica.get('/noticias/:id', (req, res) => {
-  const n = db.prepare('SELECT id, titulo, resumen, cuerpo, imagen, fecha FROM noticias WHERE id = ? AND publicada = 1').get(Number(req.params.id));
+  const n = db.prepare(`SELECT n.id, n.titulo, n.resumen, n.cuerpo, n.imagen, n.fecha, n.categoria, n.adjuntos, ${CONTADORES_NOTICIA} FROM noticias n WHERE n.id = ? AND n.publicada = 1`).get(Number(req.params.id));
   if (!n) return res.status(404).json({ error: 'Noticia no encontrada' });
-  res.json(n);
+  const { adjuntos, ...resto } = n;
+  const comentarios_lista = db.prepare('SELECT c.id, c.texto, c.creado_en, pe.nombre FROM noticia_comentarios c JOIN personas pe ON pe.id = c.persona_id WHERE c.noticia_id = ? AND c.oculto = 0 ORDER BY c.creado_en').all(n.id).map((c) => ({ id: c.id, texto: c.texto, creado_en: c.creado_en, autor: primerNombre(c.nombre) }));
+  const mas = db.prepare('SELECT id, titulo, imagen, fecha, categoria FROM noticias WHERE publicada = 1 AND id <> ? ORDER BY fecha DESC LIMIT 3').all(n.id);
+  res.json({ ...resto, adjuntos: parseAdjuntos(adjuntos), minutos: Math.max(1, Math.round(n.cuerpo.length / 1100)), comentarios_lista, mas });
 });
-participacionIntranet.get('/noticias', requerirEquipo(...MODERAN), (_req, res) => res.json(db.prepare('SELECT id, titulo, resumen, cuerpo, imagen, publicada, fecha FROM noticias ORDER BY fecha DESC').all()));
+
+// Afiliados: me gusta y comentarios
+function noticiaPublicada(req, res) {
+  const n = db.prepare('SELECT id FROM noticias WHERE id = ? AND publicada = 1').get(Number(req.params.id));
+  if (!n) res.status(404).json({ error: 'Noticia no encontrada' });
+  return n;
+}
+participacionPortal.get('/noticias/:id/mio', requerirPersona(), (req, res) => {
+  res.json({ me_gusta: !!db.prepare('SELECT 1 FROM noticia_likes WHERE noticia_id = ? AND persona_id = ?').get(Number(req.params.id), req.persona.id) });
+});
+participacionPortal.post('/noticias/:id/megusta', requerirPersona(), (req, res) => {
+  const n = noticiaPublicada(req, res); if (!n) return;
+  if (req.persona.estado !== 'activo') return res.status(403).json({ error: 'Tu cuenta está suspendida' });
+  const ya = db.prepare('SELECT 1 FROM noticia_likes WHERE noticia_id = ? AND persona_id = ?').get(n.id, req.persona.id);
+  if (ya) db.prepare('DELETE FROM noticia_likes WHERE noticia_id = ? AND persona_id = ?').run(n.id, req.persona.id);
+  else db.prepare('INSERT INTO noticia_likes (noticia_id, persona_id) VALUES (?, ?)').run(n.id, req.persona.id);
+  res.json({ ok: true, me_gusta: !ya, total: db.prepare('SELECT COUNT(*) AS n FROM noticia_likes WHERE noticia_id = ?').get(n.id).n });
+});
+participacionPortal.post('/noticias/:id/comentarios', requerirPersona(), (req, res) => {
+  const n = noticiaPublicada(req, res); if (!n) return;
+  if (req.persona.estado !== 'activo') return res.status(403).json({ error: 'Tu cuenta está suspendida' });
+  if (!limitar(`ncom:${req.persona.id}`, 10, 3600_000)) return res.status(429).json({ error: 'Demasiados comentarios seguidos' });
+  const texto = String(req.body?.texto ?? '').trim().slice(0, 1000);
+  if (texto.length < 3) return res.status(400).json({ error: 'Escribe un comentario' });
+  db.prepare('INSERT INTO noticia_comentarios (noticia_id, persona_id, texto) VALUES (?, ?, ?)').run(n.id, req.persona.id, texto);
+  res.status(201).json({ ok: true });
+});
+
+participacionIntranet.get('/noticias', requerirEquipo(...MODERAN), (_req, res) => {
+  res.json(db.prepare(`SELECT n.id, n.titulo, n.resumen, n.cuerpo, n.imagen, n.publicada, n.fecha, n.categoria, n.adjuntos, ${CONTADORES_NOTICIA} FROM noticias n ORDER BY n.fecha DESC`).all().map((n) => ({ ...n, adjuntos: parseAdjuntos(n.adjuntos) })));
+});
+participacionIntranet.get('/noticias/:id/comentarios', requerirEquipo(...MODERAN), (req, res) => {
+  res.json(db.prepare('SELECT c.id, c.texto, c.oculto, c.creado_en, pe.nombre, pe.apellidos FROM noticia_comentarios c JOIN personas pe ON pe.id = c.persona_id WHERE c.noticia_id = ? ORDER BY c.creado_en DESC').all(Number(req.params.id)));
+});
+participacionIntranet.post('/noticias/comentarios/:cid/ocultar', requerirEquipo(...MODERAN), (req, res) => {
+  const c = db.prepare('SELECT id, oculto FROM noticia_comentarios WHERE id = ?').get(Number(req.params.cid));
+  if (!c) return res.status(404).json({ error: 'No encontrado' });
+  db.prepare('UPDATE noticia_comentarios SET oculto = ? WHERE id = ?').run(c.oculto ? 0 : 1, c.id);
+  auditar(req.equipo.id, c.oculto ? 'mostrar_comentario_noticia' : 'ocultar_comentario_noticia', 'comentario_noticia', c.id);
+  res.json({ ok: true, oculto: !c.oculto });
+});
+participacionIntranet.delete('/noticias/comentarios/:cid', requerirEquipo(...MODERAN), (req, res) => {
+  db.prepare('DELETE FROM noticia_comentarios WHERE id = ?').run(Number(req.params.cid));
+  auditar(req.equipo.id, 'borrar_comentario_noticia', 'comentario_noticia', Number(req.params.cid));
+  res.json({ ok: true });
+});
+
 function datosNoticia(b) {
-  const titulo = limpio(b?.titulo, 150), cuerpo = String(b?.cuerpo ?? '').trim().slice(0, 20000);
+  const titulo = limpio(b?.titulo, 150), cuerpo = String(b?.cuerpo ?? '').trim().slice(0, 30000);
   if (!titulo || !cuerpo) throw new Error('Faltan el título o el texto');
   const imagen = b?.imagen ? String(b.imagen) : null;
   if (imagen && !/^\/media\/[a-f0-9]{32}\.(png|jpg|webp)$/.test(imagen)) throw new Error('Imagen no válida');
-  return { titulo, resumen: limpio(b?.resumen, 300) || null, cuerpo, imagen, publicada: b?.publicada ? 1 : 0 };
+  const categoria = CATEGORIAS_NOTICIA.includes(b?.categoria) ? b.categoria : 'Noticia';
+  const adjuntos = (Array.isArray(b?.adjuntos) ? b.adjuntos : []).slice(0, 8).map((a) => {
+    const url = String(a?.url ?? '');
+    if (!/^\/media\/[a-f0-9]{32}\.pdf$/.test(url) || !db.prepare('SELECT 1 FROM medios WHERE id = ?').get(url.slice(7, 39))) throw new Error('Documento no válido');
+    return { nombre: limpio(a?.nombre, 120) || 'Documento', url, bytes: Number(db.prepare('SELECT bytes FROM medios WHERE id = ?').get(url.slice(7, 39)).bytes) };
+  });
+  return { titulo, resumen: limpio(b?.resumen, 300) || null, cuerpo, imagen, categoria, adjuntos: JSON.stringify(adjuntos), publicada: b?.publicada ? 1 : 0 };
 }
 participacionIntranet.post('/noticias', requerirEquipo(...MODERAN), (req, res) => {
   try {
     const d = datosNoticia(req.body);
-    const r = db.prepare('INSERT INTO noticias (titulo, resumen, cuerpo, imagen, publicada, autor_id) VALUES (?, ?, ?, ?, ?, ?)').run(d.titulo, d.resumen, d.cuerpo, d.imagen, d.publicada, req.equipo.id);
+    const r = db.prepare('INSERT INTO noticias (titulo, resumen, cuerpo, imagen, categoria, adjuntos, publicada, autor_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)').run(d.titulo, d.resumen, d.cuerpo, d.imagen, d.categoria, d.adjuntos, d.publicada, req.equipo.id);
     auditar(req.equipo.id, 'crear_noticia', 'noticia', Number(r.lastInsertRowid));
     res.status(201).json({ ok: true, id: Number(r.lastInsertRowid) });
   } catch (e) { res.status(400).json({ error: e.message }); }
@@ -275,8 +336,8 @@ participacionIntranet.patch('/noticias/:id', requerirEquipo(...MODERAN), (req, r
   const n = db.prepare('SELECT * FROM noticias WHERE id = ?').get(Number(req.params.id));
   if (!n) return res.status(404).json({ error: 'No encontrada' });
   try {
-    const d = datosNoticia({ ...n, ...req.body });
-    db.prepare('UPDATE noticias SET titulo = ?, resumen = ?, cuerpo = ?, imagen = ?, publicada = ? WHERE id = ?').run(d.titulo, d.resumen, d.cuerpo, d.imagen, d.publicada, n.id);
+    const d = datosNoticia({ ...n, adjuntos: parseAdjuntos(n.adjuntos), ...req.body });
+    db.prepare('UPDATE noticias SET titulo = ?, resumen = ?, cuerpo = ?, imagen = ?, categoria = ?, adjuntos = ?, publicada = ? WHERE id = ?').run(d.titulo, d.resumen, d.cuerpo, d.imagen, d.categoria, d.adjuntos, d.publicada, n.id);
     auditar(req.equipo.id, 'editar_noticia', 'noticia', n.id);
     res.json({ ok: true });
   } catch (e) { res.status(400).json({ error: e.message }); }

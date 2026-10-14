@@ -7,7 +7,7 @@ import {
   ahoraISO, asignarPasswordTemporal, carneVigente, emitirCarne, formatoNumero, moverEstado, passwordTemporal, revocarCarnes, transaccion,
 } from './servicios.js';
 import { datosPerfil, enmascarar, esEmail, limpio } from './validar.js';
-import { enviarCorreo, textoAcceso } from './correo.js';
+import { adjuntoCarne, avisarPersona, enviarCorreo, estadoCorreo, textoAcceso } from './correo.js';
 import { datosCarne, generarCarnePdf, generarCertificadoPdf } from './carne.js';
 
 export const gestion = Router();
@@ -104,14 +104,16 @@ gestion.get('/personas/:id/carne.pdf', requerirEquipo('admin', 'gestor'), async 
     res.send(Buffer.from(bytes));
   } catch (e) { console.error('Error carné:', e.message); res.status(500).json({ error: 'No se pudo generar el carné' }); }
 });
-gestion.post('/personas/:id/carne', requerirEquipo('admin', 'gestor'), (req, res) => {
+gestion.post('/personas/:id/carne', requerirEquipo('admin', 'gestor'), async (req, res) => {
   const p = personaVisible(req);
   if (!p || p.tipo !== 'afiliado' || p.estado !== 'activo') return res.status(409).json({ error: 'Solo se puede emitir carné a una persona afiliada activa' });
   const accion = req.body?.accion;
   if (!['duplicado', 'renovacion'].includes(accion)) return res.status(400).json({ error: 'Acción no válida' });
   const nuevo = transaccion(() => emitirCarne(p, accion === 'duplicado' ? 'duplicado' : 'renovación'));
   auditar(req.equipo.id, accion === 'duplicado' ? 'carne_duplicado' : 'carne_renovacion', 'persona', p.id, { version: nuevo.version });
-  res.json({ ok: true, ...nuevo });
+  const envio = await avisarPersona(p, accion === 'duplicado' ? 'carne_duplicado' : 'carne_renovacion', accion === 'duplicado' ? 'Tu duplicado del carné de PLU' : 'Tu carné de PLU se ha renovado',
+    accion === 'duplicado' ? 'Hemos emitido un duplicado de tu carné de afiliado. El anterior deja de ser válido.' : 'Hemos renovado tu carné de afiliado con una nueva fecha de validez.', { carne: true });
+  res.json({ ok: true, ...nuevo, ...estadoCorreo(envio) });
 });
 gestion.get('/personas/:id/certificado.pdf', requerirEquipo('admin', 'gestor'), async (req, res) => {
   const p = personaVisible(req);
@@ -140,7 +142,7 @@ gestion.post('/personas/:id/estado', requerirEquipo('admin', 'gestor'), async (r
       t = asignarPasswordTemporal(p.id);
     });
     auditar(req.equipo.id, 'persona_readmitir', 'persona', p.id, { motivo });
-    const envio = await enviarCorreo({ personaId: p.id, tipo: 'readmision', para: p.email, asunto: 'Tu afiliación a PLU se ha reactivado', texto: textoAcceso({ nombre: p.nombre, email: p.email, password: t.password, caduca: t.caduca, motivo: 'Tu afiliación a PLU se ha reactivado.' }) });
+    const envio = await enviarCorreo({ personaId: p.id, tipo: 'readmision', para: p.email, asunto: 'Tu afiliación a PLU se ha reactivado', adjuntos: await adjuntoCarne(p), texto: textoAcceso({ nombre: p.nombre, email: p.email, password: t.password, caduca: t.caduca, motivo: 'Tu afiliación a PLU se ha reactivado.' }) });
     return res.json({ ok: true, password_temporal: t.password, caduca: t.caduca, correo: envio.ok ? 'enviado' : 'no enviado', correo_motivo: envio.ok ? undefined : envio.motivo });
   } else if (accion === 'baja' && ['activo', 'suspendido'].includes(p.estado)) {
     transaccion(() => {
@@ -150,17 +152,24 @@ gestion.post('/personas/:id/estado', requerirEquipo('admin', 'gestor'), async (r
     });
   } else return res.status(409).json({ error: 'Esa acción no es posible en el estado actual' });
   auditar(req.equipo.id, `persona_${accion}`, 'persona', p.id, { motivo });
-  res.json({ ok: true });
+  const textos = {
+    suspender: ['Tu afiliación a PLU está suspendida', 'Tu afiliación a PLU ha quedado suspendida temporalmente.', false],
+    reactivar: ['Tu afiliación a PLU está activa de nuevo', 'Tu afiliación a PLU se ha reactivado.', true],
+    baja: ['Tu baja en PLU', 'Hemos tramitado tu baja como afiliado/a de PLU. Tu carné deja de ser válido.', false],
+  }[accion];
+  const envio = await avisarPersona(p, `estado_${accion}`, textos[0], textos[1] + (motivo ? `\n\nMotivo: ${motivo}` : ''), { portal: textos[2] });
+  res.json({ ok: true, ...estadoCorreo(envio) });
 });
 
 // Cambio de provincia: conserva el número de afiliado (el carné se reemite con el nuevo territorio)
-gestion.post('/personas/:id/provincia', requerirEquipo('admin', 'gestor'), (req, res) => {
+gestion.post('/personas/:id/provincia', requerirEquipo('admin', 'gestor'), async (req, res) => {
   const p = personaVisible(req);
   const destino = db.prepare("SELECT id, nombre FROM territorios WHERE id = ? AND tipo = 'provincia'").get(Number(req.body?.provincia_id));
   if (!p || !destino) return res.status(404).json({ error: 'No encontrado' });
   cambiarProvincia(p, destino.id, limpio(req.body?.motivo, 300), req.equipo.id);
   auditar(req.equipo.id, 'cambio_provincia', 'persona', p.id, { destino: destino.nombre });
-  res.json({ ok: true });
+  const envio = await avisarPersona(db.prepare('SELECT * FROM personas WHERE id = ?').get(p.id), 'cambio_provincia', 'Has cambiado de provincia en PLU', `Hemos cambiado tu afiliación a ${destino.nombre}. Tu número de afiliado se mantiene y tu carné se ha actualizado.`, { carne: true });
+  res.json({ ok: true, ...estadoCorreo(envio) });
 });
 function cambiarProvincia(p, territorioId, motivo, usuarioId) {
   transaccion(() => {
@@ -185,6 +194,8 @@ gestion.post('/personas/:id/eliminar', requerirEquipo('admin'), (req, res) => {
       db.prepare('DELETE FROM denuncias WHERE persona_id = ? OR comentario_id IN (SELECT id FROM comentarios WHERE persona_id = ?)').run(id, id);
       db.prepare('DELETE FROM comentarios WHERE persona_id = ?').run(id);
       db.prepare('DELETE FROM propuesta_apoyos WHERE persona_id = ?').run(id);
+      db.prepare('DELETE FROM noticia_comentarios WHERE persona_id = ?').run(id);
+      db.prepare('DELETE FROM noticia_likes WHERE persona_id = ?').run(id);
       db.prepare('DELETE FROM participaciones WHERE persona_id = ?').run(id);
       db.prepare('DELETE FROM enlaces_encuesta WHERE persona_id = ?').run(id);
       db.prepare('UPDATE respuestas SET persona_id = NULL WHERE persona_id = ?').run(id);
@@ -226,7 +237,7 @@ gestion.get('/solicitudes', requerirEquipo(...GESTION), (req, res) => {
   res.json(filas.map((s) => ({ ...s, numero_afiliado: formatoNumero(s.numero_afiliado) })));
 });
 
-gestion.post('/solicitudes/:id/resolver', requerirEquipo('admin', 'gestor'), (req, res) => {
+gestion.post('/solicitudes/:id/resolver', requerirEquipo('admin', 'gestor'), async (req, res) => {
   const s = db.prepare('SELECT * FROM solicitudes WHERE id = ?').get(Number(req.params.id));
   if (!s || !['abierta', 'en_revision'].includes(s.estado)) return res.status(404).json({ error: 'No encontrada o ya resuelta' });
   const aceptar = req.body?.aceptar !== false;
@@ -261,7 +272,11 @@ gestion.post('/solicitudes/:id/resolver', requerirEquipo('admin', 'gestor'), (re
       .run(aceptar ? 'resuelta' : 'rechazada', resolucion || null, req.equipo.id, ahoraISO(), s.id);
   });
   auditar(req.equipo.id, aceptar ? 'solicitud_resuelta' : 'solicitud_rechazada', 'solicitud', s.id, { tipo: s.tipo });
-  res.json({ ok: true });
+  const pNuevo = db.prepare('SELECT * FROM personas WHERE id = ?').get(p.id);
+  const conCarne = aceptar && ['renovacion_carne', 'duplicado_carne', 'cambio_provincia'].includes(s.tipo);
+  const envio = await avisarPersona(pNuevo, 'solicitud_resuelta', aceptar ? 'Hemos resuelto tu solicitud en PLU' : 'Sobre tu solicitud en PLU',
+    (aceptar ? 'Hemos atendido tu solicitud.' : 'No hemos podido atender tu solicitud.') + (resolucion ? `\n\n${resolucion}` : ''), { carne: conCarne, portal: pNuevo.estado !== 'baja' });
+  res.json({ ok: true, ...estadoCorreo(envio) });
 });
 gestion.use((e, _req, res, next) => {
   if (e?.message === 'SIN_PROVINCIA') return res.status(400).json({ error: 'La solicitud no indica una provincia válida' });

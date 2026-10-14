@@ -54,8 +54,32 @@ eventos = '''
 <section class="section"><div class="wrap" id="app-eventos" style="max-width:56rem"><div class="rows" id="e-lista"></div><p class="muted" id="e-vacio" hidden>No hay actos publicados todavía. Suscríbete en <a class="link" href="participa.html">Participa</a> y te avisaremos.</p></div></section>'''
 
 noticias = '''
-<section class="section"><div class="wrap" id="app-noticias" style="max-width:52rem"><div class="rows" id="n-lista"></div><p class="muted" id="n-vacio" hidden>Todavía no hay noticias.</p>
-<article id="n-detalle" hidden><p><a class="link" href="noticias.html">← Todas las noticias</a></p><span class="eyebrow" id="n-fecha"></span><h1 class="h2" id="n-titulo"></h1><img id="n-img" class="noticia-img" alt="" hidden><div id="n-cuerpo" style="white-space:pre-wrap;font-size:1.1rem;margin-top:18px"></div><p style="margin-top:22px"><button class="btn btn-ghost btn-sm" type="button" id="n-compartir">Compartir</button></p></article></div></section>'''
+<section class="section"><div class="wrap blog" id="app-noticias">
+  <div id="n-listado">
+    <div class="blog-filtros" id="n-filtros" role="group" aria-label="Filtrar por tipo"></div>
+    <div id="n-destacada"></div>
+    <div class="blog-grid" id="n-lista"></div>
+    <p class="muted" id="n-vacio" hidden>Todavía no hay publicaciones en esta categoría.</p>
+  </div>
+  <article id="n-detalle" class="post" hidden>
+    <p><a class="link" href="/noticias">← Todas las noticias</a></p>
+    <div class="post-meta"><span class="post-cat" id="n-cat"></span><span id="n-fecha"></span><span id="n-min"></span></div>
+    <h1 class="post-title" id="n-titulo"></h1>
+    <p class="post-lede" id="n-resumen" hidden></p>
+    <img id="n-img" class="post-cover" alt="" hidden>
+    <div class="post-body" id="n-cuerpo"></div>
+    <section class="post-docs" id="n-docs" hidden><h2>Documentos</h2><div id="n-docs-l"></div></section>
+    <div class="post-actions">
+      <button class="btn btn-ghost" type="button" id="n-like" aria-pressed="false"><span aria-hidden="true">♥</span> Me gusta · <span id="n-likes">0</span></button>
+      <div class="share" id="n-share" aria-label="Compartir"></div>
+    </div>
+    <p class="muted" id="n-login" hidden>Para comentar y dar me gusta, <a class="link" href="/portal">entra en el portal del afiliado</a>. ¿Aún no eres afiliado? <a class="link" href="/afiliate">Afíliate</a>.</p>
+    <h2 class="post-h">Comentarios <span class="chip" id="n-ncom">0</span></h2>
+    <div class="rows" id="n-comentarios"></div><p class="muted" id="n-sin-com">Sé la primera persona en comentar.</p>
+    <form class="form-card" id="n-form" hidden novalidate><div class="field"><label for="n-c">Tu comentario (respetuoso y sobre la noticia)</label><textarea id="n-c" rows="3" maxlength="1000" required></textarea></div><button class="btn btn-primary" type="submit">Comentar</button><p class="form-status err" role="alert"></p></form>
+    <h2 class="post-h" id="n-mas-t" hidden>Sigue leyendo</h2><div class="blog-grid" id="n-mas"></div>
+  </article>
+</div></section>'''
 
 voluntariado = f'''
 <section class="section"><div class="wrap formwrap">

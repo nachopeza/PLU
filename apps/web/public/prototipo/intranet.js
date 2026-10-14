@@ -14,7 +14,7 @@
     return fetch('/api/intranet' + ruta, {
       method: metodo || (cuerpo === undefined ? 'GET' : 'POST'),
       headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
-      body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo)
+      body: cuerpo === undefined ? (metodo && metodo !== 'GET' ? '{}' : undefined) : JSON.stringify(cuerpo)
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) { var e = new Error(d.error || 'Error'); e.status = r.status; e.datos = d; throw e; } ultimoCorreo = d.correo || null; ultimoMotivo = d.correo_motivo || null; if ((metodo || (cuerpo === undefined ? 'GET' : 'POST')) !== 'GET') arriba(); return d; });
     }, function () { throw new Error('No se puede conectar con la API. Arranca el servidor (npm run dev) y abre http://localhost:8787/intranet'); });
@@ -63,6 +63,12 @@
     var nota = ultimoCorreo === 'enviado' ? 'Se ha enviado también por correo a la persona.' : (ultimoCorreo === 'no enviado' ? 'El correo no se ha podido enviar' + (ultimoMotivo ? ' (' + ultimoMotivo + ')' : '') + ': entrégale tú la contraseña.' : null); ultimoCorreo = null; ultimoMotivo = null;
     return h('div', { class: 'secret' }, h('strong', null, titulo), ayuda ? h('p', { class: 'muted' }, ayuda) : null, nota ? h('p', { class: 'muted' }, nota) : null, area, copiar);
   }
+  // Resultado del último aviso por correo a la persona (tras duplicado, baja, cambio de provincia…)
+  function avisoCorreo() {
+    var c = ultimoCorreo, m = ultimoMotivo; ultimoCorreo = ultimoMotivo = null;
+    if (!c) return null;
+    return h('p', { class: 'chip-correo ' + (c === 'enviado' ? 'ok' : 'aviso') }, c === 'enviado' ? '✉ Se ha avisado a la persona por correo.' : '✉ No se ha podido avisar por correo' + (m ? ' (' + m + ')' : '') + '. Avísale tú.');
+  }
   function fila(titulo, sub, etiqueta, onAbrir) {
     var d = h('details', { class: 'rowitem' }), cuerpo = h('div', { class: 'body' });
     var t = h('div', null, etiqueta ? h('span', { class: 'tag' }, etiqueta) : null, h('h3', null, titulo), sub ? h('p', { class: 's' }, sub) : null);
@@ -88,7 +94,7 @@
   }
   function confirmar(texto) { return window.confirm(texto); }
 
-  var ROLES = { admin: 'Administración', gestor: 'Gestión', moderador: 'Moderación', coordinador: 'Coordinación provincial', verificador: 'Verificación', tesoreria: 'Tesorería', auditor: 'Auditoría' };
+  var ROLES = { admin: 'Administración', gestor: 'Gestión', moderador: 'Moderación y contenido', coordinador: 'Coordinación provincial', verificador: 'Verificación', tesoreria: 'Tesorería', auditor: 'Auditoría' };
   var ESTADOS = { pendiente: 'Pendiente', activo: 'Activo', suspendido: 'Suspendido', baja: 'Baja', rechazado: 'Rechazado' };
   var MOV = { inscripcion: 'Inscripción', alta: 'Alta', cambio_tipo: 'Cambio de tipo', cambio_territorio: 'Cambio de provincia', suspension: 'Suspensión', reactivacion: 'Reactivación', baja: 'Baja', rechazo: 'Rechazo' };
   var TIPOS_SOL = { cambio_datos: 'Cambio de datos', cambio_provincia: 'Cambio de provincia', baja: 'Baja', duplicado_carne: 'Duplicado de carné', renovacion_carne: 'Renovación de carné', certificado: 'Certificado', otra: 'Otra' };
@@ -138,8 +144,8 @@
     ['encuestas', 'Encuestas y votaciones', ['admin', 'moderador', 'auditor'], 1],
     ['eventos', 'Agenda', ['admin', 'moderador', 'gestor'], 1],
     ['voluntarios', 'Voluntariado', ['admin', 'moderador', 'gestor'], 1],
-    ['contenido', 'Contenido web', ['admin', 'moderador'], 2],
-    ['noticias', 'Noticias', ['admin', 'moderador'], 2],
+    ['contenido', 'Contenido web', ['moderador'], 2],
+    ['noticias', 'Noticias y blog', ['admin', 'moderador'], 2],
     ['verificar', 'Verificar carné', ['admin', 'gestor', 'verificador'], 3],
     ['carne', 'Plantilla del carné', ['admin', 'gestor'], 3],
     ['equipo', 'Equipo', ['admin'], 4],
@@ -149,7 +155,7 @@
   var detenerCamara = function () {};
 
   function abrirPanel(u) {
-    usuario = u; try { localStorage.setItem('plu_editor', (u.rol === 'admin' || u.rol === 'moderador') ? '1' : '0'); } catch (e) { /* sin almacenamiento */ }
+    usuario = u; try { localStorage.setItem('plu_editor', u.rol === 'moderador' ? '1' : '0'); } catch (e) { /* sin almacenamiento */ }
     var rolTxt = ROLES[u.rol] || u.rol; $('p-nombre').textContent = u.nombre;
     // Si el nombre ya es el nombre del rol (p. ej. "Administración") no se repite
     $('p-rol').textContent = String(u.nombre).trim().toLowerCase() === String(rolTxt).toLowerCase() ? '' : rolTxt;
@@ -169,7 +175,7 @@
     });
     // Si venimos de la web para editar, volvemos a la página que se estaba editando
     var volver = new URLSearchParams(location.search).get('volver');
-    if (volver && /^[a-z0-9-]+\.html\?editar=1$/.test(volver) && (u.rol === 'admin' || u.rol === 'moderador')) { location.replace(volver); return; }
+    if (volver && /^[a-z0-9-]+\.html\?editar=1$/.test(volver) && u.rol === 'moderador') { location.replace(volver); return; }
     ver('v-panel');
     cargarProvincias().then(function () {
       var codigo = new URLSearchParams(location.search).get('v'); // viene del QR de un carné
@@ -356,8 +362,8 @@
         if (puede) {
           if (f.carne && f.estado === 'activo') fila1.appendChild(h('a', { class: 'btn btn-ghost btn-sm', href: '/api/intranet/personas/' + id + '/carne.pdf', target: '_blank', rel: 'noopener' }, 'Ver carné (PDF)'));
           if (f.estado === 'activo') {
-            fila1.appendChild(boton('Emitir duplicado', function () { if (!confirmar('Se emitirá un carné nuevo y el anterior dejará de ser válido. ¿Continuar?')) return; api('/personas/' + id + '/carne', { accion: 'duplicado' }).then(function () { fichaPersona(id, body, recargar); }).catch(fallo); }));
-            fila1.appendChild(boton('Renovar carné', function () { if (!confirmar('Se renovará el carné con una nueva fecha de validez. ¿Continuar?')) return; api('/personas/' + id + '/carne', { accion: 'renovacion' }).then(function () { fichaPersona(id, body, recargar); }).catch(fallo); }));
+            fila1.appendChild(boton('Emitir duplicado', function () { if (!confirmar('Se emitirá un carné nuevo y el anterior dejará de ser válido. ¿Continuar?')) return; api('/personas/' + id + '/carne', { accion: 'duplicado' }).then(function () { fichaPersona(id, body, recargar, avisoCorreo()); }).catch(fallo); }));
+            fila1.appendChild(boton('Renovar carné', function () { if (!confirmar('Se renovará el carné con una nueva fecha de validez. ¿Continuar?')) return; api('/personas/' + id + '/carne', { accion: 'renovacion' }).then(function () { fichaPersona(id, body, recargar, avisoCorreo()); }).catch(fallo); }));
           }
           if (['activo', 'suspendido', 'baja'].indexOf(f.estado) >= 0) fila1.appendChild(h('a', { class: 'btn btn-ghost btn-sm', href: '/api/intranet/personas/' + id + '/certificado.pdf', target: '_blank', rel: 'noopener' }, 'Certificado de afiliación (PDF)'));
           bc.appendChild(fila1);
@@ -372,7 +378,7 @@
             if (!confirmar(aviso)) return; var motivo = window.prompt('Motivo (opcional):'); if (motivo === null) return;
             api('/personas/' + id + '/estado', { accion: accion, motivo: motivo }).then(function (r) {
               var nodo = (r && r.password_temporal) ? secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal, 'Entrégala por un canal seguro. Caduca en 7 días.') : null;
-              fichaPersona(id, body, recargar, nodo);
+              fichaPersona(id, body, recargar, nodo || avisoCorreo());
             }).catch(fallo);
           }));
         }
@@ -391,7 +397,7 @@
           var sel = selectProvincias('pp-' + id, 'Cambiar de provincia', 'Elegir…');
           sel.querySelector('select').addEventListener('change', function (ev) {
             var v = ev.target.value; if (!v || !confirmar('Se cambiará la provincia y se emitirá un carné nuevo (el número de afiliado se mantiene). ¿Continuar?')) { ev.target.value = ''; return; }
-            api('/personas/' + id + '/provincia', { provincia_id: Number(v) }).then(function () { fichaPersona(id, body, recargar); }).catch(fallo);
+            api('/personas/' + id + '/provincia', { provincia_id: Number(v) }).then(function () { fichaPersona(id, body, recargar, avisoCorreo()); }).catch(fallo);
           });
           be.appendChild(sel);
         }
@@ -808,21 +814,41 @@
   }
 
   // --- Noticias ---
+  function subirDocumento(archivo) {
+    return fetch('/api/intranet/documentos', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/pdf' }, body: archivo })
+      .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || 'No se pudo subir'); return d; }); });
+  }
   function sNoticias(c) {
+    var CATS = ['Noticia', 'Nota de prensa', 'Comunicado', 'Opinión', 'Evento'];
     var zona = h('div'); c.appendChild(zona); lista();
     function lista() {
-      limpiar(zona); zona.appendChild(h('p', null, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: function () { editor(null); } }, '+ Nueva noticia')));
+      limpiar(zona); zona.appendChild(h('p', null, h('button', { class: 'btn btn-primary btn-sm', type: 'button', onclick: function () { editor(null); } }, '+ Nueva publicación'), ' ', h('a', { class: 'btn btn-ghost btn-sm', href: '/noticias', target: '_blank', rel: 'noopener' }, 'Ver el blog')));
       var rows = h('div', { class: 'rows' }); zona.appendChild(rows);
       api('/noticias').then(function (ns) {
-        if (!ns.length) rows.appendChild(h('p', { class: 'muted' }, 'Aún no hay noticias.'));
+        if (!ns.length) rows.appendChild(h('p', { class: 'muted' }, 'Aún no hay publicaciones.'));
         ns.forEach(function (n) {
-          rows.appendChild(fila(n.titulo, n.resumen || '', (n.publicada ? 'PUBLICADA' : 'BORRADOR') + ' · ' + fecha(n.fecha), function (body) {
-            var st = h('p', { class: 'form-status err' });
+          rows.appendChild(fila(n.titulo, n.resumen || '', (n.publicada ? 'PUBLICADA' : 'BORRADOR') + ' · ' + (n.categoria || 'Noticia') + ' · ' + fecha(n.fecha) + ' · 💬 ' + n.comentarios + ' · ♥ ' + n.me_gusta + (n.adjuntos.length ? ' · 📎 ' + n.adjuntos.length : ''), function (body) {
+            var st = h('p', { class: 'form-status err' }), com = h('div', { class: 'rows' });
             body.appendChild(h('div', { class: 'row-btns' },
               h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { editor(n); } }, 'Editar'),
+              n.publicada ? h('a', { class: 'btn btn-ghost btn-sm', href: '/noticias?id=' + n.id, target: '_blank', rel: 'noopener' }, 'Ver publicada') : null,
               h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { api('/noticias/' + n.id, { publicada: !n.publicada }, 'PATCH').then(lista).catch(function (e) { st.textContent = e.message; }); } }, n.publicada ? 'Despublicar' : 'Publicar'),
-              h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { if (confirmar('¿Borrar la noticia?')) api('/noticias/' + n.id, undefined, 'DELETE').then(lista).catch(function (e) { st.textContent = e.message; }); } }, 'Borrar')));
+              h('button', { class: 'btn btn-ghost btn-sm btn-peligro', type: 'button', onclick: function () { if (confirmar('¿Borrar la publicación y sus comentarios?')) api('/noticias/' + n.id, undefined, 'DELETE').then(lista).catch(function (e) { st.textContent = e.message; }); } }, 'Borrar')));
             body.appendChild(st);
+            if (n.comentarios || n.me_gusta) {
+              body.appendChild(h('h3', { style: 'margin-top:14px;font-size:1.05rem' }, 'Comentarios'));
+              body.appendChild(com); cargarCom();
+            }
+            function cargarCom() {
+              api('/noticias/' + n.id + '/comentarios').then(function (cs) {
+                limpiar(com); if (!cs.length) com.appendChild(h('p', { class: 'muted' }, 'Sin comentarios.'));
+                cs.forEach(function (x) {
+                  com.appendChild(h('div', { class: 'audit-row' }, h('strong', null, x.nombre + ' ' + x.apellidos), h('span', { class: 'muted' }, fecha(x.creado_en) + (x.oculto ? ' · OCULTO' : '')), h('span', { style: 'flex-basis:100%;white-space:pre-wrap' }, x.texto),
+                    h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { api('/noticias/comentarios/' + x.id + '/ocultar', {}).then(cargarCom).catch(function (e) { st.textContent = e.message; }); } }, x.oculto ? 'Mostrar' : 'Ocultar'),
+                    h('button', { class: 'btn btn-ghost btn-sm btn-peligro', type: 'button', onclick: function () { if (confirmar('¿Borrar el comentario?')) api('/noticias/comentarios/' + x.id, undefined, 'DELETE').then(cargarCom).catch(function (e) { st.textContent = e.message; }); } }, 'Borrar')));
+                });
+              }).catch(function (e) { st.textContent = e.message; });
+            }
           }));
         });
       }).catch(function (e) { errorSeccion(c, e); });
@@ -833,11 +859,34 @@
       var archivo = h('input', { type: 'file', accept: 'image/png,image/jpeg,image/webp', id: 'nt-i' });
       archivo.addEventListener('change', function () { if (!archivo.files[0]) return; estadoImg.textContent = 'Subiendo…'; subirImagen(archivo.files[0]).then(function (r) { imagen = r.url; vista.src = r.url; vista.hidden = false; estadoImg.textContent = 'Imagen lista'; }).catch(function (e) { estadoImg.textContent = e.message; }); });
       var portada = h('div', { class: 'field' }, h('label', { for: 'nt-i' }, 'Imagen de portada (opcional, PNG/JPG/WebP hasta 6 MB)'), archivo, estadoImg, vista, h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { imagen = ''; vista.hidden = true; archivo.value = ''; } }, 'Quitar imagen'));
-      var f = h('form', { class: 'form-card', novalidate: true }, h('h2', null, n ? 'Editar noticia' : 'Nueva noticia'), campo('nt-t', 'Título', { value: n ? n.titulo : '', required: true }), campo('nt-r', 'Resumen (opcional)', { value: n ? n.resumen || '' : '' }), campo('nt-c', 'Texto (una línea en blanco separa párrafos)', { rows: 12 }, 'textarea'), portada,
+      // Documentos PDF adjuntos (nota de prensa, comunicado, dossier…)
+      var adj = n ? n.adjuntos.slice() : [], listaAdj = h('div', { class: 'rows' }), estadoDoc = h('span', { class: 'muted' });
+      var pdf = h('input', { type: 'file', accept: 'application/pdf', id: 'nt-d' });
+      function pintarAdj() {
+        limpiar(listaAdj);
+        adj.forEach(function (d, i) {
+          var nombre = h('input', { type: 'text', value: d.nombre, maxlength: '120', 'aria-label': 'Nombre del documento' });
+          nombre.addEventListener('input', function () { d.nombre = nombre.value; });
+          listaAdj.appendChild(h('div', { class: 'audit-row' }, h('span', { class: 'tag' }, 'PDF'), nombre, h('a', { class: 'link', href: d.url, target: '_blank', rel: 'noopener' }, 'Abrir'), h('button', { class: 'btn btn-ghost btn-sm', type: 'button', onclick: function () { adj.splice(i, 1); pintarAdj(); } }, 'Quitar')));
+        });
+      }
+      pintarAdj();
+      pdf.addEventListener('change', function () {
+        var f = pdf.files[0]; if (!f) return; estadoDoc.textContent = 'Subiendo…';
+        subirDocumento(f).then(function (r) { adj.push({ nombre: f.name.replace(/\.pdf$/i, ''), url: r.url, bytes: r.bytes }); pintarAdj(); estadoDoc.textContent = 'Documento añadido'; pdf.value = ''; }).catch(function (e) { estadoDoc.textContent = e.message; });
+      });
+      var docs = h('div', { class: 'field' }, h('label', { for: 'nt-d' }, 'Documentos PDF adjuntos (notas de prensa, comunicados… hasta 15 MB cada uno)'), pdf, estadoDoc, listaAdj);
+      var cat = h('select', { id: 'nt-k' }); CATS.forEach(function (k) { cat.appendChild(h('option', { value: k }, k)); }); cat.value = n && n.categoria ? n.categoria : 'Noticia';
+      var f = h('form', { class: 'form-card', novalidate: true }, h('h2', null, n ? 'Editar publicación' : 'Nueva publicación'),
+        h('div', { class: 'field' }, h('label', { for: 'nt-k' }, 'Tipo'), cat),
+        campo('nt-t', 'Título', { value: n ? n.titulo : '', required: true }), campo('nt-r', 'Resumen (opcional, sale en el listado y al compartir)', { value: n ? n.resumen || '' : '' }),
+        campo('nt-c', 'Texto', { rows: 14 }, 'textarea'),
+        h('p', { class: 'muted', style: 'font-size:.9rem' }, 'Formato: una línea en blanco separa párrafos · "## Título" para un apartado · "- " para listas · "> " para una cita · **negrita** · [texto](https://enlace) · los enlaces sueltos se activan solos.'),
+        portada, docs,
         h('label', { class: 'consent', for: 'nt-p' }, pub, h('span', null, 'Publicada')), h('div', { class: 'row-btns' }, h('button', { class: 'btn btn-primary', type: 'submit' }, 'Guardar'), h('button', { class: 'btn btn-ghost', type: 'button', onclick: lista }, 'Cancelar')), h('p', { class: 'form-status err', role: 'alert' }));
       f.querySelector('#nt-c').value = n ? n.cuerpo : '';
       f.addEventListener('submit', function (ev) {
-        ev.preventDefault(); var cuerpo = { titulo: $('nt-t').value, resumen: $('nt-r').value, cuerpo: $('nt-c').value, imagen: imagen || null, publicada: pub.checked };
+        ev.preventDefault(); var cuerpo = { titulo: $('nt-t').value, resumen: $('nt-r').value, cuerpo: $('nt-c').value, imagen: imagen || null, categoria: cat.value, adjuntos: adj, publicada: pub.checked };
         (n ? api('/noticias/' + n.id, cuerpo, 'PATCH') : api('/noticias', cuerpo)).then(lista).catch(function (er) { msg(f, er.message); });
       });
       zona.appendChild(f);

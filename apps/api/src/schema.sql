@@ -452,3 +452,19 @@ CREATE TABLE IF NOT EXISTS recuperaciones (
   persona_id INTEGER NOT NULL REFERENCES personas(id) ON DELETE CASCADE,
   expira_en  TEXT NOT NULL
 );
+
+-- Noticias: comentarios de afiliados y "me gusta"
+CREATE TABLE IF NOT EXISTS noticia_comentarios (
+  id         INTEGER PRIMARY KEY,
+  noticia_id INTEGER NOT NULL REFERENCES noticias(id) ON DELETE CASCADE,
+  persona_id INTEGER NOT NULL REFERENCES personas(id),
+  texto      TEXT NOT NULL,
+  oculto     INTEGER NOT NULL DEFAULT 0,
+  creado_en  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+CREATE INDEX IF NOT EXISTS idx_noticia_com ON noticia_comentarios(noticia_id, creado_en);
+CREATE TABLE IF NOT EXISTS noticia_likes (
+  noticia_id INTEGER NOT NULL REFERENCES noticias(id) ON DELETE CASCADE,
+  persona_id INTEGER NOT NULL REFERENCES personas(id),
+  PRIMARY KEY (noticia_id, persona_id)
+);

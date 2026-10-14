@@ -48,6 +48,8 @@ asegurarColumna('encuestas', 'vinculante', 'INTEGER NOT NULL DEFAULT 0');
 asegurarColumna('encuestas', 'resultados_publicos', 'INTEGER NOT NULL DEFAULT 0');
 asegurarColumna('encuestas', 'propuesta_id', 'INTEGER');
 asegurarColumna('noticias', 'imagen', 'TEXT');
+asegurarColumna('noticias', 'categoria', "TEXT NOT NULL DEFAULT 'Noticia'");
+asegurarColumna('noticias', 'adjuntos', 'TEXT');
 asegurarColumna('propuestas', 'tipo', "TEXT NOT NULL DEFAULT 'propuesta'");
 asegurarColumna('propuestas', 'provincia_id', 'INTEGER');
 
