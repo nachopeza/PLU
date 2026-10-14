@@ -132,9 +132,7 @@
   // [id, título, roles, grupo]
   var GRUPOS = ['Afiliación', 'Participación', 'Web', 'Carné', 'Sistema'];
   var SECCIONES = [
-    ['resumen', 'Resumen', ['admin', 'gestor', 'coordinador'], 0],
-    ['inscripciones', 'Inscripciones', ['admin', 'gestor', 'coordinador'], 0],
-    ['personas', 'Personas', ['admin', 'gestor', 'coordinador'], 0],
+    ['personas', 'Personas e inscripciones', ['admin', 'gestor', 'coordinador'], 0],
     ['solicitudes', 'Solicitudes', ['admin', 'gestor', 'coordinador'], 0],
     ['propuestas', 'Ideas', ['admin', 'moderador', 'auditor'], 1],
     ['encuestas', 'Encuestas y votaciones', ['admin', 'moderador', 'auditor'], 1],
@@ -156,6 +154,11 @@
     // Si el nombre ya es el nombre del rol (p. ej. "Administración") no se repite
     $('p-rol').textContent = String(u.nombre).trim().toLowerCase() === String(rolTxt).toLowerCase() ? '' : rolTxt;
     var tabs = limpiar($('p-tabs'));
+    // En móvil el menú es un desplegable con el nombre de la sección actual (sin deslizar)
+    var viejo = $('p-menu-btn'); if (viejo) viejo.remove();
+    var mb = h('button', { id: 'p-menu-btn', class: 'ip-menu-btn', type: 'button', 'aria-expanded': 'false', 'aria-controls': 'p-tabs' }, h('span', { id: 'p-menu-t' }, 'Menú'), h('span', { class: 'ip-menu-chev', 'aria-hidden': 'true' }, '▾'));
+    mb.addEventListener('click', function () { var ab = tabs.classList.toggle('abierto'); mb.setAttribute('aria-expanded', String(ab)); });
+    tabs.parentNode.insertBefore(mb, tabs);
     var propias = SECCIONES.filter(function (s) { return s[2].indexOf(u.rol) >= 0; });
     GRUPOS.forEach(function (g, gi) {
       var items = propias.filter(function (s) { return s[3] === gi; });
@@ -180,6 +183,8 @@
     var sec = SECCIONES.filter(function (s) { return s[0] === id; })[0];
     Array.prototype.forEach.call($('p-tabs').querySelectorAll('.ip-btn'), function (b) { b.setAttribute('aria-pressed', String(b.dataset.s === id)); if (b.dataset.s === id && b.scrollIntoView) { try { b.scrollIntoView({ inline: 'center', block: 'nearest' }); } catch (e) { /* sin scroll */ } } });
     $('p-titulo').textContent = sec ? sec[1] : '';
+    var mt = $('p-menu-t'); if (mt) mt.textContent = sec ? sec[1] : 'Menú';
+    $('p-tabs').classList.remove('abierto'); var mbb = $('p-menu-btn'); if (mbb) mbb.setAttribute('aria-expanded', 'false');
     var cont = limpiar($('sec')); VISTAS[id](cont, arg);
   }
 
@@ -258,27 +263,51 @@
 
   // --- Personas ---
   function sPersonas(c) {
-    var q = campo('f-q', 'Buscar (nombre, correo, nº)', { type: 'search' }), tipo = h('select', { id: 'f-t' }), est = h('select', { id: 'f-e' });
+    // Vista única de afiliación: contadores que sirven de filtro + buscador + lista (las pendientes se aprueban desde aquí)
+    var q = campo('f-q', 'Buscar por nombre, correo o nº', { type: 'search' }), tipo = h('select', { id: 'f-t' }), est = h('select', { id: 'f-e' });
     [['', 'Todos'], ['afiliado', 'Afiliados'], ['simpatizante', 'Simpatizantes']].forEach(function (o) { tipo.appendChild(h('option', { value: o[0] }, o[1])); });
     [['', 'Cualquier estado'], ['pendiente', 'Pendiente'], ['activo', 'Activo'], ['suspendido', 'Suspendido'], ['baja', 'Baja'], ['rechazado', 'Rechazado']].forEach(function (o) { est.appendChild(h('option', { value: o[0] }, o[1])); });
     var prov = usuario.rol === 'coordinador' ? null : selectProvincias('f-p', 'Provincia', 'Todas');
-    var barra = h('div', { class: 'toolbar' }, q, h('div', { class: 'field' }, h('label', { for: 'f-t' }, 'Tipo'), tipo), h('div', { class: 'field' }, h('label', { for: 'f-e' }, 'Estado'), est), prov);
-    c.appendChild(barra);
-    if (['admin', 'gestor'].indexOf(usuario.rol) >= 0) c.appendChild(h('p', null, h('a', { class: 'link', href: '/api/intranet/export/afiliados.csv' }, 'Descargar listado de afiliados (CSV, sin documento) →')));
+    var chips = h('div', { class: 'chips-estado', role: 'group', 'aria-label': 'Filtrar por estado' });
+    var defs = [['pendiente', 'Pendientes', 'pendiente', ''], ['activo', 'Activos', 'activo', ''], ['suspendido', 'Suspendidos', 'suspendido', ''], ['simp', 'Simpatizantes', '', 'simpatizante'], ['todos', 'Todos', '', '']], botones = {};
+    defs.forEach(function (d) {
+      var b = h('button', { class: 'chip-e', type: 'button', 'aria-pressed': 'false', 'data-k': d[0], onclick: function () { est.value = d[2]; tipo.value = d[3]; marcar(); cargar(); } }, h('b', null, '–'), h('span', null, d[1]));
+      botones[d[0]] = b; chips.appendChild(b);
+    });
+    function marcar() {
+      var k = est.value === 'pendiente' && !tipo.value ? 'pendiente' : est.value === 'activo' && !tipo.value ? 'activo' : est.value === 'suspendido' && !tipo.value ? 'suspendido' : tipo.value === 'simpatizante' && !est.value ? 'simp' : (!est.value && !tipo.value ? 'todos' : '');
+      defs.forEach(function (d) { botones[d[0]].setAttribute('aria-pressed', String(d[0] === k)); });
+    }
+    var mas = h('details', { class: 'mas-filtros' }, h('summary', null, 'Más filtros'), h('div', { class: 'toolbar' }, h('div', { class: 'field' }, h('label', { for: 'f-t' }, 'Tipo'), tipo), h('div', { class: 'field' }, h('label', { for: 'f-e' }, 'Estado'), est), prov));
+    c.appendChild(chips); c.appendChild(q); c.appendChild(mas);
+    if (['admin', 'gestor'].indexOf(usuario.rol) >= 0) c.appendChild(h('p', { class: 'csv-link' }, h('a', { class: 'link', href: '/api/intranet/export/afiliados.csv' }, 'Descargar listado de afiliados (CSV, sin documento) →')));
     var lista = h('div', { class: 'rows' }), vacio = h('p', { class: 'muted', hidden: true }, 'Sin resultados.'); c.appendChild(lista); c.appendChild(vacio);
     var espera;
+    function contadores() {
+      api('/resumen').then(function (r) {
+        var n = { pendiente: r.afiliados.pendiente || 0, activo: r.afiliados.activo || 0, suspendido: r.afiliados.suspendido || 0, simp: r.simpatizantes || 0 };
+        Object.keys(n).forEach(function (k) { botones[k].querySelector('b').textContent = String(n[k]); });
+        botones.todos.querySelector('b').textContent = String(Object.keys(n).reduce(function (a, k) { return a + n[k]; }, 0));
+        botones.pendiente.classList.toggle('hay', n.pendiente > 0);
+      }).catch(function () { /* los contadores son opcionales */ });
+    }
     function cargar() {
+      marcar(); contadores();
       var p = new URLSearchParams(); if (q.querySelector('input').value) p.set('q', q.querySelector('input').value); if (tipo.value) p.set('tipo', tipo.value); if (est.value) p.set('estado', est.value);
       if (prov && prov.querySelector('select').value) p.set('provincia', prov.querySelector('select').value);
       api('/personas?' + p).then(function (filas) {
         limpiar(lista); vacio.hidden = filas.length > 0;
         filas.forEach(function (x) {
-          lista.appendChild(fila((x.nombre + ' ' + x.apellidos).trim(), x.email, (x.tipo === 'afiliado' ? 'Afiliado' : 'Simpatizante') + ' · ' + (ESTADOS[x.estado] || x.estado) + ' · ' + (x.provincia || '') + (x.numero_afiliado ? ' · Nº ' + x.numero_afiliado : ''), function (body) { fichaPersona(x.id, body, cargar); }));
+          var pendiente = x.estado === 'pendiente' && x.tipo === 'afiliado';
+          lista.appendChild(fila((x.nombre + ' ' + x.apellidos).trim(), x.email, (x.tipo === 'afiliado' ? 'Afiliado' : 'Simpatizante') + ' · ' + (ESTADOS[x.estado] || x.estado) + ' · ' + (x.provincia || '') + (x.numero_afiliado ? ' · Nº ' + x.numero_afiliado : ''), function (body) {
+            if (pendiente) fichaInscripcion(x, body, cargar); else fichaPersona(x.id, body, cargar);
+          }));
         });
       }).catch(function (e) { errorSeccion(c, e); });
     }
     [q.querySelector('input'), tipo, est].concat(prov ? [prov.querySelector('select')] : []).forEach(function (n) { n.addEventListener('input', function () { clearTimeout(espera); espera = setTimeout(cargar, 250); }); });
-    cargar();
+    // Si hay inscripciones por aprobar se muestran primero; si no, todo el listado
+    api('/resumen').then(function (r) { if (!(r.afiliados.pendiente > 0)) { est.value = ''; tipo.value = ''; } else { est.value = 'pendiente'; } cargar(); }).catch(function () { cargar(); });
   }
   function fichaPersona(id, body, recargar, extra) {
     api('/personas/' + id).then(function (f) {
