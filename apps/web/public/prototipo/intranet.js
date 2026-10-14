@@ -162,7 +162,7 @@
     var tabs = limpiar($('p-tabs'));
     // En móvil el menú es un desplegable con el nombre de la sección actual (sin deslizar)
     var viejo = $('p-menu-btn'); if (viejo) viejo.remove();
-    var mb = h('button', { id: 'p-menu-btn', class: 'ip-menu-btn', type: 'button', 'aria-expanded': 'false', 'aria-controls': 'p-tabs' }, h('span', { id: 'p-menu-t' }, 'Menú'), h('span', { class: 'ip-menu-chev', 'aria-hidden': 'true' }, '▾'));
+    var mb = h('button', { id: 'p-menu-btn', class: 'ip-menu-btn', type: 'button', 'aria-expanded': 'false', 'aria-controls': 'p-tabs' }, h('span', { id: 'p-menu-t' }, 'Menú'), h('span', { class: 'ip-n ip-dot', id: 'p-menu-n', hidden: true }), h('span', { class: 'ip-menu-chev', 'aria-hidden': 'true' }, '▾'));
     mb.addEventListener('click', function () { var ab = tabs.classList.toggle('abierto'); mb.setAttribute('aria-expanded', String(ab)); });
     tabs.parentNode.insertBefore(mb, tabs);
     var propias = SECCIONES.filter(function (s) { return s[2].indexOf(u.rol) >= 0; });
@@ -170,19 +170,37 @@
       var items = propias.filter(function (s) { return s[3] === gi; });
       if (!items.length) return;
       var lista = h('div', { class: 'ip-grupo' }, h('span', { class: 'ip-grupo-t' }, g));
-      items.forEach(function (s) { lista.appendChild(h('button', { class: 'ip-btn', type: 'button', 'data-s': s[0], 'aria-pressed': 'false', onclick: function () { irA(s[0]); } }, s[1])); });
+      items.forEach(function (s) { lista.appendChild(h('button', { class: 'ip-btn', type: 'button', 'data-s': s[0], 'aria-pressed': 'false', onclick: function () { irA(s[0]); } }, h('span', { class: 'ip-btn-t' }, s[1]), (s[0] === 'personas' || s[0] === 'solicitudes') ? h('span', { class: 'ip-n', 'data-n': s[0], hidden: true, 'aria-live': 'polite' }) : null)); });
       tabs.appendChild(lista);
     });
     // Si venimos de la web para editar, volvemos a la página que se estaba editando
     var volver = new URLSearchParams(location.search).get('volver');
     if (volver && /^[a-z0-9-]+\.html\?editar=1$/.test(volver) && u.rol === 'moderador') { location.replace(volver); return; }
     ver('v-panel');
+    avisos(); if (!avisosTimer) avisosTimer = setInterval(avisos, 45000);
     cargarProvincias().then(function () {
       var codigo = new URLSearchParams(location.search).get('v'); // viene del QR de un carné
       if (codigo && propias.some(function (s) { return s[0] === 'verificar'; })) irA('verificar', codigo);
       else if (propias.length) irA(propias[0][0]);
       else limpiar($('sec')).appendChild(h('p', { class: 'muted' }, 'Tu rol todavía no tiene secciones disponibles.'));
     });
+  }
+  // Indicadores del menú: inscripciones pendientes (personas nuevas) y solicitudes abiertas
+  var avisosTimer = null, avisosPrev = { personas: 0, solicitudes: 0 };
+  function avisos() {
+    if (!usuario || ['admin', 'gestor', 'coordinador'].indexOf(usuario.rol) < 0 || !$('p-tabs')) return;
+    Promise.all([api('/resumen'), api('/solicitudes?estado=abierta')]).then(function (r) {
+      var n = { personas: (r[0].afiliados && r[0].afiliados.pendiente) || 0, solicitudes: (r[1] || []).length };
+      Array.prototype.forEach.call(document.querySelectorAll('.ip-n[data-n]'), function (el) {
+        var k = el.getAttribute('data-n'), v = n[k];
+        el.hidden = !v; el.textContent = v > 99 ? '99+' : String(v);
+        el.setAttribute('aria-label', v + (k === 'personas' ? (v === 1 ? ' inscripción pendiente' : ' inscripciones pendientes') : (v === 1 ? ' solicitud abierta' : ' solicitudes abiertas')));
+        if (v > avisosPrev[k]) { el.classList.remove('nuevo'); void el.offsetWidth; el.classList.add('nuevo'); }
+      });
+      avisosPrev = n;
+      var dot = $('p-menu-n'); if (dot) dot.hidden = !(n.personas + n.solicitudes);
+      document.title = (n.personas + n.solicitudes ? '(' + (n.personas + n.solicitudes) + ') ' : '') + 'Intranet PLU';
+    }).catch(function () { /* los indicadores son opcionales */ });
   }
   function irA(id, arg) {
     detenerCamara();
@@ -192,6 +210,7 @@
     var mt = $('p-menu-t'); if (mt) mt.textContent = sec ? sec[1] : 'Menú';
     $('p-tabs').classList.remove('abierto'); var mbb = $('p-menu-btn'); if (mbb) mbb.setAttribute('aria-expanded', 'false');
     var cont = limpiar($('sec')); VISTAS[id](cont, arg);
+    avisos();
   }
 
   // --- Resumen ---
@@ -268,6 +287,74 @@
   }
 
   // --- Personas ---
+  // Ventana para dar de alta una persona afiliada desde la intranet (admin y gestor). Queda activa al momento.
+  function abrirAlta(alTerminar) {
+    var dlg = h('dialog', { class: 'modal', 'aria-labelledby': 'alta-t' }), cuerpo = h('div', { class: 'modal-in' });
+    dlg.appendChild(cuerpo); document.body.appendChild(dlg);
+    dlg.addEventListener('close', function () { dlg.remove(); });
+    function cerrar() { dlg.close(); }
+    function selectCat(id, etiqueta, lista) {
+      var s = h('select', { id: id }, h('option', { value: '' }, '—'));
+      (lista || []).forEach(function (o) { s.appendChild(h('option', { value: o[0] }, o[1])); });
+      return h('div', { class: 'field' }, h('label', { for: id }, etiqueta), s);
+    }
+    function formulario() {
+      limpiar(cuerpo);
+      var estado = h('p', { class: 'form-status', role: 'status', 'aria-live': 'polite' });
+      var consent = h('input', { type: 'checkbox', id: 'a-cons' }), avisos = h('input', { type: 'checkbox', id: 'a-avisos' }), correo = h('input', { type: 'checkbox', id: 'a-correo', checked: true });
+      var envio = h('button', { class: 'btn btn-primary', type: 'submit' }, 'Crear afiliado');
+      var form = h('form', { class: 'modal-form', novalidate: true },
+        h('div', { class: 'field-pair' }, campo('a-nom', 'Nombre', { required: true, maxlength: 80, autocomplete: 'off' }), campo('a-ape', 'Apellidos', { required: true, maxlength: 120, autocomplete: 'off' })),
+        h('div', { class: 'field-pair' }, campo('a-mail', 'Correo electrónico', { type: 'email', required: true, autocomplete: 'off' }), campo('a-doc', 'DNI o NIE', { required: true, maxlength: 12, autocomplete: 'off' })),
+        h('div', { class: 'field-pair' }, campo('a-nac', 'Fecha de nacimiento', { type: 'date', required: true }), selectProvincias('a-prov', 'Provincia', 'Elige…')),
+        h('div', { class: 'field-pair' }, campo('a-cp', 'Código postal', { inputmode: 'numeric', maxlength: 5, required: true, autocomplete: 'off' }), campo('a-tel', 'Teléfono (opcional)', { type: 'tel', maxlength: 20, autocomplete: 'off' })),
+        h('details', { class: 'mas-filtros' }, h('summary', null, 'Más datos (opcional)'),
+          h('div', { class: 'field-pair' }, campo('a-pob', 'Municipio', { maxlength: 80 }), campo('a-dir', 'Dirección', { maxlength: 160 })),
+          h('div', { class: 'field-pair' }, campo('a-ocu', 'Ocupación', { maxlength: 80 }), selectCat('a-sit', 'Situación laboral', catalogos.situaciones)),
+          selectCat('a-sec', 'Sector', catalogos.sectores)),
+        h('label', { class: 'consent' }, consent, h('span', null, 'Confirmo que la persona me ha dado su consentimiento para tratar sus datos y afiliarse a PLU.')),
+        h('label', { class: 'consent' }, avisos, h('span', null, 'Acepta recibir novedades por correo (opcional).')),
+        h('label', { class: 'consent' }, correo, h('span', null, 'Enviarle ahora el correo de bienvenida con su carné y su contraseña temporal.')),
+        estado,
+        h('div', { class: 'modal-acc' }, h('button', { class: 'btn btn-ghost', type: 'button', onclick: cerrar }, 'Cancelar'), envio));
+      form.addEventListener('submit', function (ev) {
+        ev.preventDefault(); estado.className = 'form-status'; estado.textContent = '';
+        form.querySelectorAll('.err-campo').forEach(function (n) { n.remove(); });
+        var v = function (id) { return ($(id).value || '').trim(); };
+        var datos = { nombre: v('a-nom'), apellidos: v('a-ape'), email: v('a-mail'), documento: v('a-doc'), fecha_nacimiento: v('a-nac'), provincia_id: v('a-prov'), codigo_postal: v('a-cp'), telefono: v('a-tel'),
+          poblacion: v('a-pob'), direccion: v('a-dir'), ocupacion: v('a-ocu'), situacion_laboral: v('a-sit'), sector: v('a-sec'),
+          consentimiento: consent.checked, consentimiento_avisos: avisos.checked, enviar_correo: correo.checked };
+        envio.disabled = true; envio.textContent = 'Creando…';
+        api('/afiliados', datos).then(function (r) { exito(r, datos); }).catch(function (e) {
+          envio.disabled = false; envio.textContent = 'Crear afiliado';
+          estado.className = 'form-status err'; estado.textContent = e.message || 'No se pudo crear';
+          var mapa = { nombre: 'a-nom', apellidos: 'a-ape', email: 'a-mail', documento: 'a-doc', fecha_nacimiento: 'a-nac', provincia_id: 'a-prov', codigo_postal: 'a-cp', telefono: 'a-tel', consentimiento: 'a-cons', poblacion: 'a-pob', direccion: 'a-dir', situacion_laboral: 'a-sit', sector: 'a-sec' };
+          var errs = (e.datos && e.datos.errores) || {}, primero = null;
+          Object.keys(errs).forEach(function (k) {
+            var el = mapa[k] && $(mapa[k]); if (!el) return;
+            var caja = el.closest('.field') || el.closest('.consent');
+            if (caja) caja.appendChild(h('small', { class: 'err-campo' }, errs[k]));
+            if (!primero) primero = el;
+          });
+          if (primero) primero.focus();
+        });
+      });
+      cuerpo.appendChild(h('div', { class: 'modal-cab' }, h('h2', { id: 'alta-t' }, 'Nuevo afiliado'), h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Cerrar', onclick: cerrar }, '×')));
+      cuerpo.appendChild(h('p', { class: 'muted' }, 'La persona quedará afiliada al momento: se le asigna número y carné, y se genera una contraseña temporal para el portal.'));
+      cuerpo.appendChild(form);
+      setTimeout(function () { $('a-nom').focus(); }, 50);
+    }
+    function exito(r, datos) {
+      limpiar(cuerpo);
+      cuerpo.appendChild(h('div', { class: 'modal-cab' }, h('h2', { id: 'alta-t' }, 'Afiliado creado'), h('button', { class: 'icon-btn', type: 'button', 'aria-label': 'Cerrar', onclick: cerrar }, '×')));
+      cuerpo.appendChild(h('p', null, h('strong', null, datos.nombre + ' ' + datos.apellidos), ' ya es afiliado/a con el número ', h('strong', null, r.numero_afiliado), '.'));
+      cuerpo.appendChild(avisoCorreo());
+      cuerpo.appendChild(secreto('Contraseña temporal · solo se muestra ahora', 'Correo: ' + datos.email + '\nContraseña: ' + r.password_temporal, 'Caduca en 7 días; tendrá que cambiarla al entrar en el portal.'));
+      cuerpo.appendChild(h('div', { class: 'modal-acc' }, h('button', { class: 'btn btn-ghost', type: 'button', onclick: formulario }, 'Crear otro'), h('button', { class: 'btn btn-primary', type: 'button', onclick: cerrar }, 'Listo')));
+      if (alTerminar) alTerminar();
+    }
+    cargarProvincias().then(function () { formulario(); dlg.showModal(); });
+  }
   function sPersonas(c) {
     // Vista única de afiliación: contadores que sirven de filtro + buscador + lista (las pendientes se aprueban desde aquí)
     var q = campo('f-q', 'Buscar por nombre, correo o nº', { type: 'search' }), tipo = h('select', { id: 'f-t' }), est = h('select', { id: 'f-e' });
@@ -285,6 +372,7 @@
       defs.forEach(function (d) { botones[d[0]].setAttribute('aria-pressed', String(d[0] === k)); });
     }
     var mas = h('details', { class: 'mas-filtros' }, h('summary', null, 'Más filtros'), h('div', { class: 'toolbar' }, h('div', { class: 'field' }, h('label', { for: 'f-t' }, 'Tipo'), tipo), h('div', { class: 'field' }, h('label', { for: 'f-e' }, 'Estado'), est), prov));
+    if (['admin', 'gestor'].indexOf(usuario.rol) >= 0) c.appendChild(h('div', { class: 'acciones-vista' }, h('button', { class: 'btn btn-primary btn-sm', type: 'button', id: 'b-nuevo-afiliado', onclick: function () { abrirAlta(function () { contadores(); cargar(); }); } }, '+ Nuevo afiliado')));
     c.appendChild(chips); c.appendChild(q); c.appendChild(mas);
     if (['admin', 'gestor'].indexOf(usuario.rol) >= 0) c.appendChild(h('p', { class: 'csv-link' }, h('a', { class: 'link', href: '/api/intranet/export/afiliados.csv' }, 'Descargar listado de afiliados (CSV, sin documento) →')));
     var lista = h('div', { class: 'rows' }), vacio = h('p', { class: 'muted', hidden: true }, 'Sin resultados.'); c.appendChild(lista); c.appendChild(vacio);

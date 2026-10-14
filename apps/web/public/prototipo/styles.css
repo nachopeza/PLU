@@ -1387,3 +1387,52 @@ input, select, textarea { border-radius: var(--r-ctl); }
 :root[data-theme="light"] .hero h1 em, :root[data-theme="light"] .hero .eyebrow, :root[data-theme="light"] .hero-form .consent a { color: #5fd48f; }
 :root[data-theme="light"] .hero .eyebrow { color: #cfe9d8; }
 .head.row { max-width: none; width: 100%; }
+
+/* ===== v2.6 · Cristal en claro visible, cabecera con aire, botones legibles, ventana de alta ===== */
+:root[data-theme="light"] {
+  --g-bg: rgba(255,255,255,.4); --g-b: rgba(255,255,255,.9); --g-blur: blur(22px) saturate(180%);
+  --g-sh: 0 12px 34px -12px rgba(18,34,26,.3), 0 0 0 1px rgba(18,34,26,.07);
+}
+:root[data-theme="light"] .nav-pill { background: rgba(255,255,255,.46); }
+:root[data-theme="light"] .site-header.scrolled .nav-pill { background: rgba(255,255,255,.62); }
+
+/* Cabecera: más aire entre bloques y entre botones */
+.nav-pill { padding: 10px 12px 10px 20px; gap: 24px; }
+.nav-actions { gap: 10px; margin-left: 12px; }
+.nav-actions .btn-sm { padding-inline: 18px; }
+@media (max-width: 640px) { .nav-pill { padding: 8px 8px 8px 16px; gap: 12px; } .nav-actions { gap: 8px; margin-left: 0; } .nav-actions .btn-sm { padding-inline: 16px; } }
+
+/* Botón principal en oscuro: texto oscuro sobre verde claro (el blanco no contrastaba) */
+:root:not([data-theme="light"]) .btn-primary { color: var(--on-accent, #06180e); }
+:root:not([data-theme="light"]) .btn-primary:hover { color: #fff; }
+
+/* Estados seleccionados siempre sólidos y legibles */
+:root .fbtn[aria-pressed="true"], :root .chip-e[aria-pressed="true"], :root .ip-btn[aria-pressed="true"] { background: var(--accent-strong); color: #fff; border-color: transparent; }
+:root:not([data-theme="light"]) .fbtn[aria-pressed="true"], :root:not([data-theme="light"]) .chip-e[aria-pressed="true"] { background: var(--accent); color: var(--on-accent, #06180e); }
+:root .chip-e[aria-pressed="true"] b, :root .chip-e[aria-pressed="true"] span { color: inherit; }
+
+/* Al estirar la página hacia abajo en el inicio, detrás de la foto se ve el color oscuro, no el blanco */
+html.at-top:has(.hero, .page-hero) { background-color: #0a1810; }
+
+/* Ventana (diálogo) de alta de afiliado */
+.modal { border: 0; padding: 0; background: transparent; color: var(--fg); width: min(640px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: visible; }
+.modal::backdrop { background: rgba(4,10,7,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.modal-in { max-height: calc(100dvh - 24px); overflow: auto; border-radius: 24px; padding: 24px clamp(18px, 4vw, 30px) 26px; background: var(--bg); box-shadow: 0 30px 80px -20px rgba(0,0,0,.6); display: grid; gap: 14px; }
+:root[data-theme="light"] .modal-in { background: #f7faf6; }
+.modal-cab { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.modal-cab h2 { margin: 0; font-size: 1.4rem; }
+.modal-form { display: grid; gap: 14px; }
+.modal-acc { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+.err-campo { color: #e5645a; font-size: .85rem; }
+.acciones-vista { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+@media (max-width: 520px) { .modal { width: calc(100vw - 16px); } .modal-form .field-pair { grid-template-columns: 1fr; } .modal-acc .btn { flex: 1; } }
+
+/* Indicadores (insignias) del menú de gestión */
+.ip-btn { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ip-n { display: inline-grid; place-items: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: #e5645a; color: #fff; font: 700 .72rem/1 var(--font-body); letter-spacing: 0; }
+.ip-n[hidden] { display: none; }
+.ip-n.nuevo { animation: ipPulso 1.4s ease-out 2; }
+.ip-dot { min-width: 10px; width: 10px; height: 10px; padding: 0; margin-left: 8px; }
+.ip-menu-btn .ip-menu-chev { margin-left: auto; }
+@keyframes ipPulso { 0% { box-shadow: 0 0 0 0 rgba(229,100,90,.7); } 100% { box-shadow: 0 0 0 12px rgba(229,100,90,0); } }
+@media (prefers-reduced-motion: reduce) { .ip-n.nuevo { animation: none; } }

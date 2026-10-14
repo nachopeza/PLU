@@ -264,4 +264,10 @@
         .catch(function () { btn.disabled = false; status.style.color = '#ff8a80'; status.textContent = 'No se puede conectar con la API. Arranca el servidor (npm run dev) y abre http://localhost:8787/prototipo/afiliate.html'; });
     });
   });
+
+  // Marca cuándo la página está arriba del todo (para que al estirar hacia abajo no asome el fondo claro detrás de la foto)
+  (function () {
+    var raiz = document.documentElement, pon = function () { raiz.classList.toggle('at-top', (window.scrollY || 0) < 120); };
+    pon(); window.addEventListener('scroll', pon, { passive: true });
+  })();
 })();

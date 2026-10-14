@@ -3,11 +3,11 @@ import { Router } from 'express';
 import QRCode from 'qrcode';
 import { db } from './db.js';
 import {
-  cifrar, crearTicket, descifrar, digitosAleatorios, hashPassword, leerTicket, limitar,
+  cifrar, crearTicket, descifrar, digitosAleatorios, hashPassword, huella, leerTicket, limitar,
   nuevoSecretoTotp, tokenAleatorio, urlOtpauth, verificarPassword, verificarTotp,
 } from './seguridad.js';
 import { auditar, cerrarSesion, iniciarSesion, requerirEquipo } from './sesion.js';
-import { enmascarar, limpio } from './validar.js';
+import { datosPerfil, edadEn, enmascarar, esEmail, limpio, normalizarDocumento, tipoDocumento } from './validar.js';
 import { adjuntoCarne, avisarPersona, enviarCorreo, estadoCorreo, textoAcceso } from './correo.js';
 import { asignarPasswordTemporal, emitirCarne, formatoNumero as fmtNum, transaccion } from './servicios.js';
 
@@ -154,28 +154,74 @@ function nuevoNumeroAfiliado(codigoProvincia) {
   throw new Error('No se pudo generar un número libre');
 }
 
+// Aprueba a una persona pendiente: número de afiliado, carné, contraseña temporal y correo de bienvenida.
+async function aprobarPersona(p, equipo, { enviar = true, motivo = 'Tu afiliación a PLU ha sido aprobada. Gracias por sumarte.', accion = 'aprobar_inscripcion' } = {}) {
+  const numero = nuevoNumeroAfiliado(p.codigo_num);
+  const ahora = new Date().toISOString();
+  const temp = transaccion(() => {
+    db.prepare("UPDATE personas SET estado = 'activo', numero_afiliado = ?, codigo_verificacion = ?, fecha_alta = ?, actualizado_en = ? WHERE id = ?")
+      .run(numero, tokenAleatorio(24), ahora, ahora, p.id);
+    db.prepare("INSERT INTO movimientos_afiliacion (persona_id, tipo, desde, hasta, usuario_id) VALUES (?, 'alta', 'pendiente', 'activo', ?)").run(p.id, equipo.id);
+    emitirCarne({ ...p, numero_afiliado: numero });
+    return asignarPasswordTemporal(p.id);
+  });
+  let envio = { ok: false, motivo: 'Correo no enviado por elección del equipo' };
+  if (enviar) envio = await enviarCorreo({ personaId: p.id, tipo: 'bienvenida', para: p.email, asunto: 'Bienvenida a PLU: tu acceso al portal', adjuntos: await adjuntoCarne(p), texto: textoAcceso({ nombre: p.nombre, email: p.email, password: temp.password, caduca: temp.caduca, numero: formatoNumero(numero), motivo }) });
+  auditar(equipo.id, accion, 'persona', p.id, { numero });
+  // La contraseña temporal se muestra UNA vez al equipo por si el correo no llega.
+  return { ok: true, id: p.id, numero_afiliado: formatoNumero(numero), password_temporal: temp.password, caduca: temp.caduca, correo: envio.ok ? 'enviado' : 'no enviado', correo_motivo: envio.ok ? undefined : envio.motivo };
+}
+
 intranet.post('/inscripciones/:id/aprobar', requerirEquipo(...GESTION), async (req, res) => {
   const f = filtroAlcance(req.equipo);
   const p = db.prepare(`SELECT p.*, t.codigo_num FROM personas p JOIN territorios t ON t.id = p.territorio_id WHERE p.id = ? AND p.tipo = 'afiliado'${f.sql}`)
     .get(Number(req.params.id), ...f.args);
   if (!p) return res.status(404).json({ error: 'No encontrada' });
   if (p.estado !== 'pendiente') return res.status(409).json({ error: 'Esta solicitud ya está resuelta' });
-  const numero = nuevoNumeroAfiliado(p.codigo_num);
-  const ahora = new Date().toISOString();
-  let temp;
+  try { res.json(await aprobarPersona(p, req.equipo)); } catch (e) { console.error(e.message); res.status(500).json({ error: 'No se pudo aprobar' }); }
+});
+
+// Alta manual de una persona afiliada desde la intranet (admin y gestor). Queda activa al momento.
+intranet.post('/afiliados', requerirEquipo('admin', 'gestor'), async (req, res) => {
+  const b = req.body ?? {};
+  const errores = {};
+  const nombre = limpio(b.nombre, 80), apellidos = limpio(b.apellidos, 120), email = limpio(b.email, 254).toLowerCase();
+  const doc = normalizarDocumento(b.documento), docTipo = tipoDocumento(doc), edad = edadEn(b.fecha_nacimiento);
+  const perfil = datosPerfil(b, { exigirResidencia: false });
+  if (!nombre) errores.nombre = 'Escribe el nombre';
+  if (!apellidos) errores.apellidos = 'Escribe los apellidos';
+  if (!esEmail(email)) errores.email = 'Correo no válido';
+  if (!docTipo) errores.documento = 'DNI o NIE no válido (revisa número y letra)';
+  if (edad === null) errores.fecha_nacimiento = 'Fecha no válida';
+  else if (edad < 16) errores.fecha_nacimiento = 'Hay que tener al menos 16 años';
+  else if (edad > 120) errores.fecha_nacimiento = 'Fecha no válida';
+  Object.assign(errores, perfil.errores);
+  const prov = db.prepare("SELECT id, codigo_num FROM territorios WHERE id = ? AND tipo = 'provincia'").get(Number(b.provincia_id));
+  if (!prov) errores.provincia_id = 'Elige una provincia';
+  if (b.consentimiento !== true) errores.consentimiento = 'Confirma que la persona ha dado su consentimiento';
+  if (Object.keys(errores).length) return res.status(400).json({ error: 'Revisa el formulario', errores });
+  if (db.prepare('SELECT id FROM personas WHERE email = ?').get(email)) return res.status(409).json({ error: 'Ya existe una persona con ese correo', errores: { email: 'Ese correo ya está registrado' } });
+  if (db.prepare('SELECT id FROM personas WHERE documento_hash = ?').get(huella(doc))) return res.status(409).json({ error: 'Ya existe una persona con ese documento', errores: { documento: 'Ese documento ya está registrado' } });
+  let id;
   try {
-    temp = transaccion(() => {
-      db.prepare("UPDATE personas SET estado = 'activo', numero_afiliado = ?, codigo_verificacion = ?, fecha_alta = ?, actualizado_en = ? WHERE id = ?")
-        .run(numero, tokenAleatorio(24), ahora, ahora, p.id);
-      db.prepare("INSERT INTO movimientos_afiliacion (persona_id, tipo, desde, hasta, usuario_id) VALUES (?, 'alta', 'pendiente', 'activo', ?)").run(p.id, req.equipo.id);
-      emitirCarne({ ...p, numero_afiliado: numero });
-      return asignarPasswordTemporal(p.id);
+    id = transaccion(() => {
+      const r = db.prepare(
+        `INSERT INTO personas (tipo, estado, nombre, apellidos, email, telefono, fecha_nacimiento, documento_tipo, documento_cifrado, documento_hash,
+                               codigo_postal, territorio_id, direccion, poblacion, ocupacion, situacion_laboral, sector)
+         VALUES ('afiliado', 'pendiente', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).run(nombre, apellidos, email, perfil.datos.telefono ?? null, b.fecha_nacimiento, docTipo, cifrar(doc), huella(doc), perfil.datos.codigo_postal, prov.id,
+        perfil.datos.direccion ?? '', perfil.datos.poblacion ?? '', perfil.datos.ocupacion ?? null, perfil.datos.situacion_laboral ?? null, perfil.datos.sector ?? null);
+      const pid = Number(r.lastInsertRowid);
+      const cons = db.prepare('INSERT INTO consentimientos (persona_id, finalidad, version_texto, otorgado) VALUES (?, ?, ?, ?)');
+      cons.run(pid, 'afiliacion', 'alta-manual-equipo', 1);
+      cons.run(pid, 'novedades', 'alta-manual-equipo', b.consentimiento_avisos === true ? 1 : 0);
+      db.prepare("INSERT INTO movimientos_afiliacion (persona_id, tipo, hasta, usuario_id, motivo) VALUES (?, 'inscripcion', 'pendiente', ?, 'Alta manual desde la intranet')").run(pid, req.equipo.id);
+      return pid;
     });
-  } catch (e) { console.error(e.message); return res.status(500).json({ error: 'No se pudo aprobar' }); }
-  const envio = await enviarCorreo({ personaId: p.id, tipo: 'bienvenida', para: p.email, asunto: 'Bienvenida a PLU: tu acceso al portal', adjuntos: await adjuntoCarne(p), texto: textoAcceso({ nombre: p.nombre, email: p.email, password: temp.password, caduca: temp.caduca, numero: formatoNumero(numero), motivo: 'Tu afiliación a PLU ha sido aprobada. Gracias por sumarte.' }) });
-  auditar(req.equipo.id, 'aprobar_inscripcion', 'persona', p.id, { numero });
-  // Sin correo todavía: la contraseña temporal se muestra UNA vez al equipo para que la entregue a la persona.
-  res.json({ ok: true, numero_afiliado: formatoNumero(numero), password_temporal: temp.password, caduca: temp.caduca, correo: envio.ok ? 'enviado' : 'no enviado', correo_motivo: envio.ok ? undefined : envio.motivo });
+  } catch (e) { console.error(e.message); return res.status(500).json({ error: 'No se pudo crear la persona' }); }
+  const p = db.prepare('SELECT p.*, t.codigo_num FROM personas p JOIN territorios t ON t.id = p.territorio_id WHERE p.id = ?').get(id);
+  try { res.status(201).json(await aprobarPersona(p, req.equipo, { enviar: b.enviar_correo !== false, motivo: 'El equipo de PLU te ha dado de alta como persona afiliada. Gracias por sumarte.', accion: 'alta_manual_afiliado' })); }
+  catch (e) { console.error(e.message); res.status(500).json({ error: 'Se creó la persona pero no se pudo completar el alta. Búscala en Solicitudes pendientes.' }); }
 });
 
 intranet.post('/inscripciones/:id/rechazar', requerirEquipo(...GESTION), async (req, res) => {
