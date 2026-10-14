@@ -1219,3 +1219,8 @@ input, select, textarea { border-radius: var(--r-ctl); }
 :root[data-theme="light"] .chip-e, :root[data-theme="light"] .ip-btn { box-shadow: none; background: rgba(18,34,26,.06); border-color: transparent; }
 /* Separadores internos: solo una línea tenue, nunca un marco */
 .hero-form input, .hero-form select, .hero-form textarea { border-bottom-color: rgba(255,255,255,.2); }
+
+/* v2.2b · Luna y menú: misma altura y radio que "Soy afiliado" y "Únete" */
+.nav-actions .icon-btn { width: 35px; height: 35px; border-radius: 9px; }
+.nav-actions .icon-btn svg { width: 18px; height: 18px; }
+.nav-actions { gap: 8px; }
