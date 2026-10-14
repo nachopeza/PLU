@@ -8,7 +8,7 @@
   var provincias = [], yo = null;
   function api(ruta, cuerpo) {
     return fetch('/api/portal' + ruta, { method: cuerpo === undefined ? 'GET' : 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo) })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) { var e = new Error(d.error || 'Error'); e.status = r.status; e.datos = d; throw e; } return d; }); },
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) { var e = new Error(d.error || 'Error'); e.status = r.status; e.datos = d; throw e; } if (cuerpo !== undefined) { try { window.scrollTo(0, 0); } catch (x) {} } return d; }); },
         function () { throw new Error('No se puede conectar con el servidor.'); });
   }
   function h(tag, attrs) {

@@ -910,3 +910,25 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; letter-spac
 .btn.cargando { opacity: .8; pointer-events: none; }
 .btn.cargando::after { content: ""; display: inline-block; width: .9em; height: .9em; margin-left: 8px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; vertical-align: -.1em; animation: giro .7s linear infinite; }
 @keyframes giro { to { transform: rotate(360deg); } }
+
+/* ===== v1.7 · Cabecera unificada en móvil + botón de riesgo ===== */
+.btn-peligro { color: #d2453b; border-color: color-mix(in srgb, #d2453b 55%, transparent); }
+.btn-peligro:hover { background: color-mix(in srgb, #d2453b 14%, transparent); }
+:root[data-theme="dark"] .btn-peligro { color: #ff8f86; }
+.ficha-bloque .btn-peligro { margin-top: 4px; }
+@media (max-width: 899px) {
+  #v-panel .ip-top { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom: 0; }
+  #v-panel .ip-user { min-width: 0; gap: 10px; }
+  #v-panel .ip-user b { display: block; font-size: .98rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #v-panel .ip-rol { display: block; font-size: .78rem; }
+  #v-panel .ip-acciones { display: flex; gap: 6px; flex: 0 0 auto; }
+  #v-panel .ip-acciones .btn { padding: 8px 12px; font-size: .85rem; min-height: 0; width: auto; flex: 0 0 auto; }
+  #v-panel .ip-layout { margin-top: 0; }
+  #v-panel .ip-nav { position: static; margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; }
+}
+@media (max-width: 899px) {
+  #v-panel .ip-user { flex: 1 1 auto; overflow: hidden; }
+  #v-panel .ip-user > div { min-width: 0; overflow: hidden; }
+  #v-panel .ip-avatar { flex: 0 0 auto; width: 32px; height: 32px; }
+  #v-panel .ip-acciones .btn { padding: 7px 10px; font-size: .8rem; }
+}

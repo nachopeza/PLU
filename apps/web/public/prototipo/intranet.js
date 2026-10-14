@@ -9,13 +9,14 @@
 
   // ---------- Utilidades ----------
   var ultimoCorreo = null, ultimoMotivo = null;
+  function arriba() { try { window.scrollTo(0, 0); } catch (e) {} }
   function api(ruta, cuerpo, metodo) {
     return fetch('/api/intranet' + ruta, {
       method: metodo || (cuerpo === undefined ? 'GET' : 'POST'),
       headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
       body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo)
     }).then(function (r) {
-      return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) { var e = new Error(d.error || 'Error'); e.status = r.status; e.datos = d; throw e; } ultimoCorreo = d.correo || null; ultimoMotivo = d.correo_motivo || null; return d; });
+      return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok) { var e = new Error(d.error || 'Error'); e.status = r.status; e.datos = d; throw e; } ultimoCorreo = d.correo || null; ultimoMotivo = d.correo_motivo || null; if ((metodo || (cuerpo === undefined ? 'GET' : 'POST')) !== 'GET') arriba(); return d; });
     }, function () { throw new Error('No se puede conectar con la API. Arranca el servidor (npm run dev) y abre http://localhost:8787/intranet'); });
   }
   function msg(form, texto) { form.querySelector('.form-status').textContent = texto || ''; }
@@ -190,7 +191,7 @@
         caja.appendChild(h('div', { class: 'counter' }, h('b', null, String(x[1])), h('span', null, x[0])));
       });
     }).catch(function (e) { errorSeccion(c, e); });
-    c.appendChild(h('p', { class: 'proto-note' }, 'Cuando haya dominio propio, el carné y la contraseña temporal se enviarán por correo. Mientras tanto, al aprobar una afiliación verás la contraseña temporal una sola vez para entregarla a la persona.'));
+    c.appendChild(h('p', { class: 'proto-note' }, 'Al aprobar una afiliación, la contraseña temporal se envía por correo a la persona. Si el envío falla, aquí verás la contraseña una sola vez para entregársela tú.'));
   }
 
   // --- Inscripciones ---
@@ -279,9 +280,11 @@
     [q.querySelector('input'), tipo, est].concat(prov ? [prov.querySelector('select')] : []).forEach(function (n) { n.addEventListener('input', function () { clearTimeout(espera); espera = setTimeout(cargar, 250); }); });
     cargar();
   }
-  function fichaPersona(id, body, recargar) {
+  function fichaPersona(id, body, recargar, extra) {
     api('/personas/' + id).then(function (f) {
       limpiar(body);
+      var fd = body.parentNode, etq = fd && fd.querySelector ? fd.querySelector('summary .tag') : null;
+      if (etq) etq.textContent = (f.tipo === 'afiliado' ? 'Afiliado' : 'Simpatizante') + ' · ' + (ESTADOS[f.estado] || f.estado) + ' · ' + (f.provincia || '') + (f.numero_afiliado ? ' · Nº ' + f.numero_afiliado : '');
       var puede = ['admin', 'gestor'].indexOf(usuario.rol) >= 0, afiliado = f.tipo === 'afiliado';
       var st = h('p', { class: 'form-status err', role: 'status' }), salida = h('div');
       function bloque(titulo) { var b = h('section', { class: 'ficha-bloque' }, h('h3', null, titulo)); body.appendChild(b); return b; }
@@ -339,8 +342,8 @@
           acciones.appendChild(boton(texto, function () {
             if (!confirmar(aviso)) return; var motivo = window.prompt('Motivo (opcional):'); if (motivo === null) return;
             api('/personas/' + id + '/estado', { accion: accion, motivo: motivo }).then(function (r) {
-              if (r && r.password_temporal) { limpiar(salida).appendChild(secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal, 'Entrégala por un canal seguro. Caduca en 7 días.')); st.textContent = ''; return; }
-              recargar ? recargar() : fichaPersona(id, body, recargar);
+              var nodo = (r && r.password_temporal) ? secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal, 'Entrégala por un canal seguro. Caduca en 7 días.') : null;
+              fichaPersona(id, body, recargar, nodo);
             }).catch(fallo);
           }));
         }
@@ -351,7 +354,7 @@
         if (f.estado === 'activo') {
           acciones.appendChild(boton('Nueva contraseña', function () {
             if (!confirmar('Se generará una contraseña temporal nueva y se cerrarán sus sesiones. ¿Continuar?')) return;
-            api('/personas/' + id + '/reset-password', {}).then(function (r) { limpiar(salida).appendChild(secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal)); }).catch(fallo);
+            api('/personas/' + id + '/reset-password', {}).then(function (r) { fichaPersona(id, body, recargar, secreto('Contraseña temporal (solo se muestra ahora)', 'Correo: ' + f.email + '\nContraseña: ' + r.password_temporal)); }).catch(fallo);
           }));
         }
         be.appendChild(acciones);
@@ -371,7 +374,20 @@
         if (f.movimientos.length) bh.appendChild(h('p', { class: 'muted' }, f.movimientos.map(function (m) { return (MOV[m.tipo] || m.tipo) + ' (' + fecha(m.fecha) + ')'; }).join(' · ')));
         if (f.solicitudes && f.solicitudes.length) bh.appendChild(h('p', { class: 'muted' }, 'Solicitudes: ' + f.solicitudes.map(function (s) { return (TIPOS_SOL[s.tipo] || s.tipo) + ' (' + s.estado + ')'; }).join(' · ')));
       }
+      if (usuario.rol === 'admin') {
+        var bz = bloque('Zona de riesgo');
+        bz.appendChild(h('p', { class: 'muted' }, 'Elimina definitivamente a esta persona y todos sus datos (carné, sesiones, apoyos, comentarios, correos). No se puede deshacer.'));
+        bz.appendChild(boton('Eliminar persona y sus datos', function () {
+          var t = window.prompt('Para confirmar la eliminación definitiva escribe el correo de la persona:\n' + f.email);
+          if (t === null) return;
+          api('/personas/' + id + '/eliminar', { confirmacion: t }).then(function () {
+            var d = body.parentNode; if (d && d.remove) d.remove(); else limpiar(body).appendChild(h('p', null, 'Eliminada.'));
+            window.scrollTo(0, 0);
+          }).catch(fallo);
+        }, 'btn-ghost btn-peligro'));
+      }
       body.appendChild(st); body.appendChild(salida);
+      if (extra) { salida.appendChild(extra); st.textContent = ''; }
     }).catch(function (e) { body.textContent = e.message; });
   }
 

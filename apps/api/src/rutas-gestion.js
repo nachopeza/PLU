@@ -171,6 +171,40 @@ function cambiarProvincia(p, territorioId, motivo, usuarioId) {
   });
 }
 
+
+// Supresión definitiva de una persona y de TODOS sus datos (derecho de supresión). Solo administración.
+// Se pide escribir el correo de la persona para confirmar. En la auditoría solo queda el id, no datos personales.
+gestion.post('/personas/:id/eliminar', requerirEquipo('admin'), (req, res) => {
+  const p = personaVisible(req);
+  if (!p) return res.status(404).json({ error: 'No encontrada' });
+  const conf = String(req.body?.confirmacion ?? '').trim().toLowerCase();
+  if (conf !== String(p.email).toLowerCase()) return res.status(400).json({ error: 'Escribe el correo de la persona para confirmar.' });
+  try {
+    transaccion(() => {
+      const id = p.id, email = p.email;
+      db.prepare('DELETE FROM denuncias WHERE persona_id = ? OR comentario_id IN (SELECT id FROM comentarios WHERE persona_id = ?)').run(id, id);
+      db.prepare('DELETE FROM comentarios WHERE persona_id = ?').run(id);
+      db.prepare('DELETE FROM propuesta_apoyos WHERE persona_id = ?').run(id);
+      db.prepare('DELETE FROM participaciones WHERE persona_id = ?').run(id);
+      db.prepare('DELETE FROM enlaces_encuesta WHERE persona_id = ?').run(id);
+      db.prepare('UPDATE respuestas SET persona_id = NULL WHERE persona_id = ?').run(id);
+      db.prepare('UPDATE donaciones SET persona_id = NULL WHERE persona_id = ?').run(id);
+      db.prepare('DELETE FROM correos WHERE persona_id = ? OR destinatario = ?').run(id, email);
+      db.prepare('DELETE FROM solicitudes WHERE persona_id = ?').run(id);
+      db.prepare('DELETE FROM carnes WHERE persona_id = ?').run(id);
+      db.prepare('DELETE FROM movimientos_afiliacion WHERE persona_id = ?').run(id);
+      db.prepare('DELETE FROM consentimientos WHERE persona_id = ?').run(id);
+      db.prepare("DELETE FROM sesiones WHERE tipo = 'persona' AND sujeto_id = ?").run(id);
+      db.prepare('DELETE FROM eventos_inscripciones WHERE lower(email) = lower(?)').run(email);
+      db.prepare('DELETE FROM voluntarios WHERE lower(email) = lower(?)').run(email);
+      db.prepare('UPDATE propuestas SET autor_nombre = \'Anónimo\', autor_email = \'eliminado@invalid\' WHERE lower(autor_email) = lower(?)').run(email);
+      db.prepare('DELETE FROM personas WHERE id = ?').run(id);
+    });
+  } catch (e) { console.error('eliminar persona:', e.message); return res.status(500).json({ error: 'No se pudo eliminar: ' + e.message.slice(0, 120) }); }
+  auditar(req.equipo.id, 'persona_eliminada', 'persona', p.id);
+  res.json({ ok: true });
+});
+
 gestion.post('/personas/:id/reset-password', requerirEquipo('admin', 'gestor'), async (req, res) => {
   const p = personaVisible(req);
   if (!p || p.tipo !== 'afiliado' || p.estado !== 'activo') return res.status(404).json({ error: 'No encontrada' });
