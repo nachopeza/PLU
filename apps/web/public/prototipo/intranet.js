@@ -226,7 +226,7 @@
         var el = h(destino ? 'button' : 'div', { class: 'counter' + (urgente && n ? ' counter-hot' : ''), type: destino ? 'button' : undefined, onclick: destino ? function () { irA(destino); } : undefined }, h('b', null, String(n)), h('span', null, etiqueta));
         tarj.appendChild(el);
       }
-      if (r.afiliados) { t(r.afiliados.pendiente || 0, 'Inscripciones pendientes', 'personas', true); t(r.solicitudes_abiertas || 0, 'Solicitudes abiertas', 'solicitudes', true); t(r.afiliados.activo || 0, 'Afiliados activos', 'personas'); t(r.simpatizantes || 0, 'Simpatizantes'); }
+      if (r.afiliados) { t(r.afiliados.pendiente || 0, 'Inscripciones pendientes', 'personas', true); t(r.solicitudes_abiertas || 0, 'Solicitudes abiertas', 'solicitudes', true); t(r.afiliados.activo || 0, 'Afiliados activos', 'personas'); }
       if (r.propuestas_nuevas !== undefined) { t(r.propuestas_nuevas, 'Ideas por revisar', 'propuestas', true); t(r.denuncias_abiertas, 'Comentarios denunciados', 'propuestas', true); }
       if (r.voluntarios_nuevos !== undefined) t(r.voluntarios_nuevos, 'Voluntarios nuevos', 'voluntarios', true);
       if (r.donaciones) t(r.donaciones.pendientes, 'Donaciones por confirmar', 'donaciones', true);
@@ -1024,7 +1024,7 @@
       api('/propuestas?estado=' + estado).then(function (ps) {
         if (!ps.length) lista.appendChild(h('p', { class: 'muted' }, 'No hay ideas en este estado.'));
         ps.forEach(function (p) {
-          lista.appendChild(fila(p.titulo, (p.autor_email ? p.autor_nombre + ' · ' + p.autor_email : 'Sin correo'), (p.tipo === 'necesidad' ? 'NECESIDAD · ' + (p.provincia || '') : (p.area || '')) + ' · ' + p.apoyos + ' apoyos · ' + fecha(p.creada_en), function (body) {
+          lista.appendChild(fila(p.titulo, (p.autor_email ? p.autor_nombre + ' · ' + p.autor_email : 'Sin correo'), (p.tipo === 'necesidad' ? 'NECESIDAD · ' + (p.publicar_ok ? 'autoriza publicar' : 'NO autoriza publicar') + ' · ' + (p.provincia || '') : (p.area || '')) + ' · ' + p.apoyos + ' apoyos · ' + fecha(p.creada_en), function (body) {
             body.appendChild(h('p', { style: 'white-space:pre-wrap' }, p.texto));
             if (p.motivo_rechazo) body.appendChild(h('p', { class: 'muted' }, 'Motivo del rechazo: ' + p.motivo_rechazo));
             if (!puede) return;

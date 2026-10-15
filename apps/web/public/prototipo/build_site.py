@@ -42,12 +42,13 @@ import json as _json
 CATALOGOS = _json.load(open(pathlib.Path(__file__).resolve().parents[3] / 'api' / 'src' / 'catalogos.json', encoding='utf-8'))
 def opciones(k): return ''.join(f'<option value="{v}">{t}</option>' for v, t in CATALOGOS[k])
 
-NAV = [('proyecto.html', 'El proyecto'), ('propuestas.html', 'Propuestas'), ('ideas.html', 'Ideas'), ('eventos.html', 'Agenda'), ('participa.html', 'Participa'), ('como-funciona.html', 'Transparencia')]
+NAV = [('proyecto.html', 'El proyecto'), ('escucha.html', 'Escucha'), ('propuestas.html', 'Ámbitos'), ('eventos.html', 'Agenda'), ('participa.html', 'Participa'), ('como-funciona.html', 'Transparencia')]
 
 DESCS = {
-  'index.html': 'Plataforma Liberal Unida: una nueva forma de hacer política, más libre, más democrática y más cercana a la gente. Participa, propón y decide.',
+  'index.html': 'Plataforma Liberal Unida: un movimiento ciudadano que empieza por escuchar. Cuéntanos qué te gustaría cambiar.',
   'proyecto.html': 'El proyecto de PLU: principios, valores y cómo queremos devolver el poder a las personas y a los territorios.',
-  'propuestas.html': 'Propuestas de PLU para mejorar la vida de las personas: vivienda, sanidad, educación, economía y más.',
+  'propuestas.html': 'Ámbitos de trabajo de PLU: vivienda, sanidad, educación, transporte, trabajo e instituciones. No son promesas: son temas en los que queremos escuchar.',
+  'escucha.html': 'Lo que nos cuenta la gente: cómo agrupamos las necesidades y propuestas ciudadanas por tema para estudiarlas y darles respuesta.',
   'ideas.html': 'Ideas ciudadanas: propón, apoya y comenta ideas para mejorar tu entorno. Las personas afiliadas votan.',
   'eventos.html': 'Agenda de PLU: actos, charlas y quedadas. Inscríbete con tu nombre y tu correo.',
   'participa.html': 'Formas de participar en PLU: proponer ideas, debatir, votar, ser voluntario o afiliarte.',
@@ -56,7 +57,7 @@ DESCS = {
   'debate.html': 'Debate abierto: los temas en discusión en PLU y cómo se toman las decisiones.',
   'voluntariado.html': 'Voluntariado en PLU: comunicación, diseño, tecnología, eventos y más. No hace falta ser afiliado.',
   'como-funciona.html': 'Cómo funciona PLU: decisiones, transparencia y rendición de cuentas, con datos reales de la plataforma.',
-  'afiliate.html': 'Afíliate a PLU: es gratis, lleva unos minutos y recibes tu carné digital por correo.',
+  'afiliate.html': 'Afíliate a PLU: es gratis, sin compromiso, y recibes tu carné digital por correo.',
   'noticias.html': 'Noticias y comunicados de PLU.',
   'donar.html': 'Dona a PLU por transferencia. Financiación a la vista de todos: identificación obligatoria y total publicado.',
   'privacidad.html': 'Política de privacidad de PLU: qué datos tratamos, para qué y cuáles son tus derechos.',
@@ -85,7 +86,7 @@ def seo(fname, title):
 def page(fname, title, body, hero=''):
     links = ''.join(f'<a href="{h}"{" aria-current=\"page\"" if h == fname else ""}>{t}</a>' for h, t in NAV)
     mlinks = ('<span class="menu-t">La web</span>' + ''.join(f'<a href="{h}">{t}</a>' for h, t in NAV)
-              + '<span class="menu-t">Participa</span><a href="debate.html">Debate abierto</a><a href="consultas.html">Votaciones</a><a href="noticias.html">Noticias</a><a href="voluntariado.html">Voluntariado</a>'
+              + '<span class="menu-t">Participa</span><a href="ideas.html">Ideas ciudadanas</a><a href="debate.html">Debate abierto</a><a href="consultas.html">Votaciones</a><a href="noticias.html">Noticias</a><a href="voluntariado.html">Voluntariado</a>'
               + '<span class="menu-t">Tu cuenta</span><a href="portal.html">Portal del afiliado</a><a href="afiliate.html">Afíliate</a>')
     return f'''<!doctype html>
 <html lang="es">
@@ -132,14 +133,14 @@ def page(fname, title, body, hero=''):
     <div class="footer-grid">
       <div>
         <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><img class="wordmark" src="brand/word.png" alt="PLU"></a>
-        <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
+        <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.<br>Un proyecto ciudadano en construcción, abierto a escuchar, aprender y desarrollar propuestas con responsabilidad.</p>
       </div>
-      <div><h2 class="footer-h">Explora</h2><ul class="footer-links"><li><a href="proyecto.html">El proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Cómo participar</a></li><li><a href="como-funciona.html">Transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
+      <div><h2 class="footer-h">Explora</h2><ul class="footer-links"><li><a href="proyecto.html">El proyecto</a></li><li><a href="escucha.html">Lo que nos cuenta la gente</a></li><li><a href="propuestas.html">Ámbitos de trabajo</a></li><li><a href="democracia.html">Cómo participar</a></li><li><a href="como-funciona.html">Transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
       <div><h2 class="footer-h">Comunidad</h2><ul class="footer-links"><li><a href="ideas.html">Ideas ciudadanas</a></li><li><a href="consultas.html">Votaciones</a></li><li><a href="eventos.html">Agenda</a></li><li><a href="noticias.html">Noticias</a></li><li><a href="voluntariado.html">Voluntariado</a></li><li><a href="donar.html">Donar</a></li></ul></div>
-      <div><h2 class="footer-h">Acceso</h2><ul class="footer-links"><li><a href="participa.html">Hazte simpatizante</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
+      <div><h2 class="footer-h">Acceso</h2><ul class="footer-links"><li><a href="afiliate.html">Afíliate (es gratis)</a></li><li><a href="donar.html">Donar</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
       <div><h2 class="footer-h">Legal</h2><ul class="footer-links"><li><a href="privacidad.html">Privacidad</a></li><li><a href="terminos.html">Términos</a></li><li><a href="cookies.html">Cookies</a></li><li><a href="normas.html">Normas de participación</a></li><li><a href="faq.html">Preguntas frecuentes</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
     </div>
-    <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
+    <p class="legal">Versión de trabajo de octubre de 2026. Proyecto en construcción: no es un programa electoral ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
   </div>
 </footer>
 <script src="cms.js"></script>
@@ -183,22 +184,32 @@ def tile(href, k, h, p, arrow='Saber más →', wide=False):
 def R(extra=''): return f' data-r="{extra}"' if extra is not None else ''
 CL = '<div class="clover big" aria-hidden="true"></div>'
 
+def form_necesidad(clase='', titulo='¿Qué te gustaría cambiar?'):
+    temas = ''.join(f'<option>{a}</option>' for a in ['Vivienda', 'Sanidad', 'Educación', 'Transporte', 'Empleo y vida cotidiana', 'Servicios públicos', 'Instituciones y participación', 'Otro'])
+    return f'''<form class="form-card {clase}" id="contar" data-api="/api/necesidades" data-ok="Gracias por compartirlo con PLU." novalidate>
+      <h2>{titulo}</h2>
+      <p class="muted">A veces, mejorar las cosas empieza por contar un problema que vivimos cada día. Explícanos qué ocurre y por qué crees que debería cambiar.</p>
+      <div class="field"><label for="h-t">Tu propuesta</label><textarea id="h-t" name="texto" rows="3" required minlength="10" maxlength="600" placeholder="Ej.: Que haya transporte público para volver a casa después de las nueve de la noche."></textarea></div>
+      <div class="field"><label for="h-a">¿Sobre qué tema?</label><select id="h-a" name="area" required><option value="">Selecciona un tema</option>{temas}</select></div>
+      <div class="field-pair"><div class="field"><label for="f-prov">¿Dónde ocurre?</label><select id="f-prov" name="provincia_id" data-vacio="Provincia (opcional)"><option value="">Provincia (opcional)</option></select></div>
+        <div class="field"><label for="h-e">Correo electrónico (opcional)</label><input id="h-e" name="email" type="email" autocomplete="email" placeholder="Para contarte novedades sobre tu aportación"></div></div>
+      <label class="consent"><input type="checkbox" name="acepta" required><span>He leído la <a class="link" href="privacidad.html">política de privacidad</a> y acepto que PLU trate estos datos para estudiar mi aportación.</span></label>
+      <label class="consent"><input type="checkbox" name="acepta_publicar"><span>Autorizo que mi aportación pueda publicarse de forma anónima, sin mi nombre ni mis datos de contacto (opcional).</span></label>
+      <p class="muted" style="font-size:.92rem">Tu aportación será revisada antes de publicarse. No mostraremos tu identidad ni tus datos de contacto. Si queremos publicar tu aportación de forma anónima, te explicaremos cómo se hará y bajo qué condiciones.</p>
+      <button class="btn btn-primary" type="submit">Enviar mi propuesta</button><p class="form-status" role="status" aria-live="polite"></p>
+    </form>'''
+
 home_hero = f'''<section class="hero">{ph('walk', 1800)}
   <div class="wrap hero-grid">
     <div style="display:grid;gap:22px">
       <span class="eyebrow" data-r>Un movimiento ciudadano</span>
-      <h1><span class="split">Cuéntanos</span> <span class="split">qué necesitas.</span> <span class="split"><em>Lo llevamos a la ley.</em></span></h1>
-      <p data-r>PLU es un movimiento que está naciendo. No venimos con todas las respuestas: queremos escuchar a la ciudadanía y a quienes conocen la sanidad, el transporte o la educación desde dentro, estudiar lo que proponen y ayudarles a conseguir la representación necesaria para llevarlo a la ley.</p>
-      <div class="cta-row" data-r><a class="btn btn-light magnet" href="ideas.html">Ver lo que pide la gente</a><a class="btn btn-line-light magnet" href="como-funciona.html">Cómo funciona →</a></div>
+      <h1><span class="split">Tu voz merece</span> <span class="split">llegar más lejos.</span> <span class="split"><em>Empecemos por escuchar.</em></span></h1>
+      <p data-r>Queremos conocer los problemas que afectan a tu vida, estudiar las propuestas de quienes los conocen de cerca y trabajar para que las buenas ideas puedan convertirse en cambios reales.</p>
+      <p data-r>No necesitamos que pienses como nosotros. Queremos entender qué te preocupa, qué cambiarías y qué podemos aprender de tu experiencia.</p>
+      <div class="cta-row" data-r><a class="btn btn-light magnet" href="#contar">Cuéntanos qué cambiarías</a><a class="btn btn-line-light magnet" href="#como-trabajamos">Conoce cómo trabajamos →</a></div>
+      <p class="hero-lema" data-r>La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
     </div>
-    <form class="form-card hero-form" data-api="/api/necesidades" data-ok="¡Gracias, ya cuenta!" novalidate>
-      <h2>¿Qué necesitas que cambie?</h2>
-      <div class="field"><label for="h-t">Cuéntalo en una frase</label><textarea id="h-t" name="texto" rows="3" required minlength="10" maxlength="600" placeholder="Ej.: Que el transporte público llegue a mi pueblo después de las 9 de la noche"></textarea></div>
-      <div class="field-pair"><div class="field"><label for="f-prov">Tu provincia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div>
-        <div class="field"><label for="h-e">Correo (opcional)</label><input id="h-e" name="email" type="email" autocomplete="email" placeholder="Para contarte qué pasa"></div></div>
-      <label class="consent"><input type="checkbox" name="acepta" required><span>Acepto la <a class="link" href="privacidad.html">política de privacidad</a>. Mi necesidad se publicará de forma anónima si el equipo la acepta.</span></label>
-      <button class="btn btn-primary" type="submit">Enviar mi necesidad</button><p class="form-status" role="status" aria-live="polite"></p>
-    </form>
+    {form_necesidad('hero-form')}
   </div>
 </section>
 '''
@@ -206,95 +217,145 @@ home_hero = f'''<section class="hero">{ph('walk', 1800)}
 PRIN = [('Libertad individual','Tus decisiones, tus derechos.'),('Democracia real','Participa, decide, exige.'),('Igualdad de oportunidades','El origen no define tu futuro.'),('Estado de derecho','La ley protege a todos.'),('Economía de mercado','Más empleo, más innovación.'),('Servicios esenciales','Sanidad, educación, vivienda, transporte.'),('Competencias claras','Cada quién lo que le corresponde.'),('Profesionalización del gobierno','Mérito, transparencia, resultados.'),('Sostenibilidad','Hoy y para las próximas generaciones.'),('Transparencia','Qué se decide, cuánto cuesta, quién responde.')]
 prin_li = ''.join(f'<li data-r><b>{a}</b><span>{b}</span></li>' for a, b in PRIN)
 
+
+
+road = '''<li class="now" data-r><span class="phase">Estamos aquí</span><h3>Definición doctrinal</h3><p>Se debate antes de comprometerse.</p></li>
+<li data-r><span class="phase">Fase 1-2</span><h3>Cimientos y democracia</h3><p>Principios, participación y controles.</p></li>
+<li data-r><span class="phase">Fase 3-4</span><h3>Territorio y modelo social</h3><p>Competencias, financiación y servicios esenciales.</p></li>
+<li data-r><span class="phase">Fase 5-6</span><h3>Instituciones y programa</h3><p>Propuestas con coste, responsables e indicadores.</p></li>
+<li data-r><span class="phase">Fase 7</span><h3>Organización y viabilidad legal</h3><p>Estatutos, financiación y requisitos legales.</p></li>'''
+
+AMBITOS = [
+ ('vivienda', 'map', 'La vivienda y el coste de vivir', 'Escuchar las dificultades para acceder a una vivienda, mantener un hogar y construir un proyecto de vida independiente.'),
+ ('sanidad', 'people', 'La sanidad y los cuidados', 'Conocer las necesidades de pacientes, familias y profesionales, y estudiar qué mejoras pueden llevarse a cabo.'),
+ ('educacion', 'doc', 'La educación y las oportunidades', 'Comprender qué impide aprender, formarse y progresar, independientemente del origen o las circunstancias personales.'),
+ ('transporte', 'map', 'El transporte y los servicios', 'Dar voz a quienes viven con conexiones insuficientes, servicios lejanos o dificultades para desplazarse.'),
+ ('empleo', 'euro', 'El trabajo y la vida cotidiana', 'Escuchar las dificultades para conciliar, llegar a fin de mes y desarrollar una vida estable.'),
+ ('instituciones', 'vote', 'La política y las instituciones', 'Explorar cómo mejorar la participación, aclarar responsabilidades y exigir que las decisiones públicas se expliquen y rindan cuentas.'),
+]
+ambitos_html = ''.join(f'<a class="opt tilt" href="propuestas.html#{c}" data-r>{ico(i)}<span><b>{t}</b><small>{d}</small></span></a>' for c, i, t, d in AMBITOS)
+PASOS = [('speech', 'Escuchamos', 'Recogemos experiencias, problemas y propuestas sin exigir que las personas compartan una determinada ideología.'),
+ ('group', 'Comprendemos', 'Intentamos conocer las causas, a quién afecta el problema, qué se ha intentado hasta ahora y qué información necesitamos.'),
+ ('chart', 'Estudiamos', 'Contrastamos las ideas con datos, experiencia profesional, normativa, costes y posibles consecuencias.'),
+ ('doc', 'Desarrollamos propuestas', 'Cuando una idea tiene fundamento y encaja con los principios del proyecto, trabajamos para definir medidas concretas y viables.'),
+ ('eye', 'Damos cuenta de los avances', 'Comunicamos qué estamos estudiando, qué hemos aprendido, qué decisiones se han tomado y qué cuestiones siguen pendientes.')]
+pasos_html = ''.join(f'<li data-r>{ico(i)}<span>{n}. {t}</span><small>{d}</small></li>' for n, (i, t, d) in enumerate(PASOS, 1))
+
+PRIN = [('Libertad individual','Tus decisiones, tus derechos.'),('Democracia real','Participa, decide, exige.'),('Igualdad de oportunidades','El origen no define tu futuro.'),('Estado de derecho','La ley protege a todos.'),('Economía de mercado','Más empleo, más innovación.'),('Servicios esenciales','Sanidad, educación, vivienda, transporte.'),('Competencias claras','Cada quién lo que le corresponde.'),('Profesionalización del gobierno','Mérito, transparencia, resultados.'),('Sostenibilidad','Hoy y para las próximas generaciones.'),('Transparencia','Qué se decide, cuánto cuesta, quién responde.')]
+prin_li = ''.join(f'<li data-r><b>{a}</b><span>{b}</span></li>' for a, b in PRIN)
+
 home = f'''
-<div id="home-contadores" hidden></div>
+<section class="section strip"><div class="wrap"><p class="strip-t" data-r>No necesitas pertenecer a un partido ni tener todas las respuestas. Solo tienes que saber qué te gustaría mejorar.</p></div></section>
 
-<section class="section" id="como-funciona">
+<section class="section" id="que-es">
+  <div class="wrap sec-split">
+    <div class="txt"><span class="eyebrow" data-r>¿Qué es PLU?</span><h2 data-r>Un movimiento que empieza por escuchar.</h2>
+      <p class="lede" data-r>PLU nace con una idea: la política debe estar más cerca de la vida real de las personas.</p>
+      <p class="muted" data-r>A menudo, los problemas cotidianos son conocidos por quienes los viven y por quienes trabajan directamente con ellos. Queremos abrir un espacio para escuchar esas experiencias, estudiar las posibles soluciones y ayudar a que las propuestas con fundamento encuentren un camino hacia las instituciones.</p>
+      <p class="muted" data-r>Partimos de una idea sencilla de libertad: que cada persona pueda decidir sobre su vida, con instituciones que rindan cuentas. Son principios de partida y están abiertos al debate. <a class="link" href="proyecto.html#principios">Conócelos →</a></p>
+      <p class="muted" data-r>Estamos empezando. No tenemos todas las respuestas ni pretendemos tenerlas. Queremos construir el proyecto con rigor, apertura y voluntad de aprender.</p></div>
+    {ph('cafe', 1000, 'r')}
+  </div>
+</section>
+
+<section class="section alt" id="estamos-construyendo">
   <div class="wrap">
-    <div class="head"><span class="eyebrow" data-r>Cómo funciona</span><h2 class="h2" data-r>De lo que necesitas a una ley, en cuatro pasos.</h2><p class="lede" data-r>Cada propuesta tiene un recorrido público. Sabrás en qué punto está y por qué.</p></div>
-    <div class="flow" id="flow">
-      <ol class="flow-list">
-        <li class="on"><button type="button" data-i="0"><b>1</b><span>Recogemos<small>Cualquier persona cuenta lo que necesita o propone, en una frase.</small></span></button><i class="bar"></i></li>
-        <li><button type="button" data-i="1"><b>2</b><span>Estudiamos y clasificamos<small>Las agrupamos por tema y por quién tiene la competencia, con ayuda de quienes saben del asunto.</small></span></button><i class="bar"></i></li>
-        <li><button type="button" data-i="2"><b>3</b><span>Las llevamos a la ley<small>Buscamos la representación necesaria para convertirlas en iniciativas y propuestas normativas.</small></span></button><i class="bar"></i></li>
-        <li><button type="button" data-i="3"><b>4</b><span>Aplicamos y rendimos cuentas<small>Publicamos qué se ha conseguido y qué no.</small></span></button><i class="bar"></i></li>
-      </ol>
-      <div class="flow-stage" aria-hidden="true">
-        <div class="fs on">{ph('phone', 1000)}</div><div class="fs">{ph('meet', 1000)}</div><div class="fs">{ph('circle', 1000)}</div><div class="fs">{ph('park', 1000)}</div>
-        <button type="button" class="flow-pause" id="flow-pause" aria-label="Pausar o reanudar">II</button>
+    <div class="head"><span class="eyebrow" data-r>Dónde estamos</span><h2 class="h2" data-r>Estamos construyendo PLU.</h2></div>
+    <div class="sec-split" style="align-items:start">
+      <div class="txt">
+        <p class="lede" data-r>PLU es una iniciativa ciudadana en fase de desarrollo. Estamos definiendo nuestros principios, escuchando necesidades y estudiando cómo convertir las aportaciones en propuestas concretas.</p>
+        <p class="muted" data-r>No queremos aparentar que tenemos todas las respuestas ni presentar como definitivas decisiones que todavía están abiertas. Queremos avanzar paso a paso, explicar lo que hacemos y aprender de las personas que quieran participar.</p>
+        <p data-r><b>La confianza se construye con transparencia, responsabilidad y hechos. Ese es el compromiso con el que empezamos.</b></p>
       </div>
+      <ol class="road">{road}</ol>
     </div>
   </div>
 </section>
 
-<section class="section alt" id="areas">
+<section class="section" id="areas">
   <div class="wrap">
-    <div class="head"><span class="eyebrow" data-r>Tu día a día</span><h2 class="h2" data-r>¿Qué te gustaría que cambiase?</h2><p class="lede" data-r>Elige un área y toca un ejemplo: se escribe solo en el formulario para que lo ajustes y lo envíes.</p></div>
-    <div class="areas" id="areas-tabs">
-      <div class="area-tabs" role="tablist">
-        <button type="button" role="tab" aria-selected="true" data-a="0">Vivienda</button><button type="button" role="tab" aria-selected="false" data-a="1">Sanidad</button><button type="button" role="tab" aria-selected="false" data-a="2">Educación</button><button type="button" role="tab" aria-selected="false" data-a="3">Transporte</button>
-      </div>
-      <div class="area-body">
-        <div class="area-photo"><div class="ap on">{ph('viv', 900)}</div><div class="ap">{ph('san', 900)}</div><div class="ap">{ph('edu', 900)}</div><div class="ap">{ph('tra', 900)}</div></div>
-        <div class="area-ex">
-          <div class="ae on"><p class="muted">No tenemos cerradas las soluciones. Cuéntanos tu caso:</p>
-            <button type="button" class="ex">Que alquilar no cueste más de un tercio de mi sueldo</button><button type="button" class="ex">Que haya más vivienda pública en mi municipio</button><button type="button" class="ex">Que los trámites para comprar o alquilar sean claros</button><a class="link-arrow" href="propuestas.html#vivienda">Ver qué pensamos de vivienda →</a></div>
-          <div class="ae"><p class="muted">Pacientes y profesionales sanitarios, contadnos qué falla:</p>
-            <button type="button" class="ex">Que las citas con el especialista no tarden meses</button><button type="button" class="ex">Que mi centro de salud tenga médico todos los días</button><button type="button" class="ex">Que el personal sanitario tenga mejores condiciones</button><a class="link-arrow" href="propuestas.html#sanidad">Ver qué pensamos de sanidad →</a></div>
-          <div class="ae"><p class="muted">Alumnado, familias y docentes, esto es para vosotros:</p>
-            <button type="button" class="ex">Que la formación profesional conecte mejor con el empleo</button><button type="button" class="ex">Que haya menos burocracia para el profesorado</button><button type="button" class="ex">Que estudiar fuera de mi ciudad sea asequible</button><a class="link-arrow" href="propuestas.html#educacion">Ver qué pensamos de educación →</a></div>
-          <div class="ae"><p class="muted">Cada día te mueves por algún sitio. ¿Qué mejorarías?</p>
-            <button type="button" class="ex">Que el transporte público llegue a mi pueblo por la noche</button><button type="button" class="ex">Que los abonos sean más baratos para jóvenes</button><button type="button" class="ex">Que los trenes de cercanías sean puntuales</button><a class="link-arrow" href="propuestas.html#transporte">Ver qué pensamos de transporte →</a></div>
-        </div>
-      </div>
-    </div>
+    <div class="head"><span class="eyebrow" data-r>¿Qué queremos cambiar?</span><h2 class="h2" data-r>Que los problemas reales tengan espacio en las decisiones públicas.</h2></div>
+    <div class="optgrid">{ambitos_html}</div>
+    <p class="muted" style="margin-top:22px;max-width:40rem" data-r>No son promesas de soluciones ya aprobadas. Son ámbitos en los que queremos escuchar, investigar y desarrollar propuestas.</p>
   </div>
 </section>
 
-<section class="section">
+<section class="section alt" id="lo-que-cuenta">
   <div class="wrap">
-    <div class="head row"><div><span class="eyebrow" data-r>Lo que pide la gente</span><h2 class="h2" data-r>Las propuestas con más apoyo.</h2></div><a class="link-arrow" href="ideas.html">Ver todas y proponer la tuya →</a></div>
-    <div class="rows" id="home-ideas"></div>
+    <div class="head row"><div><span class="eyebrow" data-r>Lo que nos cuenta la gente</span><h2 class="h2" data-r>Los problemas no deberían quedarse en una conversación.</h2></div><a class="link-arrow" href="escucha.html">Ver las necesidades compartidas →</a></div>
+    <p class="lede" data-r style="max-width:46rem">Queremos reunir las necesidades que nos trasladan los ciudadanos, comprender qué tienen en común y conocer las distintas perspectivas sobre cada problema.</p>
+    <p class="muted" data-r style="max-width:46rem">Cuando sea posible y exista autorización para hacerlo, publicaremos aportaciones de forma anónima y agruparemos los temas para que cualquiera pueda conocer qué se está planteando. No todas las propuestas podrán convertirse en medidas: nos comprometemos a explicar cómo las estudiamos, cuáles seguimos desarrollando y qué dificultades encontramos.</p>
+    <div class="rows" id="home-ideas" style="margin-top:22px"></div>
+    <div id="home-contadores" hidden></div>
   </div>
 </section>
 
-<section class="section alt" id="home-noticias-sec">
+<section class="section" id="como-trabajamos">
+  <div class="wrap">
+    <div class="head"><span class="eyebrow" data-r>Cómo trabajamos</span><h2 class="h2" data-r>Escuchar es el principio. Dar respuesta también importa.</h2></div>
+    <ol class="steps5">{pasos_html}</ol>
+    <p class="muted" style="margin-top:22px;max-width:44rem" data-r>Escuchar no significa prometer que todo se resolverá. Significa tomar en serio lo que se nos cuenta y tratar cada aportación con respeto.</p>
+  </div>
+</section>
+
+<section class="section alt" id="participar">
+  <div class="wrap sec-split">
+    <div class="txt"><span class="eyebrow" data-r>Quién puede participar</span><h2 data-r>Tu experiencia también cuenta.</h2>
+      <p class="lede" data-r>No hace falta ser político, experto ni pertenecer a una organización para aportar algo útil.</p>
+      <p class="muted" data-r>Puedes compartir una dificultad que vives, explicar un problema que conoces por tu trabajo, proponer una mejora o ayudarnos a entender por qué una solución aparentemente sencilla puede no funcionar.</p>
+      <p class="muted" data-r>Queremos escuchar distintas experiencias y opiniones, también aquellas que cuestionen nuestras primeras ideas.</p>
+      <p data-r><a class="btn btn-primary magnet" href="#contar">Compartir una idea</a></p></div>
+    {ph('floor', 1000, 'r')}
+  </div>
+</section>
+
+<section class="section" id="home-noticias-sec">
   <div class="wrap">
     <div class="head row"><div><span class="eyebrow" data-r>Noticias</span><h2 class="h2" data-r>Lo último en PLU.</h2></div><a class="link-arrow" href="noticias.html">Todas las noticias →</a></div>
     <div class="carrusel" id="home-noticias"></div>
   </div>
 </section>
 
-<section class="section">
+<section class="section alt">
   <div class="wrap">
-    <div class="head"><span class="eyebrow" data-r>Principios</span><h2 class="h2" data-r>Diez principios para empezar a hablar.</h2><p class="lede" data-r>Son una base de partida y están abiertos al debate: se concretan con lo que aporte la gente.</p></div>
+    <div class="head"><span class="eyebrow" data-r>Principios de partida</span><h2 class="h2" data-r>Diez ideas para empezar a hablar.</h2><p class="lede" data-r>Son una base de partida y están abiertos al debate: se concretan con lo que aporte la gente.</p></div>
     <ol class="principios10">{prin_li}</ol>
     <p style="margin-top:22px"><a class="link-arrow" href="proyecto.html#principios">Ver todos los principios →</a></p>
   </div>
 </section>
 
-<section class="section alt">
-  <div class="wrap">
-    <div class="head"><span class="eyebrow" data-r>Nuestro compromiso</span><h2 class="h2" data-r>Tres formas de hacerlo bien.</h2></div>
-    <div class="trio">
-      <a class="trio-c" href="democracia.html">{ico('vote')}<h3>Tu voz cuenta</h3><p>Debate y participa en las decisiones compartidas: iniciativas, asambleas y consultas.</p><span class="go">Cómo participar →</span></a>
-      <a class="trio-c" href="proyecto.html">{ico('people')}<h3>Escuchamos a quienes saben</h3><p>Médicas, docentes, conductores, técnicos: personas que pueden mejorar su sector.</p><span class="go">Conoce el proyecto →</span></a>
-      <a class="trio-c" href="como-funciona.html#transparencia">{ico('eye')}<h3>Las reglas también aplican a PLU</h3><p>Financiación abierta, conflictos de interés y decisiones publicadas.</p><span class="go">Ver transparencia →</span></a>
-    </div>
+<section class="section" id="transparencia-home">
+  <div class="wrap sec-split">
+    <div class="txt"><span class="eyebrow" data-r>Transparencia</span><h2 data-r>Queremos aplicar al proyecto las mismas exigencias que planteamos a las instituciones.</h2>
+      <p class="lede" data-r>PLU está en construcción. Por eso, consideramos importante explicar quién impulsa la iniciativa, cómo se toman las decisiones, qué está definido y qué sigue abierto.</p>
+      <p class="muted" data-r>A medida que el proyecto avance, publicaremos sus reglas de organización, sus compromisos de transparencia y la información económica que corresponda.</p>
+      <p data-r><b>La confianza no se pide. Se construye con hechos, explicaciones claras y responsabilidades asumidas.</b></p>
+      <p data-r><a class="btn btn-ghost magnet" href="como-funciona.html">Conoce cómo funciona PLU</a></p></div>
+    {ph('street', 1000, 'r')}
   </div>
 </section>
 
 <section class="joinband">{ph('park', 1800)}
   <div class="wrap">
     <div style="display:grid;gap:18px;justify-items:start">
-      <h2 data-r>Súmate al movimiento. <em>Gratis.</em></h2>
-      <p data-r style="max-width:30rem;opacity:.9">PLU está en construcción. Cuantas más personas aporten, más representación podremos conseguir para llevar sus propuestas a la ley.</p>
-      <div class="cta-row"><a class="btn btn-light magnet" href="afiliate.html">Únete ahora</a><a class="btn btn-line-light" href="portal.html">Ya soy afiliado</a></div>
+      <span class="eyebrow" data-r>Únete a PLU</span>
+      <h2 data-r>Si crees que merece la pena escuchar más y mejor, <em>puedes formar parte del proceso.</em></h2>
+      <p data-r style="max-width:34rem;opacity:.9">Puedes empezar compartiendo una idea, seguir la evolución del proyecto o participar en su desarrollo. No necesitas comprometerte más de lo que quieras ni tener una opinión formada sobre todos los asuntos. Afiliarte es gratis; si un día quieres apoyar el proyecto, también puedes hacer una <a class="link" style="color:inherit;text-decoration:underline" href="donar.html">donación</a>.</p>
+      <div class="cta-row"><a class="btn btn-light magnet" href="afiliate.html">Quiero participar</a><a class="btn btn-line-light" href="portal.html">Ya soy afiliado</a></div>
+      <p data-r style="opacity:.85;max-width:34rem">Queremos que PLU crezca a partir de la participación, el trabajo y el respeto a las diferencias.</p>
     </div>
     <div class="big clover" data-parallax="25" aria-hidden="true"></div>
   </div>
 </section>
+
+<section class="section" id="contacto-home">
+  <div class="wrap" style="max-width:48rem">
+    <div class="head"><span class="eyebrow" data-r>Contacto</span><h2 class="h2" data-r>Estamos empezando. Hablemos.</h2><p class="lede" data-r>Si tienes una pregunta, una propuesta o quieres conocer mejor el proyecto, escríbenos. Leeremos tu mensaje y te responderemos en cuanto podamos.</p></div>
+    <p data-r><a class="btn btn-primary magnet" href="contacto.html">Enviar mensaje</a></p>
+  </div>
+</section>
 '''
+
 
 # ================= PROYECTO =================
 FAM = [('Libertad', ['Libertad individual: tu proyecto de vida, con respeto a los derechos ajenos.', 'Pluralismo y convivencia: nadie impone una única forma de vivir o pensar.', 'Economía de mercado: iniciativa privada con reglas claras.']),
@@ -302,18 +363,19 @@ FAM = [('Libertad', ['Libertad individual: tu proyecto de vida, con respeto a lo
  ('Bienestar', ['Oportunidades reales: vivienda, educación, sanidad y transporte.', 'Responsabilidad fiscal: cada política explica su coste.']),
  ('Responsabilidad', ['Profesionalidad pública: decisiones con conocimiento y evidencia.', 'Transparencia: qué se decide, cuánto cuesta, quién responde.'])]
 fams = ''.join(f'<div class="family" data-r><h3>{n}</h3><ul class="leaf-list">{"".join(f"<li>{x}</li>" for x in xs)}</ul></div>' for n, xs in FAM)
-road = '''<li class="now" data-r><span class="phase">Estamos aquí</span><h3>Definición doctrinal</h3><p>Se debate antes de comprometerse.</p></li>
-<li data-r><span class="phase">Fase 1-2</span><h3>Cimientos y democracia</h3><p>Principios, participación y controles.</p></li>
-<li data-r><span class="phase">Fase 3-4</span><h3>Territorio y modelo social</h3><p>Competencias, financiación y servicios esenciales.</p></li>
-<li data-r><span class="phase">Fase 5-6</span><h3>Instituciones y programa</h3><p>Propuestas con coste, responsables e indicadores.</p></li>
-<li data-r><span class="phase">Fase 7</span><h3>Organización y viabilidad legal</h3><p>Estatutos, financiación y requisitos legales.</p></li>'''
+# ================= PROYECTO =================
+FAM = [('Libertad', ['Libertad individual: tu proyecto de vida, con respeto a los derechos ajenos.', 'Pluralismo y convivencia: nadie impone una única forma de vivir o pensar.', 'Economía de mercado: iniciativa privada con reglas claras.']),
+ ('Democracia', ['Soberanía ciudadana: el poder viene de la ciudadanía.', 'Estado de derecho: todos, también quien manda, sometidos a la ley.', 'Diversidad territorial: lenguas y culturas con derechos comunes.']),
+ ('Bienestar', ['Oportunidades reales: vivienda, educación, sanidad y transporte.', 'Responsabilidad fiscal: cada política explica su coste.']),
+ ('Responsabilidad', ['Profesionalidad pública: decisiones con conocimiento y evidencia.', 'Transparencia: qué se decide, cuánto cuesta, quién responde.'])]
+fams = ''.join(f'<div class="family" data-r><h3>{n}</h3><ul class="leaf-list">{"".join(f"<li>{x}</li>" for x in xs)}</ul></div>' for n, xs in FAM)
 proyecto = f'''
 <section class="section"><div class="wrap sec-split">
-  <div class="txt"><span class="eyebrow" data-r>Qué es PLU ahora</span><h2 data-r>Un movimiento que está naciendo.</h2>
-    <p class="lede" data-r>Sabemos qué áreas importan: sanidad, transporte, educación, vivienda. Lo que queremos es recoger la experiencia de quienes las viven y las conocen desde dentro.</p>
-    <p class="muted" data-r>Escuchamos propuestas, las estudiamos con quienes saben del asunto y ayudamos a esas personas a reunir la representación necesaria para llevarlas a la ley. No prometemos soluciones cerradas: las construimos con vosotros.</p>
-    <a class="link-arrow" data-r href="ideas.html">Aportar una propuesta →</a></div>
-  <div class="icons4">{icoitem('speech','Escuchamos')}{icoitem('chart','Estudiamos')}{icoitem('people','Damos voz a quien sabe')}{icoitem('doc','Lo llevamos a la ley')}</div>
+  <div class="txt"><span class="eyebrow" data-r>Qué es PLU ahora</span><h2 data-r>Un movimiento que empieza por escuchar.</h2>
+    <p class="lede" data-r>Sabemos qué ámbitos preocupan: vivienda, sanidad, educación, transporte, trabajo e instituciones. Lo que queremos es recoger la experiencia de quienes los viven y los conocen desde dentro.</p>
+    <p class="muted" data-r>Escuchamos aportaciones, las estudiamos con quienes saben del asunto y trabajamos para que las propuestas con fundamento encuentren un camino hacia las instituciones. No prometemos soluciones cerradas: las vamos construyendo con quienes quieran participar.</p>
+    <a class="link-arrow" data-r href="index.html#contar">Contarnos qué cambiarías →</a></div>
+  <div class="icons4">{icoitem('speech','Escuchamos')}{icoitem('chart','Estudiamos')}{icoitem('people','Aprendemos de quien sabe')}{icoitem('doc','Desarrollamos propuestas')}</div>
 </div></section>
 <section class="section alt">
   <div class="wrap sec-split">
@@ -342,22 +404,24 @@ proyecto = f'''
 def prow(cat, k, name, title, short, bullets):
     lis = ''.join(f'<li>{b}</li>' for b in bullets)
     return f'''<details class="rowitem" id="{cat}" data-cat="{cat}" data-r><summary><div class="ph duo thumb">{imgtag(P[k][0], 300, P[k][1])}</div><div><span class="tag">{name}</span><h3>{title}</h3><p class="s">{short}</p></div><span class="chev">›</span></summary>
- <div class="body"><ul class="leaf-list">{lis}</ul><span class="status">En desarrollo</span>
- <div class="pcard"><div class="pcard-head">Ficha · ejemplo de estructura, no es propuesta aprobada</div><dl>
- <div class="row"><dt>El problema</dt><dd>Por definir con datos.</dd></div><div class="row"><dt>La medida</dt><dd>Por definir: qué cambia y quién responde.</dd></div>
+ <div class="body"><ul class="leaf-list">{lis}</ul><span class="status">Estamos escuchando</span>
+ <div class="pcard"><div class="pcard-head">Así iremos documentando cada propuesta · ejemplo, no es una propuesta aprobada</div><dl>
+ <div class="row"><dt>El problema</dt><dd>Por entender: escuchamos y buscamos datos.</dd></div><div class="row"><dt>La medida</dt><dd>Por definir: qué cambia y quién responde.</dd></div>
  <div class="row"><dt>Coste y viabilidad</dt><dd>Por definir.</dd></div><div class="row"><dt>Cómo se medirá</dt><dd>Indicadores y plazo, por definir.</dd></div></dl></div></div></details>'''
 propuestas = f'''
 <section class="section"><div class="wrap">
-  <div class="filters" role="group" aria-label="Filtrar propuestas"><button class="fbtn" aria-pressed="true" data-f="all">Todas</button><button class="fbtn" aria-pressed="false" data-f="vivienda">Vivienda</button><button class="fbtn" aria-pressed="false" data-f="sanidad">Sanidad</button><button class="fbtn" aria-pressed="false" data-f="educacion">Educación</button><button class="fbtn" aria-pressed="false" data-f="transporte">Transporte</button><button class="fbtn" aria-pressed="false" data-f="instituciones">Instituciones</button></div>
+  <div class="head" style="margin-bottom:22px"><span class="eyebrow">Ámbitos de trabajo</span><h2 class="h2" data-r>Donde queremos escuchar, investigar y desarrollar propuestas.</h2><p class="lede" data-r>No son promesas de soluciones ya aprobadas. Cada ámbito es un punto de partida: lo que ya sabemos, lo que nos falta por entender y cómo puedes ayudarnos.</p></div>
+  <div class="filters" role="group" aria-label="Filtrar ámbitos"><button class="fbtn" aria-pressed="true" data-f="all">Todos</button><button class="fbtn" aria-pressed="false" data-f="vivienda">Vivienda</button><button class="fbtn" aria-pressed="false" data-f="sanidad">Sanidad</button><button class="fbtn" aria-pressed="false" data-f="educacion">Educación</button><button class="fbtn" aria-pressed="false" data-f="transporte">Transporte</button><button class="fbtn" aria-pressed="false" data-f="empleo">Trabajo</button><button class="fbtn" aria-pressed="false" data-f="instituciones">Instituciones</button></div>
   <div class="rows" id="filterlist">
-  {prow('vivienda','viv','Vivienda','Que independizarte no sea una barrera','Más oferta, menos burocracia y ayudas dirigidas a quienes más lo necesitan.',['Más vivienda asequible','Colaboración pública y privada','Rehabilitar lo que está vacío'])}
-  {prow('sanidad','san','Sanidad','Un sistema sanitario más eficiente','Mejores tiempos de espera, más prevención y gestión transparente.',['Atención primaria y prevención','Listas de espera transparentes','Continuidad asistencial'])}
-  {prow('educacion','edu','Educación','Educación para el futuro','Más calidad, más innovación y menos desigualdad.',['Formación profesional y continua','Menos abandono educativo','Atención a cada forma de aprender'])}
-  {prow('transporte','tra','Transporte','Movilidad sostenible y accesible','Conexiones entre territorios y ciudades, y un transporte público de calidad.',['Conexiones entre barrios y pueblos','Frecuencias útiles y tarifas integradas','Accesible y asequible'])}
-  {prow('instituciones','meet','Instituciones','Participación ciudadana real','Mecanismos de consulta, iniciativa popular y asambleas ciudadanas.',['Iniciativas ciudadanas con respuesta','Asambleas deliberativas','Cuentas y decisiones públicas'])}
+  {prow('vivienda','viv','Vivienda','La vivienda y el coste de vivir','Escuchar las dificultades para acceder a una vivienda, mantener un hogar y construir un proyecto de vida independiente.',['Qué te impide alquilar o comprar','Qué trámites y costes se interponen','Qué se ha intentado ya y qué ha funcionado'])}
+  {prow('sanidad','san','Sanidad','La sanidad y los cuidados','Conocer las necesidades de pacientes, familias y profesionales, y estudiar qué mejoras pueden llevarse a cabo.',['Esperas y acceso a la atención','La experiencia de quien cuida y de quien trabaja en el sistema','Qué mejoras serían viables'])}
+  {prow('educacion','edu','Educación','La educación y las oportunidades','Comprender qué impide aprender, formarse y progresar, independientemente del origen o las circunstancias personales.',['Barreras para estudiar y formarse','Conexión entre formación y empleo','La mirada del profesorado y de las familias'])}
+  {prow('transporte','tra','Transporte','El transporte y los servicios','Dar voz a quienes viven con conexiones insuficientes, servicios lejanos o dificultades para desplazarse.',['Horarios y conexiones que faltan','Servicios lejos de donde vives','Accesibilidad y coste'])}
+  {prow('empleo','floor','Trabajo','El trabajo y la vida cotidiana','Escuchar las dificultades para conciliar, llegar a fin de mes y desarrollar una vida estable.',['Conciliar trabajo y vida personal','Estabilidad y fin de mes','Lo que ven quienes emprenden o contratan'])}
+  {prow('instituciones','meet','Instituciones','La política y las instituciones','Explorar cómo mejorar la participación, aclarar responsabilidades y exigir que las decisiones públicas se expliquen y rindan cuentas.',['Quién responde de cada servicio','Participación con efectos reales','Decisiones públicas que se explican'])}
   </div>
-  <p class="muted" style="margin-top:26px;max-width:40rem">Hoy son objetivos, no promesas de resultado. Las medidas, el coste y la forma de evaluarlas se están desarrollando, y tú puedes opinar.</p>
-  <p style="margin-top:18px"><a class="btn btn-primary magnet" href="debate.html">Aportar mi opinión</a></p>
+  <p class="muted" style="margin-top:26px;max-width:40rem">Hoy son ámbitos de escucha, no promesas de resultado. Las medidas, su coste y la forma de evaluarlas se irán definiendo con lo que nos cuentes.</p>
+  <p style="margin-top:18px"><a class="btn btn-primary magnet" href="index.html#contar">Cuéntanos qué cambiarías</a> <a class="btn btn-ghost magnet" href="escucha.html">Ver lo que cuenta la gente</a></p>
 </div></section>'''
 
 # ================= DEMOCRACIA =================
@@ -371,13 +435,13 @@ democracia = '''
 # ================= CÓMO FUNCIONA / TRANSPARENCIA =================
 como = f'''
 <section class="section"><div class="wrap">
-  <div class="head"><span class="eyebrow">Así tomamos decisiones</span><h2 class="h2" data-r>Así tomamos decisiones, así nos organizamos, así rendimos cuentas.</h2></div>
+  <div class="head"><span class="eyebrow">Cómo trabajamos</span><h2 class="h2" data-r>Escuchar es el principio. Dar respuesta también importa.</h2></div>
   <ol class="steps5">
-    <li data-r>{ico('spark')}<span>1. Propuesta ciudadana</span><small>Cualquier persona puede proponer una idea o plantear un problema.</small></li>
-    <li data-r>{ico('chart')}<span>2. Evaluación de viabilidad</span><small>Se analiza su encaje legal, económico y social.</small></li>
-    <li data-r>{ico('group')}<span>3. Deliberación</span><small>Se debate en la comunidad y en los órganos de PLU.</small></li>
-    <li data-r>{ico('ballot')}<span>4. Decisión</span><small>Se define la propuesta y su implementación.</small></li>
-    <li data-r>{ico('eye')}<span>5. Seguimiento</span><small>Se publican los resultados y se evalúa su impacto.</small></li>
+    <li data-r>{ico('speech')}<span>1. Escuchamos</span><small>Recogemos experiencias, problemas y propuestas sin exigir ninguna ideología.</small></li>
+    <li data-r>{ico('group')}<span>2. Comprendemos</span><small>Buscamos las causas, a quién afecta y qué se ha intentado ya.</small></li>
+    <li data-r>{ico('chart')}<span>3. Estudiamos</span><small>Contrastamos con datos, experiencia profesional, normativa y costes.</small></li>
+    <li data-r>{ico('doc')}<span>4. Desarrollamos propuestas</span><small>Si la idea tiene fundamento, definimos medidas concretas y viables.</small></li>
+    <li data-r>{ico('eye')}<span>5. Damos cuenta</span><small>Contamos qué estudiamos, qué decidimos y qué sigue pendiente.</small></li>
   </ol>
 </div></section>
 <section class="section alt"><div class="wrap">
@@ -397,7 +461,7 @@ como = f'''
 <section class="section" id="transparencia"><div class="wrap sec-split">
   <div class="txt"><span class="eyebrow">Transparencia</span><h2 data-r>Las reglas también se aplican a PLU.</h2><p class="lede" data-r>Información pública, presupuestos abiertos y evaluación constante.</p>
     <ul class="checks" data-r><li>Cuentas y fuentes de financiación</li><li>Declaraciones de intereses</li><li>Procesos de selección</li><li>Informes de gestión y resultados</li><li>Canal de reclamaciones</li></ul>
-    <span class="status">Compromiso · aún no implantado</span><p class="muted">PLU está en fase fundacional. Aquí publicaremos qué existe ya y qué todavía no.</p></div>
+    <span class="status">Compromiso · aún no implantado</span><p class="muted">PLU está en construcción. Aquí publicaremos con claridad qué existe ya y qué todavía no, y lo iremos actualizando.</p></div>
   {ph('street', 1000, 'r')}
 </div></section>'''
 
@@ -430,40 +494,31 @@ participa = f'''
 <section class="section"><div class="wrap">
   <div class="head"><span class="eyebrow">Participa</span><h2 class="h2" data-r>Tu opinión, tu idea, tu compromiso.</h2><p class="lede">Hay muchas formas de formar parte de PLU.</p></div>
   <div class="optgrid">
-    <a class="opt tilt" href="ideas.html#proponer" data-r>{ico('spark')}<span><b>Quiero proponer una idea</b><small>Sin cuenta. Todo el mundo ve qué pasa con ella.</small></span></a>
+    <a class="opt tilt" href="index.html#contar" data-r>{ico('spark')}<span><b>Quiero contar qué cambiaría</b><small>Sin cuenta. Te explicamos qué pasa con tu aportación.</small></span></a>
     <a class="opt tilt" href="ideas.html" data-r>{ico('speech')}<span><b>Quiero apoyar y debatir</b><small>Apoya y comenta ideas desde el portal.</small></span></a>
     <a class="opt tilt" href="consultas.html" data-r>{ico('ballot')}<span><b>Quiero ver las votaciones</b><small>Resultados, quórum y decisiones.</small></span></a>
     <a class="opt tilt" href="eventos.html" data-r>{ico('people')}<span><b>Quiero ir a un acto</b><small>Agenda e inscripción.</small></span></a>
     <a class="opt tilt" href="voluntariado.html" data-r>{ico('group')}<span><b>Quiero ayudar</b><small>Comunicación, diseño, tecnología, eventos…</small></span></a>
-    <a class="opt tilt" href="#participa-form" data-r>{ico('mail')}<span><b>Quiero recibir novedades</b><small>Hazte simpatizante con tu correo.</small></span></a>
+    <a class="opt tilt" href="afiliate.html" data-r>{ico('mail')}<span><b>Quiero formar parte</b><small>Afíliate gratis y recibe novedades.</small></span></a>
   </div>
 </div></section>
 <section class="joinband">{ph('floor', 1800)}
   <div class="wrap"><div style="display:grid;gap:18px;justify-items:start"><h2 data-r>Tu voz puede marcar <em>la diferencia.</em></h2><p data-r style="opacity:.9;max-width:30rem">Rellena el formulario y ayúdanos a construir una mejor España.</p><a class="btn btn-light magnet" href="#participa-form">Participa ahora</a></div><div class="big clover" data-parallax="25" aria-hidden="true"></div></div>
 </section>
-<section class="section" id="participa-form"><div class="wrap formwrap">
-  <div style="display:grid;gap:22px;align-content:start">
-    <div class="head" style="margin:0"><span class="eyebrow">Escríbenos</span><h2 class="h2" data-r>Construyamos PLU entre todos.</h2></div>
-    <ol class="steps"><li><div><h3>Dar tu opinión</h3><p>Publicaremos las aportaciones y qué pasa con ellas.</p></div></li><li><div><h3>Seguir el proyecto</h3><p>Un boletín con avances y decisiones.</p></div></li><li><div><h3>Colaborar</h3><p>Grupos de trabajo y revisión de propuestas.</p></div></li><li><div><h3>Incorporarte</h3><p><a class="link-arrow" href="afiliate.html">Cómo formar parte de PLU →</a></p></div></li></ol>
-  </div>
-  <form class="form-card" data-api="/api/simpatizantes" data-ok="¡Listo, ya estás dentro!" novalidate>
-    <h2>Recibe novedades</h2>
-    <p class="muted">Hazte simpatizante: avisos de campañas, eventos y encuestas. Sin cuenta ni cuota.</p>
-    <div class="field"><label for="s-n">Nombre</label><input id="s-n" name="nombre" autocomplete="given-name" required maxlength="80"></div>
-    <div class="field"><label for="s-e">Correo electrónico</label><input id="s-e" name="email" type="email" autocomplete="email" required></div>
-    <div class="field"><label for="f-prov">Provincia</label><select id="f-prov" name="provincia_id" required><option value="">Elige…</option></select></div>
-    <label class="consent"><input type="checkbox" name="consentimiento_avisos" required><span>Acepto recibir avisos de PLU por correo. Puedo darme de baja cuando quiera. <a class="link" href="privacidad.html">Privacidad</a>.</span></label>
-    <button class="btn btn-primary" type="submit">Quiero estar al día</button><p class="form-status" role="status" aria-live="polite"></p>
-  </form>
-</div></section>'''
+<section class="section" id="participa-form"><div class="wrap" style="max-width:48rem">
+  <div class="head" style="margin:0"><span class="eyebrow">Afiliarse es gratis</span><h2 class="h2" data-r>Construyamos PLU entre todos.</h2><p class="lede" data-r>Una sola forma de formar parte: afiliarte. No tiene cuota. Recibes tu carné digital, acceso a un portal para apoyar ideas, votar y seguir lo que pasa con ellas, y avisos de lo que hacemos.</p></div>
+  <ol class="steps"><li><div><h3>Dar tu opinión</h3><p>Cuéntanos qué cambiarías y te explicamos qué pasa con tu aportación.</p></div></li><li><div><h3>Seguir el proyecto</h3><p>Avances, decisiones y cuestiones que siguen abiertas.</p></div></li><li><div><h3>Colaborar</h3><p>Grupos de trabajo, voluntariado y, si quieres, una donación para sostener el proyecto.</p></div></li></ol>
+  <p style="margin-top:22px"><a class="btn btn-primary magnet" href="afiliate.html">Afiliarme gratis</a> <a class="btn btn-ghost magnet" href="donar.html">Apoyar con una donación</a></p>
+</div>
+</section>'''
 # ================= AFÍLIATE =================
 afiliate = f'''
 <section class="section"><div class="wrap formwrap">
   <div style="display:grid;gap:22px;align-content:start">
-    <div class="head" style="margin:0"><span class="eyebrow">Afíliate</span><h1 class="h2">Forma parte de PLU.</h1><p class="lede">Recibirás tu carné de afiliado por correo y acceso al portal.</p></div>
+    <div class="head" style="margin:0"><span class="eyebrow">Afíliate</span><h1 class="h2">Forma parte de PLU.</h1><p class="lede">Es gratis y sin compromiso. Recibirás tu carné de afiliado por correo y acceso al portal, para participar cuando quieras.</p></div>
     <div class="chips"><span class="chip">Gratis</span><span class="chip">16 años o más</span><span class="chip">Residir en España</span><span class="chip">DNI o NIE</span></div>
     {ph('fence', 1000, 'r')}
-    <p class="muted">¿Solo quieres recibir avisos de campañas, eventos y encuestas? <a class="link" href="participa.html">Hazte simpatizante →</a></p>
+    <p class="muted">Afiliarse es gratis y no te obliga a nada. Si algún día quieres apoyar económicamente el proyecto, puedes hacerlo con una <a class="link" href="donar.html">donación</a>.</p>
   </div>
   <form class="form-card" data-api="/api/inscripciones" novalidate>
     <div class="stepper" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
@@ -653,7 +708,8 @@ como = transparencia_datos + como
 PAGES = {
   'index.html': ('PLU · Plataforma Liberal Unida', home, home_hero),
   'proyecto.html': ('El proyecto · PLU', proyecto, hero_page('bench', 'El proyecto', 'Una nueva forma de hacer <em>política.</em>', 'Más libre, más democrática y más cercana a la gente.')),
-  'propuestas.html': ('Propuestas · PLU', propuestas, hero_page('walk', 'Propuestas', 'Ideas concretas para mejorar <em>la vida de las personas.</em>')),
+  'propuestas.html': ('Ámbitos de trabajo · PLU', propuestas, hero_page('walk', 'Ámbitos de trabajo', 'Donde queremos <em>escuchar primero.</em>')),
+  'escucha.html': ('Lo que nos cuenta la gente · PLU', escucha, hero_page('circle', 'Escucha ciudadana · PLU', '¿Qué necesita <em>cambiar?</em>', 'Queremos identificar los problemas que se repiten, comprender sus causas y estudiar posibles soluciones.')),
   'democracia.html': ('Cómo participar · PLU', democracia, hero_page('circle', 'Democracia y participación', 'Votar es el principio, <em>no el final.</em>')),
   'como-funciona.html': ('Cómo funciona PLU', como, hero_page('meet', 'Cómo funciona PLU', 'Así tomamos decisiones, <em>así rendimos cuentas.</em>')),
   'debate.html': ('Debate abierto · PLU', debate, ''),

@@ -91,7 +91,7 @@ app.use(express.static(webDir, { index: false, extensions: [] }));
 // Las páginas llevan __URL__ como marcador; se sustituye por la dirección pública (canonical, og:url, imagen para compartir)
 const conUrl = (html) => html.replaceAll('__URL__', URL_PUBLICA.replace(/\/$/, ''));
 const enviaHtml = (res, f) => res.type('html').send(conUrl(readFileSync(f, 'utf8')));
-const PAGINAS_SITEMAP = ['proyecto', 'propuestas', 'ideas', 'eventos', 'participa', 'democracia', 'consultas', 'debate', 'voluntariado', 'como-funciona', 'afiliate', 'noticias', 'donar', 'privacidad', 'terminos', 'cookies', 'normas', 'faq', 'contacto'];
+const PAGINAS_SITEMAP = ['proyecto', 'escucha', 'propuestas', 'ideas', 'eventos', 'participa', 'democracia', 'consultas', 'debate', 'voluntariado', 'como-funciona', 'afiliate', 'noticias', 'donar', 'privacidad', 'terminos', 'cookies', 'normas', 'faq', 'contacto'];
 app.get('/robots.txt', (_req, res) => res.type('text/plain').send(`User-agent: *\nDisallow: /intranet\nDisallow: /portal\nDisallow: /api/\nDisallow: /encuesta\nSitemap: ${URL_PUBLICA.replace(/\/$/, '')}/sitemap.xml\n`));
 app.get('/sitemap.xml', (_req, res) => {
   const base = URL_PUBLICA.replace(/\/$/, ''), x = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');

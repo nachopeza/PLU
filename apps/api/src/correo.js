@@ -64,7 +64,7 @@ const PIE = '\n\nPlataforma Liberal Unida\n' + URL_PUBLICA;
 export function textoAcceso({ nombre, email, password, caduca, numero, motivo }) {
   const dias = caduca ? ` Caduca el ${new Date(caduca).toLocaleDateString('es-ES')}.` : '';
   return `Hola ${nombre},\n\n${motivo}\n\n` + (numero ? `Tu número de afiliado es ${numero}.\n` : '') +
-    `Entra en ${URL_PUBLICA}/portal\nCorreo: ${email}\nContraseña temporal: ${password}\n\nTe pediremos cambiarla en el primer acceso.${dias}\nSi no esperabas este mensaje, ignóralo.` + PIE;
+    `Entra en ${URL_PUBLICA}/portal\nCorreo: ${email}\nContraseña temporal: ${password}\n\nAl entrar por primera vez te pediremos que la cambies por una tuya.${dias}\nSi tienes cualquier duda, responde a este correo o escribe a hola@somosplu.com. Y si no esperabas este mensaje, puedes ignorarlo.` + PIE;
 }
 
 // Aviso a una persona afiliada sobre algo que ha cambiado en su afiliación (carné, estado, provincia, solicitudes…).
@@ -86,7 +86,7 @@ export async function avisarPersona(p, tipo, asunto, mensaje, { carne = false, p
     } catch (e) { console.error('adjuntar carné:', e.message); }
   }
   const texto = `Hola ${p.nombre},\n\n${mensaje}` + (adjuntos ? '\n\nTu carné actualizado va adjunto en este correo.' : '') +
-    (portal ? `\n\nPuedes verlo todo en tu portal: ${URL_PUBLICA}/portal` : '') + '\n\nSi no esperabas este mensaje, escribe a hola@somosplu.com.' + PIE;
+    (portal ? `\n\nPuedes verlo todo en tu portal: ${URL_PUBLICA}/portal` : '') + '\n\nSi tienes cualquier duda o no esperabas este mensaje, escríbenos a hola@somosplu.com y te ayudamos.' + PIE;
   return enviarCorreo({ personaId: p.id, tipo, para: p.email, asunto, texto, adjuntos });
 }
 export const estadoCorreo = (envio) => ({ correo: envio.ok ? 'enviado' : 'no enviado', correo_motivo: envio.ok ? undefined : envio.motivo });

@@ -202,7 +202,7 @@
   var PROV_FALLBACK = prov ? prov.innerHTML : '';
   if (prov) {
     fetch('/api/provincias').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (lista) {
-      prov.innerHTML = '<option value="">Elige…</option>';
+      prov.innerHTML = '<option value="">' + (prov.getAttribute('data-vacio') || 'Elige…') + '</option>';
       lista.forEach(function (p) { var o = document.createElement('option'); o.value = p.id; o.dataset.codigo = p.codigo; o.textContent = p.nombre + ' (' + p.comunidad + ')'; prov.appendChild(o); });
     }).catch(function () { /* sin API: se queda la lista de demostración */ });
   }

@@ -220,7 +220,7 @@ intranet.post('/afiliados', requerirEquipo('admin', 'gestor'), async (req, res) 
     });
   } catch (e) { console.error(e.message); return res.status(500).json({ error: 'No se pudo crear la persona' }); }
   const p = db.prepare('SELECT p.*, t.codigo_num FROM personas p JOIN territorios t ON t.id = p.territorio_id WHERE p.id = ?').get(id);
-  try { res.status(201).json(await aprobarPersona(p, req.equipo, { enviar: b.enviar_correo !== false, motivo: 'El equipo de PLU te ha dado de alta como persona afiliada. Gracias por sumarte.', accion: 'alta_manual_afiliado' })); }
+  try { res.status(201).json(await aprobarPersona(p, req.equipo, { enviar: b.enviar_correo !== false, motivo: 'Te damos la bienvenida a PLU. El equipo te ha dado de alta como persona afiliada: gracias por sumarte y por querer participar.', accion: 'alta_manual_afiliado' })); }
   catch (e) { console.error(e.message); res.status(500).json({ error: 'Se creó la persona pero no se pudo completar el alta. Búscala en Solicitudes pendientes.' }); }
 });
 
@@ -238,6 +238,6 @@ intranet.post('/inscripciones/:id/rechazar', requerirEquipo(...GESTION), async (
   } catch (e) { db.exec('ROLLBACK'); return res.status(500).json({ error: 'No se pudo rechazar' }); }
   auditar(req.equipo.id, 'rechazar_inscripcion', 'persona', p.id, { motivo });
   const completo = db.prepare('SELECT * FROM personas WHERE id = ?').get(p.id);
-  const envio = await avisarPersona(completo, 'rechazo', 'Sobre tu solicitud de afiliación a PLU', 'No hemos podido aceptar tu solicitud de afiliación por ahora.' + (motivo ? `\n\nMotivo: ${motivo}` : ''), { portal: false });
+  const envio = await avisarPersona(completo, 'rechazo', 'Sobre tu solicitud de afiliación a PLU', 'Gracias por querer formar parte de PLU. Por ahora no hemos podido aceptar tu solicitud de afiliación.' + (motivo ? `\n\nMotivo: ${motivo}` : ''), { portal: false });
   res.json({ ok: true, ...estadoCorreo(envio) });
 });

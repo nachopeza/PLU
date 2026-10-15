@@ -153,9 +153,9 @@ gestion.post('/personas/:id/estado', requerirEquipo('admin', 'gestor'), async (r
   } else return res.status(409).json({ error: 'Esa acción no es posible en el estado actual' });
   auditar(req.equipo.id, `persona_${accion}`, 'persona', p.id, { motivo });
   const textos = {
-    suspender: ['Tu afiliación a PLU está suspendida', 'Tu afiliación a PLU ha quedado suspendida temporalmente.', false],
+    suspender: ['Tu afiliación a PLU está suspendida', 'Tu afiliación a PLU ha quedado suspendida temporalmente. Si quieres entender el motivo o aclararlo, escríbenos y lo hablamos.', false],
     reactivar: ['Tu afiliación a PLU está activa de nuevo', 'Tu afiliación a PLU se ha reactivado.', true],
-    baja: ['Tu baja en PLU', 'Hemos tramitado tu baja como afiliado/a de PLU. Tu carné deja de ser válido.', false],
+    baja: ['Tu baja en PLU', 'Hemos tramitado tu baja como persona afiliada de PLU y tu carné deja de ser válido. Gracias por el tiempo que has formado parte; las puertas siguen abiertas si algún día quieres volver.', false],
   }[accion];
   const envio = await avisarPersona(p, `estado_${accion}`, textos[0], textos[1] + (motivo ? `\n\nMotivo: ${motivo}` : ''), { portal: textos[2] });
   res.json({ ok: true, ...estadoCorreo(envio) });

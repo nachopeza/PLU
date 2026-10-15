@@ -52,6 +52,7 @@ asegurarColumna('noticias', 'categoria', "TEXT NOT NULL DEFAULT 'Noticia'");
 asegurarColumna('noticias', 'adjuntos', 'TEXT');
 asegurarColumna('propuestas', 'tipo', "TEXT NOT NULL DEFAULT 'propuesta'");
 asegurarColumna('propuestas', 'provincia_id', 'INTEGER');
+asegurarColumna('propuestas', 'publicar_ok', 'INTEGER NOT NULL DEFAULT 0');
 
 // Datos de perfil de las personas afiliadas
 asegurarColumna('personas', 'direccion', 'TEXT');

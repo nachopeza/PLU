@@ -34,11 +34,28 @@
     }).catch(function () { $('home-ideas').closest('section').hidden = true; });
   }
 
+
+  // ---------- Escucha ciudadana: aportaciones por tema ----------
+  if ($('esc-areas')) {
+    api('/escucha').then(function (d) {
+      if (!d.total) return; // sin datos reales se muestran solo las categorías de ejemplo
+      var nota = $('esc-nota'); if (nota) nota.textContent = 'Número de aportaciones recibidas por tema. Se actualiza en directo y no incluye datos personales.';
+      Array.prototype.forEach.call(document.querySelectorAll('.esc-cat'), function (el) {
+        var f = d.areas.filter(function (a) { return a.area === el.getAttribute('data-area'); })[0], n = f ? f.recibidas : 0, tag = el.querySelector('.esc-n');
+        if (n) { tag.hidden = false; tag.textContent = n + (n === 1 ? ' aportación' : ' aportaciones') + (f.en_estudio ? ' · ' + f.en_estudio + ' en estudio' : ''); }
+      });
+    }).catch(function () { /* se quedan los ejemplos */ });
+    api('/propuestas?limite=6').then(function (l) {
+      if (!l.length) return; $('esc-publicas').hidden = false;
+      l.forEach(function (x) { $('esc-lista').appendChild(h('a', { class: 'rowitem', href: 'idea.html?id=' + x.id, style: 'text-decoration:none;color:inherit' }, h('div', { style: 'display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 16px' }, h('span', { class: 'icoc' }, String(x.apoyos)), h('div', null, h('span', { style: 'font:500 .72rem var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--accent)' }, x.area || ''), h('h3', { style: 'font-size:1.1rem' }, x.titulo)), h('span', { class: 'chev', style: 'color:var(--accent)' }, '›')))); });
+    }).catch(function () {});
+  }
+
   // ---------- Transparencia en cifras ----------
   if ($('t-datos')) {
     api('/transparencia').then(function (d) {
       var c = $('t-datos');
-      [['Afiliados activos', d.afiliados], ['Simpatizantes', d.simpatizantes], ['Ideas publicadas', d.propuestas_publicas], ['Ideas aprobadas o en marcha', d.propuestas_aprobadas], ['Votaciones cerradas', d.consultas_cerradas], ['Actos celebrados', d.eventos_realizados], ['Personas voluntarias', d.voluntarios]].forEach(function (x) {
+      [['Afiliados activos', d.afiliados], ['Ideas publicadas', d.propuestas_publicas], ['Ideas aprobadas o en marcha', d.propuestas_aprobadas], ['Votaciones cerradas', d.consultas_cerradas], ['Actos celebrados', d.eventos_realizados], ['Personas voluntarias', d.voluntarios]].forEach(function (x) {
         c.appendChild(h('div', { class: 'counter' }, h('b', null, String(x[1])), h('span', null, x[0])));
       });
       $('t-fecha').textContent = 'Actualizado: ' + fecha(d.actualizado, true);

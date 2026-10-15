@@ -11,7 +11,7 @@ export const participacionPublica = Router();
 export const participacionPortal = Router();
 export const participacionIntranet = Router();
 
-const AREAS = ['Libertades y derechos', 'Economía y empleo', 'Vivienda', 'Educación y juventud', 'Sanidad', 'Medio ambiente', 'Democracia y transparencia', 'Territorio', 'Otra'];
+const AREAS = ['Vivienda', 'Sanidad', 'Educación', 'Transporte', 'Empleo y vida cotidiana', 'Servicios públicos', 'Instituciones y participación', 'Otro'];
 const AREAS_VOLUNTARIADO = ['Comunicación y redes', 'Programa y propuestas', 'Diseño', 'Tecnología', 'Eventos y logística', 'Territorio y contacto local', 'Traducción', 'Otra'];
 const PUBLICOS = ['en_estudio', 'en_debate', 'en_votacion', 'aprobada', 'descartada', 'en_marcha'];
 const ESTADOS = ['recibida', 'rechazada', ...PUBLICOS];
@@ -64,7 +64,7 @@ participacionPublica.post('/propuestas', (req, res) => {
   if (!limitar(`prop:${req.ip}`, 5, 3600_000)) return res.status(429).json({ error: 'Demasiadas propuestas seguidas. Prueba más tarde.' });
   const b = req.body ?? {};
   const nombre = limpio(b.nombre, 80), email = limpio(b.email, 254).toLowerCase(), titulo = limpio(b.titulo, 120);
-  const texto = String(b.texto ?? '').trim().slice(0, 3000), area = AREAS.includes(b.area) ? b.area : 'Otra';
+  const texto = String(b.texto ?? '').trim().slice(0, 3000), area = AREAS.includes(b.area) ? b.area : 'Otro';
   const errores = {};
   if (!nombre) errores.nombre = 'Escribe tu nombre';
   if (!esEmail(email)) errores.email = 'Correo no válido';
@@ -86,18 +86,31 @@ participacionPublica.post('/necesidades', (req, res) => {
   const texto = String(b.texto ?? '').replace(/\s+/g, ' ').trim().slice(0, 600);
   const email = limpio(b.email, 254).toLowerCase();
   const nombre = limpio(b.nombre, 80);
-  const provincia = db.prepare("SELECT id FROM territorios WHERE id = ? AND tipo = 'provincia'").get(Number(b.provincia_id));
+  const area = AREAS.includes(b.area) ? b.area : null;
+  // La provincia es opcional
+  const provincia = b.provincia_id ? db.prepare("SELECT id FROM territorios WHERE id = ? AND tipo = 'provincia'").get(Number(b.provincia_id)) : null;
   const errores = {};
   if (texto.length < 10) errores.texto = 'Cuéntanos un poco más (al menos 10 caracteres)';
-  if (!provincia) errores.provincia_id = 'Elige tu provincia';
+  if (!area) errores.area = 'Elige un tema (si no encaja ninguno, "Otro")';
+  if (b.provincia_id && !provincia) errores.provincia_id = 'Provincia no válida';
   if (email && !esEmail(email)) errores.email = 'Correo no válido';
   if (b.acepta !== true) errores.acepta = 'Hace falta aceptar la política de privacidad';
   if (Object.keys(errores).length) return res.status(400).json({ error: 'Revisa el formulario', errores });
   let titulo = texto.length > 90 ? `${texto.slice(0, 90).replace(/\s+\S*$/, '')}…` : texto;
   if (titulo.length < 8) titulo = texto;
-  const r = db.prepare("INSERT INTO propuestas (titulo, texto, autor_nombre, autor_email, tipo, provincia_id) VALUES (?, ?, ?, ?, 'necesidad', ?)").run(titulo, texto, nombre || 'Una persona', email, provincia.id);
+  // La autorización para publicar es independiente de la privacidad: solo se guarda como "sí" si la persona la marca
+  const r = db.prepare("INSERT INTO propuestas (titulo, texto, area, autor_nombre, autor_email, tipo, provincia_id, publicar_ok) VALUES (?, ?, ?, ?, ?, 'necesidad', ?, ?)")
+    .run(titulo, texto, area, nombre || 'Una persona', email, provincia?.id ?? null, b.acepta_publicar === true ? 1 : 0);
   db.prepare("INSERT INTO propuesta_historial (propuesta_id, estado, nota) VALUES (?, 'recibida', NULL)").run(Number(r.lastInsertRowid));
-  res.status(201).json({ ok: true, mensaje: 'Gracias. Tu necesidad está recibida: la estudiaremos, la clasificaremos y verás aquí qué pasa con ella. Cuantas más personas la compartan, más fuerza tiene.' });
+  res.status(201).json({ ok: true, mensaje: 'Hemos recibido tu aportación. La revisaremos para entender mejor el problema y valorar cómo podemos estudiarlo. No todas las propuestas podrán desarrollarse, pero queremos que el proceso sea transparente y que puedas conocer los avances cuando sea posible.' });
+});
+
+// Resumen público de la escucha: cuántas aportaciones hay por tema (sin datos de nadie)
+participacionPublica.get('/escucha', (_req, res) => {
+  const filas = db.prepare(`SELECT area, COUNT(*) AS recibidas, SUM(CASE WHEN estado IN ('en_estudio','en_debate','en_votacion','aprobada','en_marcha') THEN 1 ELSE 0 END) AS en_estudio
+                              FROM propuestas WHERE estado <> 'rechazada' AND area IS NOT NULL GROUP BY area`).all();
+  const por = Object.fromEntries(filas.map((f) => [f.area, { recibidas: f.recibidas, en_estudio: f.en_estudio }]));
+  res.json({ total: filas.reduce((a, f) => a + f.recibidas, 0), areas: AREAS.map((a) => ({ area: a, recibidas: por[a]?.recibidas ?? 0, en_estudio: por[a]?.en_estudio ?? 0 })) });
 });
 
 // ---------- Propuestas (afiliados: apoyar y comentar) ----------
@@ -138,7 +151,7 @@ participacionPortal.post('/comentarios/:id/denunciar', requerirPersona(), (req, 
 participacionIntranet.get('/propuestas', requerirEquipo(...MODERAN, 'auditor'), (req, res) => {
   const estado = ESTADOS.includes(req.query.estado) ? req.query.estado : 'recibida';
   res.json(db.prepare(
-    `SELECT p.id, p.titulo, p.texto, p.area, p.tipo, (SELECT nombre FROM territorios t WHERE t.id = p.provincia_id) AS provincia, p.autor_nombre, p.autor_email, p.estado, p.motivo_rechazo, p.votacion_id, p.creada_en,
+    `SELECT p.id, p.titulo, p.texto, p.area, p.tipo, (SELECT nombre FROM territorios t WHERE t.id = p.provincia_id) AS provincia, p.autor_nombre, p.autor_email, p.publicar_ok, p.estado, p.motivo_rechazo, p.votacion_id, p.creada_en,
             (SELECT COUNT(*) FROM propuesta_apoyos a WHERE a.propuesta_id = p.id) AS apoyos
        FROM propuestas p WHERE p.estado = ? ORDER BY p.creada_en DESC LIMIT 200`,
   ).all(estado));
@@ -150,6 +163,7 @@ participacionIntranet.post('/propuestas/:id/estado', requerirEquipo(...MODERAN),
   const estado = req.body?.estado, nota = limpio(req.body?.nota, 400) || null;
   if (!ESTADOS.includes(estado) || estado === 'recibida') return res.status(400).json({ error: 'Estado no válido' });
   if (estado === 'rechazada' && !nota) return res.status(400).json({ error: 'Indica el motivo del rechazo' });
+  if (p.tipo === 'necesidad' && !p.publicar_ok && PUBLICOS.includes(estado)) return res.status(400).json({ error: 'Esta persona no autorizó publicar su aportación. Puedes estudiarla internamente, pero no publicarla.' });
   let votacion = p.votacion_id;
   if (estado === 'en_votacion') {
     votacion = Number(req.body?.votacion_id) || null;

@@ -67,28 +67,7 @@ publicas.post('/inscripciones', (req, res) => {
   res.status(201).json(OK);
 });
 
-// Simpatizante: solo nombre, correo y provincia. No tiene cuenta ni portal.
-publicas.post('/simpatizantes', (req, res) => {
-  if (!limitar(`simp:${req.ip}`, 10, 3600_000)) return res.status(429).json({ error: 'Demasiados intentos. Prueba más tarde.' });
-  const b = req.body ?? {};
-  const nombre = limpio(b.nombre, 80), email = limpio(b.email, 254).toLowerCase();
-  const errores = {};
-  if (!nombre) errores.nombre = 'Escribe tu nombre';
-  if (!esEmail(email)) errores.email = 'Correo no válido';
-  if (!provinciaValida(b.provincia_id)) errores.provincia_id = 'Elige una provincia';
-  if (b.consentimiento_avisos !== true) errores.consentimiento_avisos = 'Hace falta aceptar para recibir avisos';
-  if (Object.keys(errores).length) return res.status(400).json({ error: 'Revisa el formulario', errores });
-  if (!db.prepare('SELECT id FROM personas WHERE email = ?').get(email)) {
-    db.exec('BEGIN');
-    try {
-      const r = db.prepare("INSERT INTO personas (tipo, estado, nombre, apellidos, email, territorio_id) VALUES ('simpatizante', 'activo', ?, '', ?, ?)")
-        .run(nombre, email, Number(b.provincia_id));
-      db.prepare("INSERT INTO consentimientos (persona_id, finalidad, version_texto, otorgado) VALUES (?, 'novedades', ?, 1)").run(Number(r.lastInsertRowid), VERSION_TEXTO);
-      db.exec('COMMIT');
-    } catch (e) { db.exec('ROLLBACK'); return res.status(500).json({ error: 'No se pudo guardar.' }); }
-  }
-  res.status(201).json({ ok: true, mensaje: 'Listo. Te avisaremos de campañas, eventos y encuestas.' });
-});
+// (El alta de simpatizantes se eliminó: ahora todo el mundo se afilia, y es gratis.)
 
 // Listas para los desplegables (situación laboral y sector)
 publicas.get('/catalogos', (_req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.json(CATALOGOS); });

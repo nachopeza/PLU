@@ -4,7 +4,7 @@ AVISO_LEGAL = '<p class="proto-note">Borrador de trabajo: debe revisarlo una per
 def cab(eyebrow, h1, lede=''):
     return f'<div class="head"><span class="eyebrow">{eyebrow}</span><h1 class="h2" data-r>{h1}</h1>{f"<p class=lede>{lede}</p>" if lede else ""}</div>'
 
-AREAS_OPC = ''.join(f'<option>{a}</option>' for a in ['Libertades y derechos','Economía y empleo','Vivienda','Educación y juventud','Sanidad','Medio ambiente','Democracia y transparencia','Territorio','Otra'])
+AREAS_OPC = ''.join(f'<option>{a}</option>' for a in ['Vivienda','Sanidad','Educación','Transporte','Empleo y vida cotidiana','Servicios públicos','Instituciones y participación','Otro'])
 AREAS_VOL = ''.join(f'<option>{a}</option>' for a in ['Comunicación y redes','Programa y propuestas','Diseño','Tecnología','Eventos y logística','Territorio y contacto local','Traducción','Otra'])
 
 ideas = f'''
@@ -15,10 +15,10 @@ ideas = f'''
     <div class="field"><label for="i-e">Estado</label><select id="i-e"><option value="">Todos</option><option value="en_estudio">En estudio</option><option value="en_debate">En debate</option><option value="en_votacion">En votación</option><option value="aprobada">Aprobada</option><option value="en_marcha">En marcha</option><option value="descartada">Descartada</option></select></div>
     <div class="field"><label for="i-o">Orden</label><select id="i-o"><option value="apoyos">Más apoyadas</option><option value="recientes">Más recientes</option></select></div>
   </div>
-  <div class="rows" id="i-lista"></div><p class="muted" id="i-vacio" hidden>Todavía no hay ideas publicadas con estos filtros. ¡Sé la primera persona en proponer una!</p>
+  <div class="rows" id="i-lista"></div><p class="muted" id="i-vacio" hidden>Todavía no hay ideas publicadas con estos filtros. Si tienes una, cuéntanosla: puede ser la primera.</p>
 </div></section>
 <section class="section alt" id="proponer"><div class="wrap formwrap">
-  <div style="display:grid;gap:18px;align-content:start"><div class="head" style="margin:0"><span class="eyebrow">Propón una idea</span><h2 class="h2" data-r>Cualquiera puede proponer. Todo el mundo ve qué pasa con ella.</h2></div>
+  <div style="display:grid;gap:18px;align-content:start"><div class="head" style="margin:0"><span class="eyebrow">Propón una idea</span><h2 class="h2" data-r>Cualquiera puede proponer. Te contamos qué pasa con ella.</h2></div>
     <ol class="steps"><li><div><h3>La envías</h3><p>Sin cuenta: solo tu nombre y correo (el correo nunca se publica).</p></div></li><li><div><h3>La revisa el equipo</h3><p>Comprobamos que cumple las <a class="link" href="normas.html">normas de participación</a>. Si no, te decimos por qué.</p></div></li><li><div><h3>Se debate y se apoya</h3><p>Las personas afiliadas la apoyan y comentan.</p></div></li><li><div><h3>Se decide</h3><p>Puede pasar a votación. El resultado y el motivo son públicos.</p></div></li></ol></div>
   <form class="form-card" data-api="/api/propuestas" data-ok="¡Idea recibida!" novalidate>
     <h2>Proponer una idea</h2>
@@ -172,4 +172,29 @@ donar = f'''
     <label class="consent"><input type="checkbox" name="acepta" required><span>Acepto que PLU trate estos datos para registrar mi donación. <a class="link" href="privacidad.html">Privacidad</a>.</span></label>
     <button class="btn btn-primary" type="submit">Continuar</button><p class="form-status" role="status" aria-live="polite"></p>
   </form>
+</div></section>'''
+
+
+CATS_ESCUCHA = [
+ ('Transporte', 'Transporte y movilidad', 'Conexiones insuficientes, horarios y acceso a servicios.'),
+ ('Vivienda', 'Acceso a la vivienda', 'Dificultades para alquilar, emanciparse y mantener un hogar.'),
+ ('Sanidad', 'Sanidad y cuidados', 'Experiencias y propuestas relacionadas con la atención y los servicios.'),
+ ('Educación', 'Educación y oportunidades', 'Qué impide aprender, formarse y progresar.'),
+ ('Empleo y vida cotidiana', 'Trabajo y vida cotidiana', 'Conciliar, llegar a fin de mes y tener una vida estable.'),
+ ('Servicios públicos', 'Servicios públicos', 'Servicios que quedan lejos o funcionan peor de lo que deberían.'),
+ ('Instituciones y participación', 'Instituciones y participación', 'Cómo mejorar la participación y exigir que las decisiones se expliquen.'),
+ ('Otro', 'Otros asuntos', 'Lo que no encaja en ningún otro tema.'),
+]
+cats_html = ''.join(f'<div class="esc-cat" data-area="{a}" data-r><h3>{t}</h3><p>{d}</p><span class="tag esc-n" hidden></span></div>' for a, t, d in CATS_ESCUCHA)
+escucha = f'''
+<section class="section"><div class="wrap">
+  <div class="head"><span class="eyebrow">Escucha ciudadana · PLU</span><h2 class="h2" data-r>Cómo vamos agrupando lo que nos contáis.</h2><p class="lede" data-r>Los problemas no deberían quedarse en una conversación. Agrupamos las aportaciones por tema para ver qué se repite y quién lo vive.</p></div>
+  <div class="esc-grid" id="esc-areas">{cats_html}</div>
+  <p class="muted" id="esc-nota" style="margin-top:18px">Estos son ejemplos de categorías, no resultados reales de aportaciones recibidas.</p>
+  <div id="esc-publicas" hidden><div class="head" style="margin-top:42px"><span class="eyebrow">Aportaciones publicadas</span><h2 class="h2">Lo que ya estamos estudiando.</h2></div><div class="rows" id="esc-lista"></div></div>
+  <p class="muted" style="margin-top:22px;max-width:44rem">Solo publicamos aportaciones cuando la persona lo ha autorizado y de forma anónima. No todas las propuestas podrán convertirse en medidas: explicaremos cómo las estudiamos, cuáles seguimos desarrollando y qué dificultades encontramos.</p>
+</div></section>
+<section class="section alt"><div class="wrap formwrap">
+  <div style="display:grid;gap:18px;align-content:start"><div class="head" style="margin:0"><span class="eyebrow">¿Hay algo que quieras añadir?</span><h2 class="h2" data-r>Comparte tu experiencia o una propuesta.</h2><p class="lede">Tu experiencia también cuenta. No hace falta ser experto ni tener la solución: basta con contarnos qué ocurre.</p></div></div>
+  {form_necesidad('')}
 </div></section>'''
