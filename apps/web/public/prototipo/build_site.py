@@ -188,21 +188,19 @@ CL = '<div class="clover big" aria-hidden="true"></div>'
 def form_necesidad(clase='', titulo='¿Qué te gustaría cambiar?'):
     temas = ['Vivienda', 'Sanidad', 'Educación', 'Transporte', 'Empleo y vida cotidiana', 'Servicios públicos', 'Instituciones y participación', 'Otro']
     corto = {'Empleo y vida cotidiana': 'Trabajo', 'Instituciones y participación': 'Instituciones'}
-    chips = ''.join(f'<label class="tema"><input type="radio" name="area" value="{t}" required><span>{corto.get(t, t)}</span></label>' for t in temas)
+    opts = ''.join(f'<option value="{t}">{t}</option>' for t in temas)
     return f'''<form class="form-card {clase}" id="contar" data-api="/api/necesidades" data-ok="Gracias por compartirlo con PLU." novalidate>
       <h2>{titulo}</h2>
       <div class="field"><label for="h-t">Cuéntanos qué ocurre y por qué debería cambiar</label><textarea id="h-t" name="texto" rows="2" required minlength="10" maxlength="600" placeholder="Ej.: Que haya transporte público para volver a casa después de las nueve de la noche."></textarea></div>
-      <details class="mas tema-d"><summary>Tema <small class="tsel">elige uno</small></summary><div class="tema-chips" role="radiogroup" aria-label="Tema">{chips}</div></details>
-      <details class="mas"><summary>Provincia o correo <small>(opcional)</small></summary>
+      <div class="field"><label class="vh" for="h-a">Tema</label><select id="h-a" name="area" required class="tema-sel"><option value="">¿Sobre qué tema?</option>{opts}</select></div>
+      <details class="mas"><summary>Añadir provincia o correo <small>(opcional)</small></summary>
         <div class="field-pair"><div class="field"><label for="f-prov">¿Dónde ocurre?</label><select id="f-prov" name="provincia_id" data-vacio="Provincia (opcional)"><option value="">Provincia (opcional)</option></select></div>
         <div class="field"><label for="h-e">Correo electrónico</label><input id="h-e" name="email" type="email" autocomplete="email" placeholder="Para contarte novedades"></div></div>
       </details>
-      <details class="mas"><summary>Publicación y qué pasará con tu aportación</summary>
-        <label class="consent"><input type="checkbox" name="acepta_publicar"><span>Autorizo que se publique de forma anónima, sin mi nombre ni mis datos de contacto <small>(opcional)</small>.</span></label>
-        <p class="nota-p">Será revisada antes de publicarse. No mostraremos tu identidad ni tus datos de contacto. Si queremos publicarla de forma anónima, te explicaremos cómo y bajo qué condiciones.</p>
-      </details>
-      <label class="consent"><input type="checkbox" name="acepta" required><span>Acepto la <a class="link" href="privacidad.html">política de privacidad</a> para que PLU estudie mi aportación.</span></label>
+      <label class="consent"><input type="checkbox" name="acepta" required><span>He leído la <a class="link" href="privacidad.html">política de privacidad</a> y acepto que PLU trate estos datos para estudiar mi aportación.</span></label>
+      <label class="consent"><input type="checkbox" name="acepta_publicar"><span>Autorizo que se publique de forma anónima, sin mi nombre ni mis datos de contacto <small>(opcional)</small>.</span></label>
       <button class="btn btn-primary" type="submit">Enviar mi propuesta</button><p class="form-status" role="status" aria-live="polite"></p>
+      <details class="nota"><summary>¿Qué pasará con mi aportación?</summary><p>Será revisada antes de publicarse. No mostraremos tu identidad ni tus datos de contacto. Si queremos publicar tu aportación de forma anónima, te explicaremos cómo se hará y bajo qué condiciones.</p></details>
     </form>'''
 
 home_hero = f'''<section class="hero">{ph('walk', 1800)}

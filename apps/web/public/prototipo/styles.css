@@ -2130,3 +2130,4 @@ h2 em { transition-duration: 1.8s; transition-delay: .8s; }
 .nav-actions .hide-s { display: none !important; }
 @media (min-width: 760px) { .nav-actions .hide-s { display: inline-flex !important; } }
 .nav-pill { min-width: 0; } .nav-actions { flex: none; } .nav-pill .brand, .nav-pill > a:first-child { flex: none; }
+.form-card textarea { min-height: 88px !important; }
