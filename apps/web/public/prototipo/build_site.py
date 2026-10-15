@@ -340,14 +340,6 @@ home = f'''
   </div>
 </section>
 
-<section class="section alt">
-  <div class="wrap">
-    <div class="head"><span class="eyebrow" data-r>Principios de partida</span><h2 class="h2" data-r>Diez ideas para empezar a hablar.</h2><p class="lede" data-r>Abiertas al debate: se concretan con lo que aporte la gente.</p></div>
-    <ol class="principios10">{prin_li}</ol>
-    <p style="margin-top:22px"><a class="link-arrow" href="proyecto.html#principios">Ver todos los principios →</a></p>
-  </div>
-</section>
-
 <section class="section" id="transparencia-home">
   <div class="wrap sec-split">
     <div class="txt"><span class="eyebrow" data-r>Transparencia</span><h2 data-r>Las mismas exigencias que pedimos a las instituciones.</h2>
