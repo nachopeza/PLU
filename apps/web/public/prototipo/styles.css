@@ -2176,3 +2176,12 @@ h2 em { transition-duration: 1.8s; transition-delay: .8s; }
 :root[data-theme="light"] .principios10 li { background: linear-gradient(160deg, #fff, #f0f6ee); box-shadow: 0 10px 24px -14px rgba(20,60,35,.3); }
 @media (min-width: 640px) { .principios10 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 14px !important; } .principios10 span { display: block !important; } .principios10 li { min-height: 140px; padding: 18px !important; } }
 @media (min-width: 1000px) { .principios10 { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; } }
+
+/* v13: botones flotantes en fila, mismo cristal que el menú; «subir» desliza a la luna */
+.fab { display: flex; flex-direction: row; align-items: center; justify-content: flex-end; gap: 0; }
+.fab-btn { flex: none; height: 46px; width: 46px; box-sizing: border-box; border: 1px solid var(--glass-b); background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.15); backdrop-filter: blur(20px) saturate(1.15); box-shadow: 0 10px 34px -14px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.12); }
+:root[data-theme="light"] .fab-btn { background: var(--glass); box-shadow: 0 10px 34px -14px rgba(20,60,35,.4), inset 0 1px 0 rgba(255,255,255,.8); }
+.fab-up { transform: none !important; width: 0; margin-left: 0; border-width: 0; opacity: 0; overflow: hidden; pointer-events: none; transition: width .7s cubic-bezier(.22,1,.36,1), margin .7s cubic-bezier(.22,1,.36,1), opacity .5s .1s, background .3s, color .3s; }
+.fab-up svg { flex: none; }
+.fab-up.show { width: 46px; margin-left: 10px; border-width: 1px; opacity: 1; pointer-events: auto; }
+.fab-btn:hover { transform: none; }
