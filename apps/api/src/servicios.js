@@ -54,6 +54,11 @@ export function moverEstado(personaId, nuevo, tipoMov, motivo, usuarioId) {
     .run(nuevo, ahoraISO(), nuevo, ahoraISO(), personaId);
   db.prepare('INSERT INTO movimientos_afiliacion (persona_id, tipo, desde, hasta, motivo, usuario_id) VALUES (?, ?, ?, ?, ?, ?)')
     .run(personaId, tipoMov, p.estado, nuevo, motivo || null, usuarioId ?? null);
+  // Al causar baja se borran los datos opcionales de opinión: el resultado de la Brújula (categoría especial) y los intereses
+  if (nuevo === 'baja') {
+    db.prepare('DELETE FROM brujula WHERE persona_id = ?').run(personaId);
+    db.prepare('DELETE FROM intereses_persona WHERE persona_id = ?').run(personaId);
+  }
 }
 
 export const transaccion = (fn) => {
