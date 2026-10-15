@@ -110,56 +110,66 @@ transparencia_datos = '''
 def legal(eyebrow, titulo, cuerpo):
     return f'<section class="section"><div class="wrap" style="max-width:48rem">{cab(eyebrow, titulo)}{AVISO_LEGAL}<div class="legal-text">{cuerpo}</div></div></section>'
 
-privacidad = legal('Legal', 'Política de privacidad', '''
-<h2>Quién es el responsable</h2><p>[Denominación de la organización], con domicilio en [dirección] y contacto [correo de protección de datos]. Pendiente de constitución.</p>
-<h2>Qué datos tratamos y para qué</h2>
-<ul><li><b>Simpatizantes:</b> nombre, correo y provincia, para enviarte avisos de campañas, eventos y encuestas. Base: tu consentimiento.</li>
-<li><b>Afiliados:</b> nombre, apellidos, correo, teléfono, fecha de nacimiento, DNI o NIE, código postal y provincia, para gestionar tu afiliación, emitir tu carné y permitir tu participación interna. Base: tu solicitud de afiliación y consentimiento.</li>
-<li><b>Ideas y comentarios:</b> el texto que publicas y tu nombre de pila. Tu correo no se publica.</li>
-<li><b>Eventos y voluntariado:</b> nombre y correo (y teléfono, si lo indicas) para gestionar tu inscripción u ofrecimiento.</li></ul>
-<p>El carné no lleva foto y no pedimos copia de tu documento de identidad. El DNI o NIE se guarda cifrado.</p>
-<h2>Votaciones y encuestas</h2><p>Las encuestas anónimas no guardan qué ha respondido cada persona: se registra que has participado, pero no tu respuesta. Los resultados de encuestas anónimas no se muestran hasta que hay un número mínimo de participaciones.</p>
-<h2>Brújula PLU y áreas de interés (opcional)</h2><p>Los afiliados pueden hacer un test voluntario sobre sus opiniones políticas. Estas opiniones son datos de categoría especial: solo se guarda el resultado (no cada respuesta) y únicamente si das tu consentimiento expreso y aparte. Puedes retirarlo en cualquier momento desde el portal y se borra. El equipo solo ve estadísticas anónimas de grupos de al menos 5 personas, nunca tu resultado con tu nombre. Las áreas de interés que elijas se usan para mostrarte contenido relevante.</p>
-<h2>Cuánto tiempo guardamos los datos</h2><p>Mientras mantengas la relación con la organización y, tras la baja, [plazo por definir] por obligaciones legales, tras el cual se suprimen o anonimizan.</p>
-<h2>A quién se comunican</h2><p>No vendemos datos. Pueden acceder proveedores técnicos necesarios (alojamiento, correo) con contrato de encargo de tratamiento, y las autoridades cuando la ley lo exija.</p>
-<h2>Tus derechos</h2><p>Acceso, rectificación, supresión, oposición, limitación y portabilidad, escribiendo a [correo de protección de datos]. Si tienes cuenta, puedes pedir la baja desde el portal. También puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p>
-<h2>Menores</h2><p>Para afiliarse hay que tener 16 años o más. [Condiciones para 16 y 17 años por definir.]</p>''')
 
-terminos = legal('Legal', 'Términos de uso', '''
-<h2>Qué es esta plataforma</h2><p>Un espacio de información, participación y gestión de afiliación de [organización]. Su nombre, siglas y lema son provisionales.</p>
-<h2>Cuentas</h2><p>La afiliación es gratuita y se solicita con datos veraces. La organización puede rechazar solicitudes y suspender o dar de baja cuentas que incumplan estas condiciones o las normas de participación. Las credenciales son personales e intransferibles.</p>
-<h2>El carné</h2><p>Acredita tu pertenencia a la organización. No es un documento oficial ni sustituye al documento de identidad. Se revoca al causar baja.</p>
-<h2>Contenido que publicas</h2><p>Eres responsable de lo que escribes. Nos autorizas a mostrarlo en la plataforma mientras dure el debate. Podemos ocultar contenido que incumpla las normas.</p>
-<h2>Donaciones</h2><p>La afiliación no tiene cuota. Las donaciones, cuando se habiliten, serán voluntarias y se regirán por la normativa aplicable. [Pendiente de asesoría jurídica.]</p>
-<h2>Cambios</h2><p>Podemos actualizar estos términos y lo indicaremos en la plataforma.</p>''')
+import json, re as _re, html as _html, pathlib as _pl
+LEGALES = json.loads((_pl.Path(__file__).parent / 'legales_defecto.json').read_text(encoding='utf8'))
 
-cookies = legal('Legal', 'Cookies', '''
-<p>Esta plataforma usa solo <b>cookies técnicas</b>, imprescindibles para funcionar:</p>
-<ul><li><b>plu_persona</b> y <b>plu_equipo</b>: mantienen tu sesión iniciada en el portal o la intranet. Caducan solas. <b>plu_vista</b>: permite ver la web mientras está en preparación a quien tenga la clave de acceso.</li><li><b>Preferencia de tema</b> (claro/oscuro), guardada en tu navegador.</li></ul>
-<p>No usamos cookies de publicidad, ni de seguimiento, ni analítica de terceros. Si en el futuro se añaden, pediremos tu consentimiento antes.</p>
-<p>Las tipografías se cargan desde Google Fonts, lo que puede enviar tu dirección IP a ese proveedor. [Valorar alojarlas en nuestro propio servidor antes del lanzamiento.]</p>''')
+def md_html(md):
+    """Mismo formato que apps/api/src/markdown.js: ## títulos, - listas, **negrita**, [texto](enlace). Todo lo demás se escapa."""
+    def inline(t):
+        t = _html.escape(t, quote=True)
+        t = _re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', t)
+        t = _re.sub(r'\[([^\]]+)\]\(((?:https?://|/|mailto:)[^)\s]*)\)', r'<a class="link" href="\2">\1</a>', t)
+        return t
+    out, lista, par = [], [], []
+    def cierra():
+        nonlocal lista, par
+        if par: out.append('<p>' + inline(' '.join(par)) + '</p>'); par = []
+        if lista: out.append('<ul>' + ''.join('<li>' + inline(x) + '</li>' for x in lista) + '</ul>'); lista = []
+    for linea in md.replace('\r', '').split('\n'):
+        l = linea.rstrip()
+        if not l.strip(): cierra(); continue
+        m = _re.match(r'^(#{2,3})\s+(.*)$', l)
+        if m: cierra(); n = len(m.group(1)); out.append(f'<h{n}>' + inline(m.group(2)) + f'</h{n}>'); continue
+        m = _re.match(r'^[-*]\s+(.*)$', l)
+        if m:
+            if par: cierra()
+            lista.append(m.group(1)); continue
+        if lista: cierra()
+        par.append(l.strip())
+    cierra()
+    return '\n'.join(out)
 
-normas = legal('Participación', 'Normas de participación', '''
-<p>Queremos un debate libre y útil. Para ello:</p>
-<ul><li><b>Respeto:</b> discute ideas, no personas. No se admiten insultos, acoso, amenazas ni discursos de odio.</li>
-<li><b>Veracidad:</b> no difundas datos que sepas falsos. Si citas cifras, indica la fuente.</li>
-<li><b>Sin datos personales de terceros</b> ni contenido ilegal.</li>
-<li><b>Sin spam</b> ni publicidad.</li>
-<li><b>Una persona, una voz:</b> no crees cuentas múltiples ni votes por otros.</li></ul>
-<h2>Qué pasa si no se cumplen</h2><p>El equipo de moderación puede ocultar un comentario o no publicar una idea, y debe indicar el motivo. Cualquier persona afiliada puede denunciar un comentario. Las decisiones de moderación quedan registradas.</p>
-<h2>Cómo se decide una idea</h2><p>Recibida → revisada → debate → (opcional) votación de afiliados → decisión publicada con su motivo → seguimiento.</p>''')
+def legal_json(slug):
+    d = LEGALES[slug]
+    return (f'<section class="section"><div class="wrap" style="max-width:48rem">{cab(d["eyebrow"], d["titulo"])}<!--AVISO-->{AVISO_LEGAL}<!--/AVISO-->'
+            f'<div class="legal-text" data-legal="{slug}" data-cms-skip><!--LEGAL-->{md_html(d["md"])}<!--/LEGAL--></div></div></section>')
 
-faq = legal('Preguntas frecuentes', 'FAQ', '''
-<h2>¿Afiliarse cuesta algo?</h2><p>No. Es gratuito.</p>
-<h2>¿Quién puede afiliarse?</h2><p>Personas de 16 años o más residentes en España, con DNI o NIE.</p>
-<h2>¿Cuál es la diferencia entre simpatizante y afiliado?</h2><p>Un simpatizante recibe avisos y puede participar por enlace en encuestas abiertas. Un afiliado tiene carné, accede al portal, apoya y comenta ideas y vota.</p>
-<h2>¿Cuánto tarda en aprobarse mi afiliación?</h2><p>El equipo revisa las solicitudes manualmente. Te daremos acceso al portal cuando se apruebe.</p>
-<h2>¿Quién puede proponer ideas?</h2><p>Cualquier persona, sin cuenta. Apoyar, comentar y votar es cosa de las personas afiliadas.</p>
-<h2>¿Mi voto es secreto?</h2><p>En las votaciones y encuestas anónimas, sí: no se guarda qué has votado junto a tu identidad.</p>
-<h2>¿Cómo me doy de baja?</h2><p>Desde el portal, en Solicitudes.</p>
-<h2>¿Y si pierdo la contraseña?</h2><p>Escribe a la organización y te daremos una temporal. La recuperación automática llegará con el correo propio.</p>''')
+privacidad = legal_json('privacidad')
 
-contacto = legal('Contacto', 'Contacto', '''
-<p>Escríbenos a [correo de contacto, pendiente de dominio propio].</p>
-<p>Para temas de protección de datos: [correo de protección de datos].</p>
-<p>Prensa: [correo de prensa]. Si necesitas acreditación para un acto, indícalo en el mensaje.</p>''')
+terminos = legal_json('terminos')
+
+cookies = legal_json('cookies')
+
+normas = legal_json('normas')
+
+faq = legal_json('faq')
+
+contacto = legal_json('contacto')
+
+
+donar = f'''
+<section class="section"><div class="wrap formwrap">
+  <div style="display:grid;gap:18px;align-content:start"><div class="head" style="margin:0"><span class="eyebrow">Apoya a PLU</span><h2 class="h2" data-r>Una plataforma que se financia a la vista de todos.</h2><p class="lede">Las donaciones se hacen por transferencia bancaria. Por ley hay que identificar a quien dona, así que te pedimos nombre y DNI/NIE. Publicaremos el total recibido.</p></div>
+    <ul class="check-list"><li>Sin donaciones anónimas ni en efectivo.</li><li>Tu documento se guarda cifrado y nunca se publica.</li><li>El dinero y su destino se publican en transparencia.</li></ul>
+    <p class="muted" id="d-total"></p></div>
+  <form class="form-card" data-api="/api/donaciones" data-ok="¡Gracias por tu apoyo!" data-donar novalidate>
+    <h2>Quiero donar</h2>
+    <p class="muted" id="d-off" hidden>Las donaciones todavía no están habilitadas. Vuelve pronto.</p>
+    <div class="field"><label for="d-n">Nombre y apellidos</label><input id="d-n" name="nombre" required maxlength="160" autocomplete="name"></div>
+    <div class="field-pair"><div class="field"><label for="d-d">DNI o NIE</label><input id="d-d" name="documento" required maxlength="12" autocomplete="off"></div><div class="field"><label for="d-e">Correo</label><input id="d-e" name="email" type="email" required autocomplete="email"></div></div>
+    <div class="field"><label for="d-i">Importe (€)</label><input id="d-i" name="importe" type="number" min="1" max="50000" step="0.01" inputmode="decimal" required></div>
+    <label class="consent"><input type="checkbox" name="acepta" required><span>Acepto que PLU trate estos datos para registrar mi donación. <a class="link" href="privacidad.html">Privacidad</a>.</span></label>
+    <button class="btn btn-primary" type="submit">Continuar</button><p class="form-status" role="status" aria-live="polite"></p>
+  </form>
+</div></section>'''

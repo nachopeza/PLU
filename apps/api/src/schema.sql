@@ -495,3 +495,31 @@ CREATE TABLE IF NOT EXISTS intereses_persona (
   areas_json     TEXT NOT NULL,
   actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
+
+-- ============================================================
+-- Textos legales editables desde la intranet (privacidad, términos, cookies, normas, FAQ, contacto).
+-- Si no hay fila, la web muestra el texto por defecto (legales_defecto.json). Cada cambio queda en el historial.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS textos_legales (
+  slug           TEXT PRIMARY KEY,
+  cuerpo_md      TEXT NOT NULL,
+  revisado       INTEGER NOT NULL DEFAULT 0,      -- 1 = ya lo ha revisado quien corresponda: se oculta el aviso de borrador
+  actualizado_en TEXT NOT NULL,
+  usuario_id     INTEGER REFERENCES usuarios_intranet(id)
+);
+CREATE TABLE IF NOT EXISTS textos_legales_historial (
+  id         INTEGER PRIMARY KEY,
+  slug       TEXT NOT NULL,
+  cuerpo_md  TEXT NOT NULL,
+  revisado   INTEGER NOT NULL DEFAULT 0,
+  fecha      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+  usuario_id INTEGER REFERENCES usuarios_intranet(id)
+);
+CREATE INDEX IF NOT EXISTS idx_legales_hist ON textos_legales_historial(slug, fecha);
+
+-- Ajustes editables desde la intranet (clave/valor): datos bancarios para donaciones, etc.
+CREATE TABLE IF NOT EXISTS ajustes (
+  clave          TEXT PRIMARY KEY,
+  valor          TEXT NOT NULL,
+  actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);

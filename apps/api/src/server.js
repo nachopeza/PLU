@@ -18,6 +18,8 @@ import { rutasCarne } from './rutas-carne.js';
 import { soloJson } from './sesion.js';
 import { sembrarNoticias } from './noticias-ejemplo.js';
 import { perfilIntranet, perfilPortal } from './rutas-perfil.js';
+import { donacionesPublicas, donacionesIntranet } from './rutas-donaciones.js';
+import { legalesIntranet, paginaLegal, SLUGS as SLUGS_LEGALES } from './rutas-legales.js';
 import { privacidad, WEB_PRIVADA } from './privacidad.js';
 
 const aquí = dirname(fileURLToPath(import.meta.url));
@@ -57,6 +59,7 @@ app.use('/api', publicas);
 app.use('/api', encuestasPublicas);
 app.use('/api', contenidoPublico);
 app.use('/api', participacionPublica);
+app.use('/api/donaciones', donacionesPublicas);
 app.use('/api/portal', participacionPortal);
 app.use('/api/portal', portal);
 app.use('/api/portal', perfilPortal);
@@ -67,6 +70,8 @@ app.use('/api/intranet', rutasCarne);
 app.use('/api/intranet', contenidoIntranet);
 app.use('/api/intranet', participacionIntranet);
 app.use('/api/intranet', perfilIntranet);
+app.use('/api/intranet', legalesIntranet);
+app.use('/api/intranet', donacionesIntranet);
 app.use('/api', (_req, res) => res.status(404).json({ error: 'No existe' }));
 
 app.use(medios);
@@ -98,6 +103,10 @@ app.get('/noticias', (req, res, next) => {
     (n.imagen ? `<meta property="og:image" content="${escAttr(/^https?:/.test(n.imagen) ? n.imagen : URL_PUBLICA + n.imagen)}"><meta name="twitter:card" content="summary_large_image">` : '<meta name="twitter:card" content="summary">') +
     `<meta name="description" content="${escAttr(desc)}">`;
   res.type('html').send(readFileSync(f, 'utf8').replace(/<title>[^<]*<\/title>/, meta));
+});
+app.get(SLUGS_LEGALES.map((s) => '/' + s), (req, res, next) => {
+  const html = paginaLegal(req.path.slice(1));
+  return html ? res.type('html').send(html) : next();
 });
 app.get(/^\/([a-z0-9-]+)$/, (req, res, next) => {
   const f = join(webDir, req.params[0] + '.html');

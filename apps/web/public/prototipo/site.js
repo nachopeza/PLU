@@ -265,6 +265,15 @@
     });
   });
 
+  /* Página de donaciones: estado y total en directo */
+  (function () {
+    var f = document.querySelector('form[data-donar]'); if (!f) return;
+    fetch('/api/donaciones/info').then(function (r) { return r.json(); }).then(function (d) {
+      if (!d.activo) { var o = document.getElementById('d-off'); if (o) o.hidden = false; f.querySelectorAll('input,button').forEach(function (x) { x.disabled = true; }); }
+      var t = document.getElementById('d-total'); if (t && d.donaciones) t.textContent = 'Recibido hasta ahora: ' + d.total_eur.toLocaleString('es-ES') + ' € en ' + d.donaciones + ' donaciones.';
+    }).catch(function () {});
+  })();
+
   // Marca cuándo la página está arriba del todo (para que al estirar hacia abajo no asome el fondo claro detrás de la foto)
   (function () {
     var raiz = document.documentElement, pon = function () { raiz.classList.toggle('at-top', (window.scrollY || 0) < 120); raiz.classList.toggle('pulling', (window.scrollY || 0) < 0); };

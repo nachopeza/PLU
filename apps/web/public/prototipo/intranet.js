@@ -138,9 +138,12 @@
   // [id, título, roles, grupo]
   var GRUPOS = ['Afiliación', 'Participación', 'Web', 'Carné', 'Sistema'];
   var SECCIONES = [
+    ['panel', 'Resumen', ['admin', 'gestor', 'coordinador', 'moderador', 'auditor', 'verificador'], -1],
     ['personas', 'Personas e inscripciones', ['admin', 'gestor', 'coordinador'], 0],
     ['solicitudes', 'Solicitudes', ['admin', 'gestor', 'coordinador'], 0],
     ['propuestas', 'Ideas', ['admin', 'moderador', 'auditor'], 1],
+    ['donaciones', 'Donaciones', ['admin', 'gestor', 'auditor'], 0],
+    ['legales', 'Textos legales', ['admin', 'moderador', 'auditor'], 2],
     ['brujula', 'Brújula (estadísticas)', ['admin', 'gestor', 'coordinador', 'auditor'], 1],
     ['encuestas', 'Encuestas y votaciones', ['admin', 'moderador', 'auditor'], 1],
     ['eventos', 'Agenda', ['admin', 'moderador', 'gestor'], 1],
@@ -152,7 +155,7 @@
     ['equipo', 'Equipo', ['admin'], 4],
     ['auditoria', 'Registro de auditoría', ['admin', 'auditor'], 4]
   ];
-  var VISTAS = { brujula: sBrujula, contenido: sContenido, propuestas: sPropuestas, eventos: sEventos, noticias: sNoticias, voluntarios: sVoluntarios, resumen: sResumen, inscripciones: sInscripciones, personas: sPersonas, solicitudes: sSolicitudes, encuestas: sEncuestas, verificar: sVerificar, carne: sCarne, equipo: sEquipo, auditoria: sAuditoria };
+  var VISTAS = { panel: sResumen, donaciones: sDonaciones, legales: sLegales, brujula: sBrujula, contenido: sContenido, propuestas: sPropuestas, eventos: sEventos, noticias: sNoticias, voluntarios: sVoluntarios, resumen: sResumen, inscripciones: sInscripciones, personas: sPersonas, solicitudes: sSolicitudes, encuestas: sEncuestas, verificar: sVerificar, carne: sCarne, equipo: sEquipo, auditoria: sAuditoria };
   var detenerCamara = function () {};
 
   function abrirPanel(u) {
@@ -167,10 +170,10 @@
     mb.addEventListener('click', function () { var ab = tabs.classList.toggle('abierto'); mb.setAttribute('aria-expanded', String(ab)); });
     tabs.parentNode.insertBefore(mb, tabs);
     var propias = SECCIONES.filter(function (s) { return s[2].indexOf(u.rol) >= 0; });
-    GRUPOS.forEach(function (g, gi) {
-      var items = propias.filter(function (s) { return s[3] === gi; });
+    [-1].concat(GRUPOS.map(function (_g, k) { return k; })).forEach(function (gi) {
+      var g = gi < 0 ? '' : GRUPOS[gi], items = propias.filter(function (s) { return s[3] === gi; });
       if (!items.length) return;
-      var lista = h('div', { class: 'ip-grupo' }, h('span', { class: 'ip-grupo-t' }, g));
+      var lista = h('div', { class: 'ip-grupo' }, g ? h('span', { class: 'ip-grupo-t' }, g) : null);
       items.forEach(function (s) { lista.appendChild(h('button', { class: 'ip-btn', type: 'button', 'data-s': s[0], 'aria-pressed': 'false', onclick: function () { irA(s[0]); } }, h('span', { class: 'ip-btn-t' }, s[1]), (s[0] === 'personas' || s[0] === 'solicitudes') ? h('span', { class: 'ip-n', 'data-n': s[0], hidden: true, 'aria-live': 'polite' }) : null)); });
       tabs.appendChild(lista);
     });
@@ -214,13 +217,40 @@
     avisos();
   }
 
-  // --- Resumen ---
+  // --- Resumen: pendientes, evolución y actividad reciente (cada rol ve lo suyo) ---
   function sResumen(c) {
-    var caja = h('div', { class: 'counters' }); c.appendChild(caja);
-    api('/resumen').then(function (r) {
-      [['Pendientes', r.afiliados.pendiente || 0], ['Afiliados activos', r.afiliados.activo || 0], ['Suspendidos', r.afiliados.suspendido || 0], ['Simpatizantes', r.simpatizantes || 0]].forEach(function (x) {
-        caja.appendChild(h('div', { class: 'counter' }, h('b', null, String(x[1])), h('span', null, x[0])));
-      });
+    var caja = h('div', { class: 'dash' }); c.appendChild(caja);
+    api('/panel').then(function (r) {
+      var tarj = h('div', { class: 'counters' });
+      function t(n, etiqueta, destino, urgente) {
+        var el = h(destino ? 'button' : 'div', { class: 'counter' + (urgente && n ? ' counter-hot' : ''), type: destino ? 'button' : undefined, onclick: destino ? function () { irA(destino); } : undefined }, h('b', null, String(n)), h('span', null, etiqueta));
+        tarj.appendChild(el);
+      }
+      if (r.afiliados) { t(r.afiliados.pendiente || 0, 'Inscripciones pendientes', 'personas', true); t(r.solicitudes_abiertas || 0, 'Solicitudes abiertas', 'solicitudes', true); t(r.afiliados.activo || 0, 'Afiliados activos', 'personas'); t(r.simpatizantes || 0, 'Simpatizantes'); }
+      if (r.propuestas_nuevas !== undefined) { t(r.propuestas_nuevas, 'Ideas por revisar', 'propuestas', true); t(r.denuncias_abiertas, 'Comentarios denunciados', 'propuestas', true); }
+      if (r.voluntarios_nuevos !== undefined) t(r.voluntarios_nuevos, 'Voluntarios nuevos', 'voluntarios', true);
+      if (r.donaciones) t(r.donaciones.pendientes, 'Donaciones por confirmar', 'donaciones', true);
+      if (tarj.children.length) caja.appendChild(tarj);
+      var cols = h('div', { class: 'dash-cols' }); caja.appendChild(cols);
+      if (r.altas_semanas) {
+        var max = Math.max.apply(null, r.altas_semanas.concat([1]));
+        var barras = h('div', { class: 'dash-bars', role: 'img', 'aria-label': 'Altas por semana, últimas 8 semanas: ' + r.altas_semanas.join(', ') });
+        r.altas_semanas.forEach(function (n, i) { barras.appendChild(h('div', { class: 'dash-bar' }, h('i', { style: 'height:' + Math.max(4, n / max * 100) + '%' }), h('small', null, String(n)), h('small', { class: 'muted' }, i === 7 ? 'Esta' : '-' + (7 - i) + 's'))); });
+        cols.appendChild(h('div', { class: 'panel', style: 'min-height:0;gap:12px' }, h('h3', { style: 'font-size:1.1rem' }, 'Altas por semana'), barras));
+      }
+      if (r.provincias && r.provincias.length) {
+        var pm = r.provincias[0].n, lp = h('div', { style: 'display:grid;gap:8px' });
+        r.provincias.forEach(function (p) { lp.appendChild(h('div', { class: 'dash-hbar' }, h('span', null, p.nombre), h('i', { style: 'width:' + (p.n / pm * 100) + '%' }), h('b', null, String(p.n)))); });
+        cols.appendChild(h('div', { class: 'panel', style: 'min-height:0;gap:12px' }, h('h3', { style: 'font-size:1.1rem' }, 'Afiliados activos por provincia'), lp));
+      }
+      if (r.donaciones) caja.appendChild(h('p', { class: 'muted' }, 'Donaciones confirmadas: ' + r.donaciones.confirmadas_eur.toLocaleString('es-ES') + ' € · pendientes de confirmar: ' + r.donaciones.pendientes_eur.toLocaleString('es-ES') + ' €.'));
+      if (r.actividad) {
+        var act = h('div', { class: 'rows' });
+        if (!r.actividad.length) act.appendChild(h('p', { class: 'muted' }, 'Sin actividad todavía.'));
+        r.actividad.forEach(function (a) { act.appendChild(h('div', { class: 'audit-row' }, h('span', { class: 'tag' }, fechaHora(a.fecha)), h('span', null, '@' + (a.username || 'sistema')), h('strong', null, a.accion), h('span', { class: 'muted' }, a.entidad))); });
+        caja.appendChild(h('div', { class: 'panel', style: 'min-height:0;gap:12px' }, h('h3', { style: 'font-size:1.1rem' }, 'Actividad reciente del equipo'), act));
+      }
+      if (!caja.children.length) caja.appendChild(h('p', { class: 'muted' }, 'Elige una sección del menú para empezar.'));
     }).catch(function (e) { errorSeccion(c, e); });
     c.appendChild(h('p', { class: 'proto-note' }, 'Al aprobar una afiliación, la contraseña temporal se envía por correo a la persona. Si el envío falla, aquí verás la contraseña una sola vez para entregársela tú.'));
   }
@@ -675,6 +705,111 @@
       filas.forEach(function (a) {
         tabla.appendChild(h('div', { class: 'audit-row' }, h('span', { class: 'tag' }, fechaHora(a.fecha)), h('span', null, '@' + (a.username || 'sistema')), h('strong', null, a.accion), h('span', { class: 'muted' }, a.entidad + (a.entidad_id ? ' #' + a.entidad_id : '') + (a.detalle_json ? ' ' + a.detalle_json : ''))));
       });
+    }).catch(function (e) { errorSeccion(c, e); });
+  }
+
+
+  // --- Donaciones por transferencia ---
+  function sDonaciones(c) {
+    var gestiona = usuario.rol === 'admin' || usuario.rol === 'gestor';
+    c.appendChild(h('p', { class: 'muted' }, 'La gente avisa de su donación en la web y hace una transferencia con un código de referencia. Cuando veas el ingreso en el banco, confírmala. Hay que identificar siempre a quien dona (el documento se guarda cifrado).'));
+    var resumen = h('div', { class: 'counters' }), cab = h('div', { class: 'filters' }), caja = h('div', { class: 'rows' });
+    var estado = 'pendiente';
+    function cargar() {
+      api('/donaciones?estado=' + estado).then(function (d) {
+        limpiar(resumen); limpiar(caja);
+        ['pendiente', 'confirmada', 'rechazada'].forEach(function (e) { var t = d.totales[e] || { n: 0, eur: 0 }; resumen.appendChild(h('div', { class: 'counter' }, h('b', null, t.eur.toLocaleString('es-ES') + ' €'), h('span', null, t.n + (e === 'pendiente' ? ' pendientes' : e === 'confirmada' ? ' confirmadas' : ' rechazadas')))); });
+        if (!d.filas.length) caja.appendChild(h('p', { class: 'muted' }, 'No hay donaciones en este estado.'));
+        d.filas.forEach(function (f) {
+          var fila = h('div', { class: 'audit-row' }, h('span', { class: 'tag' }, f.fecha), h('strong', null, f.importe.toLocaleString('es-ES', { minimumFractionDigits: 2 }) + ' €'), h('span', null, f.nombre + ' · ' + f.documento), h('span', { class: 'muted' }, f.referencia || ''));
+          if (gestiona) {
+            var cambia = function (nuevo) { return function () { api('/donaciones/' + f.id + '/estado', { estado: nuevo }).then(cargar).catch(function (e) { errorSeccion(c, e); }); }; };
+            if (f.estado !== 'confirmada') fila.appendChild(h('button', { type: 'button', class: 'btn btn-primary btn-sm', onclick: cambia('confirmada') }, 'Confirmar'));
+            if (f.estado !== 'rechazada') fila.appendChild(h('button', { type: 'button', class: 'btn btn-ghost btn-sm', onclick: cambia('rechazada') }, 'Rechazar'));
+          }
+          caja.appendChild(fila);
+        });
+      }).catch(function (e) { errorSeccion(c, e); });
+    }
+    ['pendiente', 'confirmada', 'rechazada'].forEach(function (e) { cab.appendChild(h('button', { type: 'button', class: 'fbtn', onclick: function () { estado = e; cargar(); } }, e.charAt(0).toUpperCase() + e.slice(1) + 's')); });
+    c.appendChild(resumen); c.appendChild(cab);
+    if (gestiona) c.appendChild(h('p', { class: 'csv-link' }, h('a', { class: 'link', href: '/api/intranet/donaciones/export.csv' }, 'Descargar donaciones confirmadas (CSV) →')));
+    c.appendChild(caja);
+    if (gestiona) {
+      var alta = h('details', null, h('summary', null, 'Registrar un ingreso recibido sin aviso'));
+      var f = h('form', { class: 'form-card', novalidate: '' },
+        campo('d-nom', 'Nombre y apellidos', {}), campo('d-doc', 'DNI o NIE', {}), campo('d-imp', 'Importe (€)', {}), campo('d-ref', 'Referencia (opcional)', {}),
+        h('button', { class: 'btn btn-primary', type: 'submit' }, 'Registrar como confirmada'), h('p', { class: 'form-status', role: 'status' }));
+      f.addEventListener('submit', function (ev) { ev.preventDefault(); api('/donaciones', { nombre: $('d-nom').value, documento: $('d-doc').value, importe: $('d-imp').value, referencia: $('d-ref').value }).then(function () { sDonaciones(limpiar(c)); }).catch(function (e) { msg(f, e.message); }); });
+      alta.appendChild(f); c.appendChild(alta);
+    }
+    if (usuario.rol === 'admin' || usuario.rol === 'auditor') {
+      var aj = h('details', null, h('summary', null, 'Datos bancarios que ve la gente'));
+      var g = h('form', { class: 'form-card', novalidate: '' }, campo('a-iban', 'IBAN (vacío = donaciones desactivadas)', {}), campo('a-tit', 'Titular de la cuenta', {}), campo('a-ban', 'Banco', {}), campo('a-not', 'Nota (opcional)', { rows: 3 }, 'textarea'),
+        usuario.rol === 'admin' ? h('button', { class: 'btn btn-primary', type: 'submit' }, 'Guardar') : h('span'), h('p', { class: 'form-status', role: 'status' }));
+      api('/ajustes/donaciones').then(function (a) { $('a-iban').value = a.iban; $('a-tit').value = a.titular; $('a-ban').value = a.banco; $('a-not').value = a.nota; });
+      g.addEventListener('submit', function (ev) { ev.preventDefault(); api('/ajustes/donaciones', { iban: $('a-iban').value, titular: $('a-tit').value, banco: $('a-ban').value, nota: $('a-not').value }).then(function () { msg(g, 'Guardado.'); }).catch(function (e) { msg(g, e.message); }); });
+      aj.appendChild(g); c.appendChild(aj);
+    }
+    cargar();
+  }
+
+  // --- Textos legales: editor con formato sencillo y vista previa ---
+  function sLegales(c, slugInicial) {
+    var puedeEditar = usuario.rol === 'admin' || usuario.rol === 'moderador';
+    c.appendChild(h('p', { class: 'muted' }, 'Edita aquí privacidad, términos, cookies, normas, preguntas frecuentes y contacto. Los cambios se publican al guardar y cada versión queda en el historial. Los huecos entre corchetes [así] son datos por completar: el aviso de borrador desaparece al marcar el texto como revisado.'));
+    var lista = h('div', { class: 'filters' }), editor = h('div'); c.appendChild(lista); c.appendChild(editor);
+    function abrir(slug) {
+      limpiar(editor); editor.appendChild(h('p', { class: 'muted' }, 'Cargando…'));
+      api('/legales/' + slug).then(function (d) {
+        limpiar(editor);
+        var ta = h('textarea', { rows: 22, style: 'width:100%;font-family:ui-monospace,monospace;font-size:.95rem;line-height:1.5', 'aria-label': 'Texto de ' + d.titulo, maxlength: 60000 });
+        ta.value = d.md; if (!puedeEditar) ta.readOnly = true;
+        var prev = h('div', { class: 'legal-text', style: 'padding:16px;border-radius:14px;background:rgba(127,127,127,.08)' });
+        var info = h('p', { class: 'muted' }), estado = h('p', { class: 'form-status', role: 'status' });
+        var rev = h('input', { type: 'checkbox' }); rev.checked = d.revisado; if (!puedeEditar) rev.disabled = true;
+        var t = null;
+        function actualizarPrev() {
+          fetch('/api/intranet/legales/vista-previa', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ md: ta.value }) })
+            .then(function (r) { return r.json(); }).then(function (v) { prev.innerHTML = v.html || ''; info.textContent = v.pendientes ? v.pendientes + ' hueco(s) [entre corchetes] por completar.' : 'Sin huecos pendientes.'; }).catch(function () {});
+        }
+        ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(actualizarPrev, 400); });
+        function envolver(a, b, defecto) { var i = ta.selectionStart, f = ta.selectionEnd, sel = ta.value.slice(i, f) || defecto; ta.setRangeText(a + sel + b, i, f, 'select'); ta.focus(); actualizarPrev(); }
+        function linea(pref) { var i = ta.selectionStart, ini = ta.value.lastIndexOf('\n', i - 1) + 1; ta.setRangeText(pref, ini, ini, 'end'); ta.focus(); actualizarPrev(); }
+        var barra = h('div', { class: 'filters' },
+          h('button', { type: 'button', class: 'fbtn', onclick: function () { linea('## '); } }, 'Título'),
+          h('button', { type: 'button', class: 'fbtn', onclick: function () { linea('### '); } }, 'Subtítulo'),
+          h('button', { type: 'button', class: 'fbtn', onclick: function () { envolver('**', '**', 'negrita'); } }, 'Negrita'),
+          h('button', { type: 'button', class: 'fbtn', onclick: function () { linea('- '); } }, 'Lista'),
+          h('button', { type: 'button', class: 'fbtn', onclick: function () { envolver('[', '](https://)', 'texto del enlace'); } }, 'Enlace'));
+        var guardar = h('button', { type: 'button', class: 'btn btn-primary', onclick: function () {
+          estado.textContent = 'Guardando…';
+          api('/legales/' + slug, { md: ta.value, revisado: rev.checked }).then(function () { abrir(slug); setTimeout(function () { var e = editor.querySelector('.form-status'); if (e) e.textContent = 'Guardado y publicado.'; }, 300); }).catch(function (e) { estado.textContent = e.message; });
+        } }, 'Guardar y publicar');
+        var orig = h('button', { type: 'button', class: 'btn btn-ghost', onclick: function () { if (confirm('¿Volver al texto original? Se perderán los cambios actuales (quedará en el historial).')) api('/legales/' + slug + '/restaurar', { original: true }).then(function () { abrir(slug); }).catch(function (e) { estado.textContent = e.message; }); } }, 'Volver al original');
+        var hist = h('details', null, h('summary', null, 'Historial (' + d.historial.length + ')'));
+        d.historial.forEach(function (x) {
+          var fila = h('div', { class: 'audit-row' }, h('span', { class: 'tag' }, fechaHora(x.fecha)), h('span', null, x.usuario || 'sistema'));
+          if (puedeEditar) fila.appendChild(h('button', { type: 'button', class: 'fbtn', onclick: function () { api('/legales/' + slug + '/restaurar', { historial_id: x.id }).then(function () { abrir(slug); }).catch(function (e) { estado.textContent = e.message; }); } }, 'Restaurar'));
+          hist.appendChild(fila);
+        });
+        editor.appendChild(h('h3', null, d.titulo));
+        editor.appendChild(h('p', { class: 'muted' }, d.modificado ? 'Editado' + (d.actualizado_en ? ' el ' + fechaHora(d.actualizado_en) : '') : 'Texto original (sin editar).'));
+        editor.appendChild(h('p', null, h('a', { href: '/' + slug, target: '_blank', rel: 'noopener' }, 'Ver página pública ↗')));
+        if (puedeEditar) editor.appendChild(barra);
+        editor.appendChild(ta);
+        if (puedeEditar) editor.appendChild(h('label', { class: 'consent' }, rev, h('span', null, 'Revisado: ocultar el aviso de borrador en la web')));
+        if (puedeEditar) editor.appendChild(h('div', { class: 'filters' }, guardar, orig));
+        editor.appendChild(estado); editor.appendChild(info);
+        editor.appendChild(h('h4', null, 'Vista previa')); editor.appendChild(prev); editor.appendChild(hist);
+        actualizarPrev();
+      }).catch(function (e) { errorSeccion(editor, e); });
+    }
+    api('/legales').then(function (l) {
+      l.forEach(function (x) {
+        lista.appendChild(h('button', { type: 'button', class: 'fbtn', onclick: function () { abrir(x.slug); } }, x.titulo + (x.pendientes ? ' (' + x.pendientes + (x.pendientes === 1 ? ' hueco)' : ' huecos)') : '')));
+      });
+      abrir(slugInicial || l[0].slug);
     }).catch(function (e) { errorSeccion(c, e); });
   }
 

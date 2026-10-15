@@ -56,6 +56,10 @@
   "titulo": "Voluntariado"
  },
  {
+  "archivo": "donar.html",
+  "titulo": "Donar"
+ },
+ {
   "archivo": "privacidad.html",
   "titulo": "Privacidad"
  },

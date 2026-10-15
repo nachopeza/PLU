@@ -95,7 +95,7 @@ def page(fname, title, body, hero=''):
         <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
       </div>
       <div><h3>Explora</h3><ul class="footer-links"><li><a href="proyecto.html">El proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Cómo participar</a></li><li><a href="como-funciona.html">Transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
-      <div><h3>Comunidad</h3><ul class="footer-links"><li><a href="ideas.html">Ideas ciudadanas</a></li><li><a href="consultas.html">Votaciones</a></li><li><a href="eventos.html">Agenda</a></li><li><a href="noticias.html">Noticias</a></li><li><a href="voluntariado.html">Voluntariado</a></li></ul></div>
+      <div><h3>Comunidad</h3><ul class="footer-links"><li><a href="ideas.html">Ideas ciudadanas</a></li><li><a href="consultas.html">Votaciones</a></li><li><a href="eventos.html">Agenda</a></li><li><a href="noticias.html">Noticias</a></li><li><a href="voluntariado.html">Voluntariado</a></li><li><a href="donar.html">Donar</a></li></ul></div>
       <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Hazte simpatizante</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
       <div><h3>Legal</h3><ul class="footer-links"><li><a href="privacidad.html">Privacidad</a></li><li><a href="terminos.html">Términos</a></li><li><a href="cookies.html">Cookies</a></li><li><a href="normas.html">Normas de participación</a></li><li><a href="faq.html">Preguntas frecuentes</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
     </div>
@@ -627,6 +627,7 @@ PAGES = {
   'eventos.html': ('Agenda · PLU', eventos, hero_page('bench', 'Agenda', 'Actos, charlas y <em>quedadas.</em>', 'Inscríbete con tu nombre y tu correo.')),
   'noticias.html': ('Noticias · PLU', noticias, hero_page('walk', 'Noticias', 'Lo que está <em>pasando.</em>')),
   'voluntariado.html': ('Voluntariado · PLU', voluntariado, hero_page('floor', 'Voluntariado', '¿Cómo puedo <em>ayudar?</em>')),
+  'donar.html': ('Donar · PLU', donar, hero_page('circle', 'Donaciones', 'Financiación <em>a la vista.</em>')),
   'privacidad.html': ('Privacidad · PLU', privacidad, ''),
   'terminos.html': ('Términos de uso · PLU', terminos, ''),
   'cookies.html': ('Cookies · PLU', cookies, ''),

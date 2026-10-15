@@ -1753,3 +1753,25 @@ html.at-top:has(.hero, .page-hero)[data-theme="light"] .nav-pill .btn-primary { 
 .login-page { grid-template-columns: minmax(0, 1fr); }
 .login-page > .wrap { min-width: 0; }
 #app-portal .pt-tabs { max-width: 100%; }
+
+/* Pestañas del portal: barra de cristal opaca-suficiente para que el contenido no se transparente al hacer scroll */
+#app-portal .pt-tabs { background: color-mix(in srgb, var(--bg) 82%, transparent); -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4); border-radius: 18px; padding: 8px 10px; margin-inline: -10px; top: 92px; box-shadow: 0 8px 24px -12px rgba(0,0,0,.25); }
+@media (max-width: 760px) { #app-portal .pt-tabs { top: 72px; } }
+
+/* Panel de resumen de la intranet */
+.dash { display: grid; gap: 18px; }
+.dash-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 18px; }
+.dash button.counter { font: inherit; color: inherit; text-align: left; cursor: pointer; border: 0; transition: transform .2s, box-shadow .2s; }
+.dash button.counter:hover { transform: translateY(-2px); }
+.dash button.counter:focus-visible { outline: 2px solid var(--green, #3dd070); outline-offset: 2px; }
+.counter-hot b { color: #3dd070; }
+:root[data-theme="light"] .counter-hot b { color: #14803f; }
+.dash-bars { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; align-items: end; height: 170px; }
+.dash-bar { display: grid; grid-template-rows: 1fr auto auto; height: 100%; justify-items: center; gap: 2px; }
+.dash-bar i { align-self: end; width: 100%; max-width: 34px; border-radius: 8px 8px 3px 3px; background: linear-gradient(180deg, #3dd070, #14803f); }
+.dash-hbar { display: grid; grid-template-columns: minmax(0, 9rem) 1fr auto; gap: 10px; align-items: center; font-size: .92rem; }
+.dash-hbar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-hbar i { display: block; height: 10px; border-radius: 6px; background: linear-gradient(90deg, #14803f, #3dd070); min-width: 4px; }
+#sec textarea { background: rgba(127,127,127,.12); color: inherit; border: 0; border-radius: 14px; padding: 14px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+#sec details { margin-top: 14px; } #sec details > summary { cursor: pointer; padding: 6px 0; }
+#sec .legal-text + details, #sec .form-status { margin-top: 10px; }
