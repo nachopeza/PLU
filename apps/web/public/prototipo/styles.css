@@ -2152,3 +2152,15 @@ h2 em { transition-duration: 1.8s; transition-delay: .8s; }
 .form-card .consent input { width: 20px; height: 20px; }
 .form-card details.nota > summary { min-height: 36px; font-size: .88rem; }
 .form-card .form-status:empty { display: none; }
+
+/* v11: rendimiento en móvil (menos repintados) y pasos sin apilado */
+@media (max-width: 899px) {
+  .pasos li { position: relative !important; top: auto !important; background: var(--surface) !important; }
+}
+:root[data-theme="light"] body { background-attachment: scroll !important; }
+.section.alt::before, .cifras::before { animation: none !important; -webkit-mask-image: none !important; mask-image: none !important; }
+.js [data-r][data-v="b"] { filter: none !important; transform: translateY(14px); }
+.aurora i { filter: blur(40px); will-change: transform; }
+.mq, .trefoil, .joinband .big { will-change: transform; }
+.hero.fuera .aurora i, .hero.fuera .trefoil, .marquee.fuera .mq { animation-play-state: paused; }
+@media (max-width: 640px) { .aurora i:nth-child(3), .trefoil { display: none; } .marquee { transform: rotate(-1deg); } }

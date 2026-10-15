@@ -105,4 +105,10 @@
     window.addEventListener('scroll', function () { if (!t2) { t2 = true; requestAnimationFrame(chk); } }, { passive: true }); chk();
     up.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
   }
+
+  /* Pausa animaciones continuas cuando no se ven (ahorra batería y evita tirones) */
+  if ('IntersectionObserver' in window) {
+    var iov = new IntersectionObserver(function (es) { es.forEach(function (x) { x.target.classList.toggle('fuera', !x.isIntersecting); }); });
+    all('.hero, .marquee').forEach(function (e) { iov.observe(e); });
+  }
 })();
