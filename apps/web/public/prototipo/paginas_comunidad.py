@@ -119,6 +119,7 @@ privacidad = legal('Legal', 'Política de privacidad', '''
 <li><b>Eventos y voluntariado:</b> nombre y correo (y teléfono, si lo indicas) para gestionar tu inscripción u ofrecimiento.</li></ul>
 <p>El carné no lleva foto y no pedimos copia de tu documento de identidad. El DNI o NIE se guarda cifrado.</p>
 <h2>Votaciones y encuestas</h2><p>Las encuestas anónimas no guardan qué ha respondido cada persona: se registra que has participado, pero no tu respuesta. Los resultados de encuestas anónimas no se muestran hasta que hay un número mínimo de participaciones.</p>
+<h2>Brújula PLU y áreas de interés (opcional)</h2><p>Los afiliados pueden hacer un test voluntario sobre sus opiniones políticas. Estas opiniones son datos de categoría especial: solo se guarda el resultado (no cada respuesta) y únicamente si das tu consentimiento expreso y aparte. Puedes retirarlo en cualquier momento desde el portal y se borra. El equipo solo ve estadísticas anónimas de grupos de al menos 5 personas, nunca tu resultado con tu nombre. Las áreas de interés que elijas se usan para mostrarte contenido relevante.</p>
 <h2>Cuánto tiempo guardamos los datos</h2><p>Mientras mantengas la relación con la organización y, tras la baja, [plazo por definir] por obligaciones legales, tras el cual se suprimen o anonimizan.</p>
 <h2>A quién se comunican</h2><p>No vendemos datos. Pueden acceder proveedores técnicos necesarios (alojamiento, correo) con contrato de encargo de tratamiento, y las autoridades cuando la ley lo exija.</p>
 <h2>Tus derechos</h2><p>Acceso, rectificación, supresión, oposición, limitación y portabilidad, escribiendo a [correo de protección de datos]. Si tienes cuenta, puedes pedir la baja desde el portal. También puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es).</p>
@@ -134,7 +135,7 @@ terminos = legal('Legal', 'Términos de uso', '''
 
 cookies = legal('Legal', 'Cookies', '''
 <p>Esta plataforma usa solo <b>cookies técnicas</b>, imprescindibles para funcionar:</p>
-<ul><li><b>plu_persona</b> y <b>plu_equipo</b>: mantienen tu sesión iniciada en el portal o la intranet. Caducan solas.</li><li><b>Preferencia de tema</b> (claro/oscuro), guardada en tu navegador.</li></ul>
+<ul><li><b>plu_persona</b> y <b>plu_equipo</b>: mantienen tu sesión iniciada en el portal o la intranet. Caducan solas. <b>plu_vista</b>: permite ver la web mientras está en preparación a quien tenga la clave de acceso.</li><li><b>Preferencia de tema</b> (claro/oscuro), guardada en tu navegador.</li></ul>
 <p>No usamos cookies de publicidad, ni de seguimiento, ni analítica de terceros. Si en el futuro se añaden, pediremos tu consentimiento antes.</p>
 <p>Las tipografías se cargan desde Google Fonts, lo que puede enviar tu dirección IP a ese proveedor. [Valorar alojarlas en nuestro propio servidor antes del lanzamiento.]</p>''')
 

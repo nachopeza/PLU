@@ -17,6 +17,7 @@ import { participacionIntranet, participacionPortal, participacionPublica } from
 import { rutasCarne } from './rutas-carne.js';
 import { soloJson } from './sesion.js';
 import { sembrarNoticias } from './noticias-ejemplo.js';
+import { perfilIntranet, perfilPortal } from './rutas-perfil.js';
 import { privacidad, WEB_PRIVADA } from './privacidad.js';
 
 const aquí = dirname(fileURLToPath(import.meta.url));
@@ -58,12 +59,14 @@ app.use('/api', contenidoPublico);
 app.use('/api', participacionPublica);
 app.use('/api/portal', participacionPortal);
 app.use('/api/portal', portal);
+app.use('/api/portal', perfilPortal);
 app.use('/api/intranet', intranet);
 app.use('/api/intranet', gestion);
 app.use('/api/intranet', encuestasIntranet);
 app.use('/api/intranet', rutasCarne);
 app.use('/api/intranet', contenidoIntranet);
 app.use('/api/intranet', participacionIntranet);
+app.use('/api/intranet', perfilIntranet);
 app.use('/api', (_req, res) => res.status(404).json({ error: 'No existe' }));
 
 app.use(medios);

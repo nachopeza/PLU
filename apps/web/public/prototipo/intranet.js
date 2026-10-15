@@ -141,6 +141,7 @@
     ['personas', 'Personas e inscripciones', ['admin', 'gestor', 'coordinador'], 0],
     ['solicitudes', 'Solicitudes', ['admin', 'gestor', 'coordinador'], 0],
     ['propuestas', 'Ideas', ['admin', 'moderador', 'auditor'], 1],
+    ['brujula', 'Brújula (estadísticas)', ['admin', 'gestor', 'coordinador', 'auditor'], 1],
     ['encuestas', 'Encuestas y votaciones', ['admin', 'moderador', 'auditor'], 1],
     ['eventos', 'Agenda', ['admin', 'moderador', 'gestor'], 1],
     ['voluntarios', 'Voluntariado', ['admin', 'moderador', 'gestor'], 1],
@@ -151,7 +152,7 @@
     ['equipo', 'Equipo', ['admin'], 4],
     ['auditoria', 'Registro de auditoría', ['admin', 'auditor'], 4]
   ];
-  var VISTAS = { contenido: sContenido, propuestas: sPropuestas, eventos: sEventos, noticias: sNoticias, voluntarios: sVoluntarios, resumen: sResumen, inscripciones: sInscripciones, personas: sPersonas, solicitudes: sSolicitudes, encuestas: sEncuestas, verificar: sVerificar, carne: sCarne, equipo: sEquipo, auditoria: sAuditoria };
+  var VISTAS = { brujula: sBrujula, contenido: sContenido, propuestas: sPropuestas, eventos: sEventos, noticias: sNoticias, voluntarios: sVoluntarios, resumen: sResumen, inscripciones: sInscripciones, personas: sPersonas, solicitudes: sSolicitudes, encuestas: sEncuestas, verificar: sVerificar, carne: sCarne, equipo: sEquipo, auditoria: sAuditoria };
   var detenerCamara = function () {};
 
   function abrirPanel(u) {
@@ -674,6 +675,37 @@
       filas.forEach(function (a) {
         tabla.appendChild(h('div', { class: 'audit-row' }, h('span', { class: 'tag' }, fechaHora(a.fecha)), h('span', null, '@' + (a.username || 'sistema')), h('strong', null, a.accion), h('span', { class: 'muted' }, a.entidad + (a.entidad_id ? ' #' + a.entidad_id : '') + (a.detalle_json ? ' ' + a.detalle_json : ''))));
       });
+    }).catch(function (e) { errorSeccion(c, e); });
+  }
+
+  // --- Brújula PLU: solo estadísticas anónimas (grupos de 5 o más personas) ---
+  function sBrujula(c) {
+    c.appendChild(h('p', { class: 'muted' }, 'Resultados agregados del test opcional de los afiliados. Son datos de opiniones políticas: se muestran solo en grupos de 5 o más personas y nunca por persona. Cada consulta queda en el registro de auditoría.'));
+    var caja = h('div', { class: 'rows' }); c.appendChild(caja);
+    api('/brujula/agregado').then(function (d) {
+      if (!d.total_suficiente) { caja.appendChild(h('p', { class: 'muted' }, 'Todavía no hay suficientes resultados guardados para mostrar estadísticas (mínimo ' + d.minimo + ' personas).')); }
+      else {
+        var bloque = function (titulo, r) {
+          var b = h('div', { class: 'panel', style: 'min-height:0;gap:12px' }, h('h3', { style: 'font-size:1.15rem' }, titulo + ' · ' + r.personas + ' personas · afinidad media con PLU ' + (r.afinidad_media == null ? '—' : r.afinidad_media + '%')));
+          Object.keys(d.ejes).forEach(function (k) {
+            var e = r.ejes[k]; if (!e) return;
+            var tot = e.izquierda + e.centro + e.derecha || 1;
+            var fila = h('div', { style: 'display:grid;gap:4px' }, h('strong', null, d.ejes[k].nombre + ' (media ' + e.media + ')'),
+              h('div', { style: 'display:flex;height:12px;border-radius:8px;overflow:hidden;background:rgba(127,127,127,.2)' },
+                h('i', { style: 'background:#3dd070;width:' + (e.izquierda / tot * 100) + '%' }), h('i', { style: 'background:#9db0a2;width:' + (e.centro / tot * 100) + '%' }), h('i', { style: 'background:#14803f;width:' + (e.derecha / tot * 100) + '%' })),
+              h('small', { class: 'muted' }, d.ejes[k].izq + ': ' + e.izquierda + ' · Centro: ' + e.centro + ' · ' + d.ejes[k].der + ': ' + e.derecha));
+            b.appendChild(fila);
+          });
+          return b;
+        };
+        caja.appendChild(bloque('Todos los afiliados', d.global));
+        d.provincias.forEach(function (p) { caja.appendChild(bloque(p.provincia, p)); });
+      }
+      if (d.intereses && d.intereses.length) {
+        var ib = h('div', { class: 'panel', style: 'min-height:0;gap:10px' }, h('h3', { style: 'font-size:1.15rem' }, 'Áreas de interés más elegidas'));
+        d.intereses.forEach(function (i) { ib.appendChild(h('div', { class: 'audit-row' }, h('strong', null, i.area), h('span', { class: 'muted' }, i.personas + ' personas'))); });
+        caja.appendChild(ib);
+      }
     }).catch(function (e) { errorSeccion(c, e); });
   }
 

@@ -474,3 +474,24 @@ CREATE TABLE IF NOT EXISTS semillas (
   nombre    TEXT PRIMARY KEY,
   creada_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
+
+-- ============================================================
+-- Brújula PLU (test opcional de afinidad). Las opiniones políticas son datos de categoría especial (RGPD art. 9):
+-- solo se guardan con consentimiento explícito y aparte, se puede retirar en cualquier momento (se borra) y
+-- el equipo solo ve agregados anónimos (mínimo 5 personas por grupo). No se guardan las respuestas sueltas, solo el resultado.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS brujula (
+  persona_id             INTEGER PRIMARY KEY REFERENCES personas(id) ON DELETE CASCADE,
+  ejes_json              TEXT NOT NULL,        -- {"eco":-35,"lib":-60,...} de -100 a 100
+  afinidad               INTEGER,              -- 0-100 cercanía a los principios de PLU
+  version_test           TEXT NOT NULL,
+  version_consentimiento TEXT NOT NULL,
+  consentido_en          TEXT NOT NULL,
+  actualizado_en         TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+-- Áreas que le interesan a cada afiliado (opcional, editable)
+CREATE TABLE IF NOT EXISTS intereses_persona (
+  persona_id     INTEGER PRIMARY KEY REFERENCES personas(id) ON DELETE CASCADE,
+  areas_json     TEXT NOT NULL,
+  actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);

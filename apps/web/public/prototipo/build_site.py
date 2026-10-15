@@ -512,7 +512,7 @@ portal = '''
 
     <div id="w-panel" class="intra-view" hidden>
       <div class="panel-head"><div><span class="eyebrow" id="w-estado"></span><h1 class="h2" id="w-nombre"></h1></div><button class="btn btn-ghost btn-sm" type="button" id="w-salir">Cerrar sesión</button></div>
-      <div class="filters" role="group" aria-label="Secciones"><button class="fbtn" aria-pressed="true" data-w="carne">Mi carné</button><button class="fbtn" aria-pressed="false" data-w="encuestas">Encuestas</button><button class="fbtn" aria-pressed="false" data-w="solicitudes">Solicitudes</button><button class="fbtn" aria-pressed="false" data-w="historial">Historial</button></div>
+      <div class="filters pt-tabs" role="group" aria-label="Secciones"><button class="fbtn" aria-pressed="true" data-w="inicio">Inicio</button><button class="fbtn" aria-pressed="false" data-w="carne">Mi carné</button><button class="fbtn" aria-pressed="false" data-w="participa">Participa</button><button class="fbtn" aria-pressed="false" data-w="brujula">Brújula</button><button class="fbtn" aria-pressed="false" data-w="datos">Mis datos</button><button class="fbtn" aria-pressed="false" data-w="solicitudes">Solicitudes</button><button class="fbtn" aria-pressed="false" data-w="cuenta">Cuenta</button></div>
       <div id="w-sec"></div>
     </div>
   </div>
