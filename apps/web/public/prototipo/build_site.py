@@ -116,7 +116,6 @@ def page(fname, title, body, hero=''):
       <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><img class="wordmark" src="brand/word.png" alt="PLU"></a>
       <nav class="nav-links" aria-label="Principal">{links}</nav>
       <div class="nav-actions">
-        <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
         <a class="btn btn-ghost btn-sm hide-s" href="portal.html">Soy afiliado</a>
         <a class="btn btn-primary btn-sm" href="afiliate.html">Únete</a>
         <button class="icon-btn menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
@@ -143,6 +142,10 @@ def page(fname, title, body, hero=''):
     <p class="legal">Versión de trabajo de octubre de 2026. Proyecto en construcción: no es un programa electoral ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
   </div>
 </footer>
+<div class="fab" aria-label="Accesos rápidos">
+  <button class="fab-btn" id="themeBtn" type="button" aria-label="Cambiar tema claro u oscuro"><svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+  <button class="fab-btn fab-up" id="toTop" type="button" aria-label="Volver arriba"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
+</div>
 <script src="cms.js"></script>
 <script src="site.js"></script>
 <script src="comunidad.js"></script>
@@ -193,12 +196,10 @@ def form_necesidad(clase='', titulo='¿Qué te gustaría cambiar?'):
       <h2>{titulo}</h2>
       <div class="field"><label for="h-t">Cuéntanos qué ocurre y por qué debería cambiar</label><textarea id="h-t" name="texto" rows="2" required minlength="10" maxlength="600" placeholder="Ej.: Que haya transporte público para volver a casa después de las nueve de la noche."></textarea></div>
       <div class="field"><label class="vh" for="h-a">Tema</label><select id="h-a" name="area" required class="tema-sel"><option value="">¿Sobre qué tema?</option>{opts}</select></div>
-      <details class="mas"><summary>Añadir provincia o correo <small>(opcional)</small></summary>
-        <div class="field-pair"><div class="field"><label for="f-prov">¿Dónde ocurre?</label><select id="f-prov" name="provincia_id" data-vacio="Provincia (opcional)"><option value="">Provincia (opcional)</option></select></div>
-        <div class="field"><label for="h-e">Correo electrónico</label><input id="h-e" name="email" type="email" autocomplete="email" placeholder="Para contarte novedades"></div></div>
-      </details>
-      <label class="consent"><input type="checkbox" name="acepta" required><span>He leído la <a class="link" href="privacidad.html">política de privacidad</a> y acepto que PLU trate estos datos para estudiar mi aportación.</span></label>
-      <label class="consent"><input type="checkbox" name="acepta_publicar"><span>Autorizo que se publique de forma anónima, sin mi nombre ni mis datos de contacto <small>(opcional)</small>.</span></label>
+      <div class="field-pair"><div class="field"><label class="vh" for="f-prov">Provincia</label><select id="f-prov" name="provincia_id" data-vacio="Provincia (opc.)"><option value="">Provincia (opc.)</option></select></div>
+        <div class="field"><label class="vh" for="h-e">Correo electrónico</label><input id="h-e" name="email" type="email" autocomplete="email" placeholder="Correo (opc.)"></div></div>
+      <label class="consent"><input type="checkbox" name="acepta" required><span>He leído la <a class="link" href="privacidad.html">política de privacidad</a> y acepto el tratamiento de mis datos.</span></label>
+      <label class="consent"><input type="checkbox" name="acepta_publicar"><span>Autorizo publicarla de forma anónima <small>(opcional)</small>.</span></label>
       <button class="btn btn-primary" type="submit">Enviar mi propuesta</button><p class="form-status" role="status" aria-live="polite"></p>
       <details class="nota"><summary>¿Qué pasará con mi aportación?</summary><p>Será revisada antes de publicarse. No mostraremos tu identidad ni tus datos de contacto. Si queremos publicar tu aportación de forma anónima, te explicaremos cómo se hará y bajo qué condiciones.</p></details>
     </form>'''

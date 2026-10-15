@@ -96,4 +96,13 @@
       road.scrollTo({ left: n * w, behavior: 'smooth' });
     }, 4200);
   }
+
+  /* Botón de subir */
+  var up = document.getElementById('toTop');
+  if (up) {
+    var t2 = false;
+    var chk = function () { up.classList.toggle('show', window.scrollY > 600); t2 = false; };
+    window.addEventListener('scroll', function () { if (!t2) { t2 = true; requestAnimationFrame(chk); } }, { passive: true }); chk();
+    up.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
+  }
 })();

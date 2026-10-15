@@ -2131,3 +2131,24 @@ h2 em { transition-duration: 1.8s; transition-delay: .8s; }
 @media (min-width: 760px) { .nav-actions .hide-s { display: inline-flex !important; } }
 .nav-pill { min-width: 0; } .nav-actions { flex: none; } .nav-pill .brand, .nav-pill > a:first-child { flex: none; }
 .form-card textarea { min-height: 88px !important; }
+
+/* v10: accesos flotantes (tema + subir) y formulario más corto */
+.fab { position: fixed; right: max(14px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 60; display: grid; gap: 10px; }
+.fab-btn { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--fg); border: 1px solid var(--glass-b, var(--line)); background: var(--glass, color-mix(in srgb, var(--surface) 80%, transparent)); -webkit-backdrop-filter: blur(18px) saturate(1.2); backdrop-filter: blur(18px) saturate(1.2); box-shadow: 0 10px 26px -10px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.15); transition: transform .5s cubic-bezier(.22,1,.36,1), opacity .5s, background .3s, color .3s; }
+.fab-btn svg { width: 20px; height: 20px; }
+.fab-btn:hover { background: var(--accent); color: var(--on-accent, #fff); transform: translateY(-3px); }
+.fab-btn:active { transform: scale(.94); }
+.fab-up { opacity: 0; transform: translateY(14px) scale(.9); pointer-events: none; }
+.fab-up.show { opacity: 1; transform: none; pointer-events: auto; }
+.fab-up.show:hover { transform: translateY(-3px); }
+.fab .i-sun { display: none; } :root:not([data-theme="light"]) .fab .i-moon { display: none; } :root:not([data-theme="light"]) .fab .i-sun { display: block; }
+:root[data-theme="light"] .fab-btn { background: rgba(255,255,255,.85); box-shadow: 0 12px 28px -12px rgba(20,60,35,.5), inset 0 1px 0 #fff; }
+.form-card { gap: 8px; padding: 16px 16px 14px; }
+.form-card .field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0; }
+.form-card .field-pair .field { min-width: 0; }
+.form-card select, .form-card input:not([type=checkbox]):not([type=radio]) { min-height: 42px; }
+.form-card textarea { min-height: 76px !important; }
+.form-card .consent { margin: 2px 0; font-size: .84rem; line-height: 1.35; gap: 10px; }
+.form-card .consent input { width: 20px; height: 20px; }
+.form-card details.nota > summary { min-height: 36px; font-size: .88rem; }
+.form-card .form-status:empty { display: none; }
