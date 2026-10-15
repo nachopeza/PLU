@@ -245,7 +245,7 @@
       e.preventDefault();
       var pasos = form.querySelectorAll('.step');
       if (pasos.length && pasos[pasos.length - 1].hidden) { var sig = form.querySelector('.step:not([hidden]) [data-next]'); if (sig) sig.click(); return; }
-      if (!form.checkValidity()) { form.reportValidity(); return; }
+      if (!form.checkValidity()) { form.querySelectorAll(':invalid').forEach(function (f) { var d = f.closest('details'); if (d) d.open = true; }); form.reportValidity(); return; }
       var data = {};
       form.querySelectorAll('[name]').forEach(function (f) {
         if (f.type === 'checkbox') data[f.name] = f.checked;

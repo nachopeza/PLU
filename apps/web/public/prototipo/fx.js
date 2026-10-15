@@ -22,14 +22,14 @@
     var words = (rot.dataset.words || '').split('|'), i = 0;
     setInterval(function () {
       rot.classList.add('out');
-      setTimeout(function () { i = (i + 1) % words.length; rot.textContent = words[i]; rot.classList.remove('out'); }, 320);
-    }, 2300);
+      setTimeout(function () { i = (i + 1) % words.length; rot.textContent = words[i]; rot.classList.remove('out'); }, 600);
+    }, 3400);
   }
 
   /* Contadores */
   var cs = all('[data-count]');
   function count(el) {
-    var to = +el.dataset.count, t0 = null, dur = 1400;
+    var to = +el.dataset.count, t0 = null, dur = 2200;
     if (reduce || to < 2) { el.textContent = to; return; }
     el.textContent = '0';
     (function step(t) { if (!t0) t0 = t; var p = Math.min((t - t0) / dur, 1); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); })(performance.now());
@@ -66,4 +66,34 @@
   }
   document.addEventListener('pointermove', spot, { passive: true });
   document.addEventListener('pointerdown', spot, { passive: true });
+
+  /* Tema elegido en el desplegable del formulario */
+  all('.tema-d').forEach(function (d) {
+    var sel = d.querySelector('.tsel');
+    all('input[type=radio]', d).forEach(function (r) {
+      r.addEventListener('change', function () { sel.textContent = r.nextElementSibling.textContent; setTimeout(function () { d.open = false; }, 250); });
+    });
+  });
+
+  /* Hoja de ruta: puntos indicadores y avance suave automático en móvil */
+  var road = document.querySelector('.road.swipe');
+  if (road) {
+    var lis = all('li', road), dots = document.createElement('div'); dots.className = 'road-dots'; dots.setAttribute('aria-hidden', 'true');
+    lis.forEach(function () { dots.appendChild(document.createElement('i')); });
+    road.insertAdjacentElement('afterend', dots);
+    var cur = 0;
+    var mark = function () {
+      var w = lis[0].offsetWidth + 12; cur = Math.max(0, Math.min(lis.length - 1, Math.round(road.scrollLeft / w)));
+      all('i', dots).forEach(function (d, k) { d.classList.toggle('on', k === cur); });
+    };
+    road.addEventListener('scroll', mark, { passive: true }); mark();
+    var paused = false, vis = false;
+    ['pointerdown', 'touchstart', 'mouseenter', 'focusin'].forEach(function (ev) { road.addEventListener(ev, function () { paused = true; }, { passive: true }); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { vis = es[0].isIntersecting; }, { threshold: .5 }).observe(road);
+    if (!reduce) setInterval(function () {
+      if (paused || !vis || road.scrollWidth <= road.clientWidth + 4) return;
+      var w = lis[0].offsetWidth + 12, n = cur + 1 >= lis.length ? 0 : cur + 1;
+      road.scrollTo({ left: n * w, behavior: 'smooth' });
+    }, 4200);
+  }
 })();

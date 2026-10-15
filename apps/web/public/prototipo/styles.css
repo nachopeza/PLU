@@ -2070,3 +2070,58 @@ h2 em { background: linear-gradient(transparent 64%, color-mix(in srgb, var(--ac
   .js [data-r][data-v] { transform: none !important; filter: none !important; }
   .pasos li { position: relative !important; top: auto !important; }
 }
+
+/* ===== v9: ritmo más pausado, formulario compacto, bordes fluidos ===== */
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* Animaciones más lentas y suaves */
+.js [data-r] { transform: translateY(18px); transition: opacity 1.3s cubic-bezier(.22,1,.36,1), transform 1.3s cubic-bezier(.22,1,.36,1); transition-delay: calc(var(--d, 0s) * 1.5); }
+.js [data-r][data-v] { transition-property: opacity, transform, filter; transition-duration: 1.4s; }
+.js [data-r][data-v="l"] { transform: translateX(-22px); }
+.js [data-r][data-v="r"] { transform: translateX(22px); }
+.js [data-r][data-v="z"] { transform: scale(.96) translateY(14px); }
+.js [data-r][data-v="b"] { filter: blur(6px); transform: translateY(12px); }
+.js [data-r].in, .js [data-r][data-v].in { opacity: 1; transform: none; filter: none; }
+h2 em { transition-duration: 1.8s; transition-delay: .8s; }
+.aurora i { animation-duration: 34s !important; }
+.mq { animation-duration: 70s; }
+.cifras::before, .section.alt::before { animation-duration: 40s; }
+.trefoil { animation-duration: 90s; }
+.joinband .big { animation-duration: 11s; }
+.rot { transition: opacity .6s ease, transform .6s ease; }
+.puntos li .icoc::after, .pasos li.on .icoc::after { animation-duration: 4s; }
+.opt, .road li, .pasos li, .puntos li, .btn { transition-duration: .5s; }
+
+/* Botón del menú más fino */
+.nav-actions .btn-sm { padding: 0 14px; min-height: 36px; font-size: .88rem; border-radius: 999px; display: inline-flex; align-items: center; }
+.nav-actions .icon-btn, .nav-actions .menu-btn { width: 36px; height: 36px; min-width: 0; padding: 0; }
+.nav-actions { gap: 6px; }
+@media (max-width: 640px) { .nav-actions .btn-sm { padding-inline: 13px; } }
+
+/* Formulario compacto */
+.form-card { padding: 18px 18px 16px; gap: 10px; }
+.form-card.hero-form { max-width: 28rem; }
+.form-card h2 { font-size: 1.25rem; margin: 0 0 2px; }
+.form-card .field { gap: 4px; }
+.form-card textarea { min-height: 64px !important; }
+.form-card details.mas { border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
+.form-card details.mas > summary { min-height: 42px; font-weight: 600; justify-content: flex-start; }
+.form-card details.mas > summary small { margin-left: auto; opacity: .7; font-weight: 500; }
+.form-card details.mas[open] > :not(summary) { animation: abre .5s cubic-bezier(.22,1,.36,1); }
+@keyframes abre { from { opacity: 0; transform: translateY(-6px); } }
+.form-card .tema-chips { padding-bottom: 8px; }
+.form-card .tema span { min-height: 36px; padding: 0 13px; font-size: .92rem; }
+.form-card .consent { font-size: .86rem; margin: 6px 0; }
+.form-card .nota-p { font-size: .86rem; opacity: .85; margin: 0 0 8px; line-height: 1.45; }
+.form-card .btn { margin-top: 4px; }
+.form-card .tsel { color: var(--accent); }
+
+/* «Estamos construyendo»: fondo sin cortes y hoja de ruta que fluye */
+.section.alt { background: linear-gradient(180deg, transparent 0, color-mix(in srgb, var(--accent) 7%, transparent) 16%, color-mix(in srgb, var(--accent) 7%, transparent) 84%, transparent 100%) !important; }
+.section.alt::before { -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent); mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent); }
+.road.swipe { scroll-behavior: smooth; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 36px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 36px), transparent 100%); padding-block: 10px 14px; }
+@media (min-width: 820px) { .road.swipe { -webkit-mask-image: none; mask-image: none; } .road-dots { display: none !important; } }
+.road li { transition: transform .6s cubic-bezier(.22,1,.36,1), box-shadow .6s, opacity .6s; }
+.road-dots { display: flex; justify-content: center; gap: 8px; margin: 4px 0 6px; }
+.road-dots i { width: 8px; height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 30%, transparent); transition: width .5s cubic-bezier(.22,1,.36,1), background .5s; }
+.road-dots i.on { width: 26px; background: var(--accent); }
+@media (min-width: 820px) { .road.swipe::before { content: ""; position: absolute; } .road.swipe { position: relative; } }
