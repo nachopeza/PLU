@@ -2164,3 +2164,15 @@ h2 em { transition-duration: 1.8s; transition-delay: .8s; }
 .mq, .trefoil, .joinband .big { will-change: transform; }
 .hero.fuera .aurora i, .hero.fuera .trefoil, .marquee.fuera .mq { animation-play-state: paused; }
 @media (max-width: 640px) { .aurora i:nth-child(3), .trefoil { display: none; } .marquee { transform: rotate(-1deg); } }
+
+/* v12: principios en cuadrícula ordenada (baldosas numeradas) */
+.principios10 { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; counter-reset: pr; list-style: none; padding: 0; margin: 0; }
+.principios10 li { counter-increment: pr; display: flex !important; flex-direction: column; justify-content: flex-start; gap: 6px; width: auto; min-height: 88px; padding: 14px 14px 14px !important; border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent) !important; border-radius: 18px !important; background: color-mix(in srgb, var(--surface) 88%, transparent); position: relative; overflow: hidden; transition: transform .5s cubic-bezier(.22,1,.36,1), border-color .4s, box-shadow .4s; }
+.principios10 li::before { content: counter(pr, decimal-leading-zero) !important; display: block !important; position: static; font: 700 .8rem var(--font-body); letter-spacing: .08em; color: var(--accent); }
+.principios10 li::after { content: ""; position: absolute; right: -18px; bottom: -18px; width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%); }
+.principios10 b { font-size: 1.02rem !important; line-height: 1.2; font-weight: 650; }
+.principios10 span { display: none !important; font-size: .9rem; line-height: 1.35; }
+.principios10 li:hover { padding-left: 14px !important; transform: translateY(-3px); border-color: var(--accent) !important; }
+:root[data-theme="light"] .principios10 li { background: linear-gradient(160deg, #fff, #f0f6ee); box-shadow: 0 10px 24px -14px rgba(20,60,35,.3); }
+@media (min-width: 640px) { .principios10 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 14px !important; } .principios10 span { display: block !important; } .principios10 li { min-height: 140px; padding: 18px !important; } }
+@media (min-width: 1000px) { .principios10 { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; } }
