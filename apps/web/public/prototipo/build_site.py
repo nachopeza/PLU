@@ -44,6 +44,44 @@ def opciones(k): return ''.join(f'<option value="{v}">{t}</option>' for v, t in 
 
 NAV = [('proyecto.html', 'El proyecto'), ('propuestas.html', 'Propuestas'), ('ideas.html', 'Ideas'), ('eventos.html', 'Agenda'), ('participa.html', 'Participa'), ('como-funciona.html', 'Transparencia')]
 
+DESCS = {
+  'index.html': 'Plataforma Liberal Unida: una nueva forma de hacer política, más libre, más democrática y más cercana a la gente. Participa, propón y decide.',
+  'proyecto.html': 'El proyecto de PLU: principios, valores y cómo queremos devolver el poder a las personas y a los territorios.',
+  'propuestas.html': 'Propuestas de PLU para mejorar la vida de las personas: vivienda, sanidad, educación, economía y más.',
+  'ideas.html': 'Ideas ciudadanas: propón, apoya y comenta ideas para mejorar tu entorno. Las personas afiliadas votan.',
+  'eventos.html': 'Agenda de PLU: actos, charlas y quedadas. Inscríbete con tu nombre y tu correo.',
+  'participa.html': 'Formas de participar en PLU: proponer ideas, debatir, votar, ser voluntario o afiliarte.',
+  'democracia.html': 'Democracia y participación: elecciones, iniciativa ciudadana, consultas y asambleas, explicadas con claridad.',
+  'consultas.html': 'Votaciones y consultas de PLU: resultados, quórum y si la decisión es vinculante o consultiva.',
+  'debate.html': 'Debate abierto: los temas en discusión en PLU y cómo se toman las decisiones.',
+  'voluntariado.html': 'Voluntariado en PLU: comunicación, diseño, tecnología, eventos y más. No hace falta ser afiliado.',
+  'como-funciona.html': 'Cómo funciona PLU: decisiones, transparencia y rendición de cuentas, con datos reales de la plataforma.',
+  'afiliate.html': 'Afíliate a PLU: es gratis, lleva unos minutos y recibes tu carné digital por correo.',
+  'noticias.html': 'Noticias y comunicados de PLU.',
+  'donar.html': 'Dona a PLU por transferencia. Financiación a la vista de todos: identificación obligatoria y total publicado.',
+  'privacidad.html': 'Política de privacidad de PLU: qué datos tratamos, para qué y cuáles son tus derechos.',
+  'terminos.html': 'Términos de uso de la plataforma de PLU.',
+  'cookies.html': 'Política de cookies de PLU.',
+  'normas.html': 'Normas de participación en PLU: respeto, veracidad y moderación.',
+  'faq.html': 'Preguntas frecuentes sobre PLU, la afiliación y la participación.',
+  'contacto.html': 'Contacta con PLU.',
+}
+NOINDEX = {'portal.html', 'intranet.html', 'encuesta.html', 'idea.html'}
+def seo(fname, title):
+    ruta = '' if fname == 'index.html' else fname[:-5]
+    desc = DESCS.get(fname, 'Plataforma Liberal Unida: la libertad de las personas, la identidad de los territorios, el bienestar de todos.')
+    t = title.replace('"', '&quot;')
+    if fname in NOINDEX:
+        return '<meta name="robots" content="noindex,nofollow">'
+    out = (f'<meta name="description" content="{desc}">\n<link rel="canonical" href="__URL__/{ruta}">\n'
+           f'<meta property="og:type" content="website"><meta property="og:site_name" content="PLU · Plataforma Liberal Unida"><meta property="og:locale" content="es_ES">'
+           f'<meta property="og:title" content="{t}"><meta property="og:description" content="{desc}"><meta property="og:url" content="__URL__/{ruta}">'
+           f'<meta property="og:image" content="__URL__/brand/og.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="PLU · Plataforma Liberal Unida">'
+           f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{t}"><meta name="twitter:description" content="{desc}"><meta name="twitter:image" content="__URL__/brand/og.png">')
+    if fname == 'index.html':
+        out += ('\n<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"PLU · Plataforma Liberal Unida","alternateName":"PLU","url":"__URL__/","logo":"__URL__/apple-touch-icon.png"}</script>')
+    return out
+
 def page(fname, title, body, hero=''):
     links = ''.join(f'<a href="{h}"{" aria-current=\"page\"" if h == fname else ""}>{t}</a>' for h, t in NAV)
     mlinks = ('<span class="menu-t">La web</span>' + ''.join(f'<a href="{h}">{t}</a>' for h, t in NAV)
@@ -64,11 +102,13 @@ def page(fname, title, body, hero=''):
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#0a1810">
+{seo(fname, title)}
 <link rel="stylesheet" href="styles.css">
 <script>document.documentElement.classList.add("js","cms-pendiente");setTimeout(function(){{document.documentElement.classList.remove("cms-pendiente")}},1500)</script>
 </head>
 <body>
 <div id="progress" aria-hidden="true"></div><div class="glow" id="glow" aria-hidden="true"></div>
+<a class="skip-link" href="#main">Saltar al contenido</a>
 <header class="site-header">
   <div class="wrap">
     <div class="nav-pill">
@@ -84,7 +124,7 @@ def page(fname, title, body, hero=''):
     <nav class="menu" id="menu" aria-label="Menú móvil" hidden>{mlinks}</nav>
   </div>
 </header>
-<main>
+<main id="main" tabindex="-1">
 {hero}{body}
 </main>
 <footer class="site-footer">
@@ -94,10 +134,10 @@ def page(fname, title, body, hero=''):
         <a class="brand" href="index.html" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><img class="wordmark" src="brand/word.png" alt="PLU"></a>
         <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
       </div>
-      <div><h3>Explora</h3><ul class="footer-links"><li><a href="proyecto.html">El proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Cómo participar</a></li><li><a href="como-funciona.html">Transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
-      <div><h3>Comunidad</h3><ul class="footer-links"><li><a href="ideas.html">Ideas ciudadanas</a></li><li><a href="consultas.html">Votaciones</a></li><li><a href="eventos.html">Agenda</a></li><li><a href="noticias.html">Noticias</a></li><li><a href="voluntariado.html">Voluntariado</a></li><li><a href="donar.html">Donar</a></li></ul></div>
-      <div><h3>Acceso</h3><ul class="footer-links"><li><a href="participa.html">Hazte simpatizante</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
-      <div><h3>Legal</h3><ul class="footer-links"><li><a href="privacidad.html">Privacidad</a></li><li><a href="terminos.html">Términos</a></li><li><a href="cookies.html">Cookies</a></li><li><a href="normas.html">Normas de participación</a></li><li><a href="faq.html">Preguntas frecuentes</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
+      <div><h2 class="footer-h">Explora</h2><ul class="footer-links"><li><a href="proyecto.html">El proyecto</a></li><li><a href="propuestas.html">Propuestas</a></li><li><a href="democracia.html">Cómo participar</a></li><li><a href="como-funciona.html">Transparencia</a></li><li><a href="debate.html">Debate abierto</a></li></ul></div>
+      <div><h2 class="footer-h">Comunidad</h2><ul class="footer-links"><li><a href="ideas.html">Ideas ciudadanas</a></li><li><a href="consultas.html">Votaciones</a></li><li><a href="eventos.html">Agenda</a></li><li><a href="noticias.html">Noticias</a></li><li><a href="voluntariado.html">Voluntariado</a></li><li><a href="donar.html">Donar</a></li></ul></div>
+      <div><h2 class="footer-h">Acceso</h2><ul class="footer-links"><li><a href="participa.html">Hazte simpatizante</a></li><li><a href="afiliate.html">Afíliate</a></li><li><a href="portal.html">Portal del afiliado</a></li><li><a href="intranet.html">Acceso del equipo</a></li></ul></div>
+      <div><h2 class="footer-h">Legal</h2><ul class="footer-links"><li><a href="privacidad.html">Privacidad</a></li><li><a href="terminos.html">Términos</a></li><li><a href="cookies.html">Cookies</a></li><li><a href="normas.html">Normas de participación</a></li><li><a href="faq.html">Preguntas frecuentes</a></li><li><a href="contacto.html">Contacto</a></li></ul></div>
     </div>
     <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
   </div>
@@ -367,7 +407,7 @@ def drow(state, label, ico_k, title, q, l, r):
 <div class="body"><div class="dilema" style="border:0;padding:0;background:none"><div class="poles"><span>{l}</span><span>{r}</span></div><input type="range" min="0" max="100" value="50" aria-label="{l} o {r}"><p class="dilema-out" aria-live="polite">Equilibrio</p></div><p class="muted" style="font-size:.9rem">Demostración: tu postura no se guarda ni cuenta como voto.</p></div></details>'''
 debate = f'''
 <section class="section"><div class="wrap">
-  <div class="head"><span class="eyebrow">Qué es firme y qué no</span><h2 class="h2" data-r>¿Qué está en debate?</h2><p class="lede">Hay decisiones importantes que aún tenemos que tomar. Queremos escucharte.</p></div>
+  <div class="head"><span class="eyebrow">Qué es firme y qué no</span><h1 class="h2" data-r>¿Qué está en debate?</h1><p class="lede">Hay decisiones importantes que aún tenemos que tomar. Queremos escucharte.</p></div>
   <div class="filters" role="group" aria-label="Filtrar por estado"><button class="fbtn" aria-pressed="true" data-f="debate">En debate</button><button class="fbtn" aria-pressed="false" data-f="desarrollo">En desarrollo</button><button class="fbtn" aria-pressed="false" data-f="definido">Decidido</button></div>
   <div class="rows" id="statelist">
   {drow('debate','Decisión abierta','building','Alcance del Estado social','¿Qué servicios debe garantizar y cómo?','Libertad','Protección social')}
@@ -420,7 +460,7 @@ participa = f'''
 afiliate = f'''
 <section class="section"><div class="wrap formwrap">
   <div style="display:grid;gap:22px;align-content:start">
-    <div class="head" style="margin:0"><span class="eyebrow">Afíliate</span><h2 class="h2">Forma parte de PLU.</h2><p class="lede">Recibirás tu carné de afiliado por correo y acceso al portal.</p></div>
+    <div class="head" style="margin:0"><span class="eyebrow">Afíliate</span><h1 class="h2">Forma parte de PLU.</h1><p class="lede">Recibirás tu carné de afiliado por correo y acceso al portal.</p></div>
     <div class="chips"><span class="chip">Gratis</span><span class="chip">16 años o más</span><span class="chip">Residir en España</span><span class="chip">DNI o NIE</span></div>
     {ph('fence', 1000, 'r')}
     <p class="muted">¿Solo quieres recibir avisos de campañas, eventos y encuestas? <a class="link" href="participa.html">Hazte simpatizante →</a></p>

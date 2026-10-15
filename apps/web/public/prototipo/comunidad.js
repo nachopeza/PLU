@@ -264,7 +264,7 @@
       var cat = parametros.get('categoria') || '';
       var filtros = $('n-filtros');
       [''].concat(CATS).forEach(function (c) {
-        filtros.appendChild(h('a', { class: 'tab', href: c ? '/noticias?categoria=' + encodeURIComponent(c) : '/noticias', 'aria-pressed': String(c === cat) }, c || 'Todas'));
+        filtros.appendChild(h('a', { class: 'tab', href: c ? '/noticias?categoria=' + encodeURIComponent(c) : '/noticias', 'aria-current': c === cat ? 'true' : null }, c || 'Todas'));
       });
       api('/noticias' + (cat ? '?categoria=' + encodeURIComponent(cat) : '')).then(function (l) {
         $('n-vacio').hidden = l.length > 0;

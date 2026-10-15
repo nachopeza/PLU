@@ -88,7 +88,19 @@ app.use('/prototipo', (req, res, next) => {
 });
 app.get(/^\/([a-z0-9-]+)\.html$/, (req, res) => res.redirect(301, limpia(req.params[0]) + sufijo(req)));
 app.use(express.static(webDir, { index: false, extensions: [] }));
-app.get('/', (_req, res) => res.sendFile(join(webDir, 'index.html')));
+// Las páginas llevan __URL__ como marcador; se sustituye por la dirección pública (canonical, og:url, imagen para compartir)
+const conUrl = (html) => html.replaceAll('__URL__', URL_PUBLICA.replace(/\/$/, ''));
+const enviaHtml = (res, f) => res.type('html').send(conUrl(readFileSync(f, 'utf8')));
+const PAGINAS_SITEMAP = ['proyecto', 'propuestas', 'ideas', 'eventos', 'participa', 'democracia', 'consultas', 'debate', 'voluntariado', 'como-funciona', 'afiliate', 'noticias', 'donar', 'privacidad', 'terminos', 'cookies', 'normas', 'faq', 'contacto'];
+app.get('/robots.txt', (_req, res) => res.type('text/plain').send(`User-agent: *\nDisallow: /intranet\nDisallow: /portal\nDisallow: /api/\nDisallow: /encuesta\nSitemap: ${URL_PUBLICA.replace(/\/$/, '')}/sitemap.xml\n`));
+app.get('/sitemap.xml', (_req, res) => {
+  const base = URL_PUBLICA.replace(/\/$/, ''), x = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+  const u = [[`${base}/`, null, '1.0']].concat(PAGINAS_SITEMAP.filter((p) => existsSync(join(webDir, p + '.html'))).map((p) => [`${base}/${p}`, null, '0.7']));
+  for (const n of db.prepare('SELECT id, fecha FROM noticias WHERE publicada = 1 ORDER BY fecha DESC LIMIT 500').all()) u.push([`${base}/noticias?id=${n.id}`, String(n.fecha ?? '').slice(0, 10), '0.6']);
+  res.type('application/xml').send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    u.map(([l, m, p]) => `<url><loc>${x(l)}</loc>${/^\d{4}-\d{2}-\d{2}$/.test(m ?? '') ? `<lastmod>${m}</lastmod>` : ''}<priority>${p}</priority></url>`).join('\n') + '\n</urlset>\n');
+});
+app.get('/', (_req, res) => enviaHtml(res, join(webDir, 'index.html')));
 // Cada noticia lleva su vista previa al compartirla (WhatsApp, X, Facebook…): título, resumen e imagen en la propia página
 const escAttr = (t) => String(t ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 app.get('/noticias', (req, res, next) => {
@@ -102,15 +114,18 @@ app.get('/noticias', (req, res, next) => {
     `<meta property="og:title" content="${escAttr(n.titulo)}"><meta property="og:description" content="${escAttr(desc)}"><meta property="og:url" content="${escAttr(`${URL_PUBLICA}/noticias?id=${id}`)}">` +
     (n.imagen ? `<meta property="og:image" content="${escAttr(/^https?:/.test(n.imagen) ? n.imagen : URL_PUBLICA + n.imagen)}"><meta name="twitter:card" content="summary_large_image">` : '<meta name="twitter:card" content="summary">') +
     `<meta name="description" content="${escAttr(desc)}">`;
-  res.type('html').send(readFileSync(f, 'utf8').replace(/<title>[^<]*<\/title>/, meta));
+  const limpia = conUrl(readFileSync(f, 'utf8'))
+    .replace(/<meta name="description"[^>]*>\n?|<link rel="canonical"[^>]*>\n?|<meta property="og:(title|description|url)"[^>]*>|<meta name="twitter:(title|description)"[^>]*>/g, '')
+    .replace(n.imagen ? /<meta (property="og:(type|image[^"]*)"|name="twitter:(card|image)")[^>]*>/g : /(?!)/g, '');
+  res.type('html').send(limpia.replace(/<title>[^<]*<\/title>/, () => meta));
 });
 app.get(SLUGS_LEGALES.map((s) => '/' + s), (req, res, next) => {
   const html = paginaLegal(req.path.slice(1));
-  return html ? res.type('html').send(html) : next();
+  return html ? res.type('html').send(conUrl(html)) : next();
 });
 app.get(/^\/([a-z0-9-]+)$/, (req, res, next) => {
   const f = join(webDir, req.params[0] + '.html');
-  return existsSync(f) ? res.sendFile(f) : next();
+  return existsSync(f) ? enviaHtml(res, f) : next();
 });
 app.use(express.static(publicDir));
 

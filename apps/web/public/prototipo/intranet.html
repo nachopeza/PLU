@@ -13,11 +13,13 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 <meta name="theme-color" content="#0a1810">
+<meta name="robots" content="noindex,nofollow">
 <link rel="stylesheet" href="styles.css">
 <script>document.documentElement.classList.add("js","cms-pendiente");setTimeout(function(){document.documentElement.classList.remove("cms-pendiente")},1500)</script>
 </head>
 <body>
 <div id="progress" aria-hidden="true"></div><div class="glow" id="glow" aria-hidden="true"></div>
+<a class="skip-link" href="#main">Saltar al contenido</a>
 <header class="site-header">
   <div class="wrap">
     <div class="nav-pill">
@@ -33,7 +35,7 @@
     <nav class="menu" id="menu" aria-label="Menú móvil" hidden><span class="menu-t">La web</span><a href="/proyecto">El proyecto</a><a href="/propuestas">Propuestas</a><a href="/ideas">Ideas</a><a href="/eventos">Agenda</a><a href="/participa">Participa</a><a href="/como-funciona">Transparencia</a><span class="menu-t">Participa</span><a href="/debate">Debate abierto</a><a href="/consultas">Votaciones</a><a href="/noticias">Noticias</a><a href="/voluntariado">Voluntariado</a><span class="menu-t">Tu cuenta</span><a href="/portal">Portal del afiliado</a><a href="/afiliate">Afíliate</a></nav>
   </div>
 </header>
-<main>
+<main id="main" tabindex="-1">
 
 <section class="section login-page"><div class="wrap">
   <div id="app-intranet" class="intra">
@@ -110,10 +112,10 @@
         <a class="brand" href="/" aria-label="PLU, inicio"><span class="clover" role="img" aria-label="Trébol de la PLU"></span><img class="wordmark" src="brand/word.png" alt="PLU"></a>
         <p class="muted" style="margin-top:14px;max-width:26rem">Plataforma Liberal Unida. La libertad de las personas. La identidad de los territorios. El bienestar de todos.</p>
       </div>
-      <div><h3>Explora</h3><ul class="footer-links"><li><a href="/proyecto">El proyecto</a></li><li><a href="/propuestas">Propuestas</a></li><li><a href="/democracia">Cómo participar</a></li><li><a href="/como-funciona">Transparencia</a></li><li><a href="/debate">Debate abierto</a></li></ul></div>
-      <div><h3>Comunidad</h3><ul class="footer-links"><li><a href="/ideas">Ideas ciudadanas</a></li><li><a href="/consultas">Votaciones</a></li><li><a href="/eventos">Agenda</a></li><li><a href="/noticias">Noticias</a></li><li><a href="/voluntariado">Voluntariado</a></li><li><a href="/donar">Donar</a></li></ul></div>
-      <div><h3>Acceso</h3><ul class="footer-links"><li><a href="/participa">Hazte simpatizante</a></li><li><a href="/afiliate">Afíliate</a></li><li><a href="/portal">Portal del afiliado</a></li><li><a href="/intranet">Acceso del equipo</a></li></ul></div>
-      <div><h3>Legal</h3><ul class="footer-links"><li><a href="/privacidad">Privacidad</a></li><li><a href="/terminos">Términos</a></li><li><a href="/cookies">Cookies</a></li><li><a href="/normas">Normas de participación</a></li><li><a href="/faq">Preguntas frecuentes</a></li><li><a href="/contacto">Contacto</a></li></ul></div>
+      <div><h2 class="footer-h">Explora</h2><ul class="footer-links"><li><a href="/proyecto">El proyecto</a></li><li><a href="/propuestas">Propuestas</a></li><li><a href="/democracia">Cómo participar</a></li><li><a href="/como-funciona">Transparencia</a></li><li><a href="/debate">Debate abierto</a></li></ul></div>
+      <div><h2 class="footer-h">Comunidad</h2><ul class="footer-links"><li><a href="/ideas">Ideas ciudadanas</a></li><li><a href="/consultas">Votaciones</a></li><li><a href="/eventos">Agenda</a></li><li><a href="/noticias">Noticias</a></li><li><a href="/voluntariado">Voluntariado</a></li><li><a href="/donar">Donar</a></li></ul></div>
+      <div><h2 class="footer-h">Acceso</h2><ul class="footer-links"><li><a href="/participa">Hazte simpatizante</a></li><li><a href="/afiliate">Afíliate</a></li><li><a href="/portal">Portal del afiliado</a></li><li><a href="/intranet">Acceso del equipo</a></li></ul></div>
+      <div><h2 class="footer-h">Legal</h2><ul class="footer-links"><li><a href="/privacidad">Privacidad</a></li><li><a href="/terminos">Términos</a></li><li><a href="/cookies">Cookies</a></li><li><a href="/normas">Normas de participación</a></li><li><a href="/faq">Preguntas frecuentes</a></li><li><a href="/contacto">Contacto</a></li></ul></div>
     </div>
     <p class="legal">Versión de trabajo de octubre de 2026. Base doctrinal, no un programa electoral definitivo ni un texto jurídico aprobado. Nombre, siglas y lema son provisionales. Fotografías de Unsplash, provisionales. Versión de pruebas: no introduzcas datos reales hasta el lanzamiento.</p>
   </div>
