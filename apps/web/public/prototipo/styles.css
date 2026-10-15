@@ -2125,3 +2125,8 @@ h2 em { transition-duration: 1.8s; transition-delay: .8s; }
 .road-dots i { width: 8px; height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 30%, transparent); transition: width .5s cubic-bezier(.22,1,.36,1), background .5s; }
 .road-dots i.on { width: 26px; background: var(--accent); }
 @media (min-width: 820px) { .road.swipe::before { content: ""; position: absolute; } .road.swipe { position: relative; } }
+
+/* v9b: «Soy afiliado» solo en pantallas anchas (el display del botón fino lo mostraba siempre) */
+.nav-actions .hide-s { display: none !important; }
+@media (min-width: 760px) { .nav-actions .hide-s { display: inline-flex !important; } }
+.nav-pill { min-width: 0; } .nav-actions { flex: none; } .nav-pill .brand, .nav-pill > a:first-child { flex: none; }
