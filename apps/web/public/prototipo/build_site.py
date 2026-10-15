@@ -191,7 +191,7 @@ def form_necesidad(clase='', titulo='¿Qué te gustaría cambiar?'):
     chips = ''.join(f'<label class="tema"><input type="radio" name="area" value="{t}" required><span>{corto.get(t, t)}</span></label>' for t in temas)
     return f'''<form class="form-card {clase}" id="contar" data-api="/api/necesidades" data-ok="Gracias por compartirlo con PLU." novalidate>
       <h2>{titulo}</h2>
-      <div class="field"><label class="vh" for="h-t">Tu propuesta</label><textarea id="h-t" name="texto" rows="2" required minlength="10" maxlength="600" placeholder="Cuéntanos qué cambiarías…"></textarea></div>
+      <div class="field"><label for="h-t">Cuéntanos qué ocurre y por qué debería cambiar</label><textarea id="h-t" name="texto" rows="2" required minlength="10" maxlength="600" placeholder="Ej.: Que haya transporte público para volver a casa después de las nueve de la noche."></textarea></div>
       <details class="mas tema-d"><summary>Tema <small class="tsel">elige uno</small></summary><div class="tema-chips" role="radiogroup" aria-label="Tema">{chips}</div></details>
       <details class="mas"><summary>Provincia o correo <small>(opcional)</small></summary>
         <div class="field-pair"><div class="field"><label for="f-prov">¿Dónde ocurre?</label><select id="f-prov" name="provincia_id" data-vacio="Provincia (opcional)"><option value="">Provincia (opcional)</option></select></div>
@@ -214,7 +214,6 @@ home_hero = f'''<section class="hero">{ph('walk', 1800)}
       <p class="hero-p" data-r>Queremos conocer los problemas que afectan a tu vida y trabajar para que las buenas ideas se conviertan en cambios reales.</p>
       <p class="rota" data-r>Hoy escuchamos sobre <b class="rot" data-words="vivienda|sanidad|educación|transporte|empleo|servicios públicos|instituciones">vivienda</b></p>
       <div class="cta-row" data-r><a class="btn btn-light magnet" href="#contar">Cuéntanos qué cambiarías</a><a class="btn btn-line-light magnet" href="#como-trabajamos">Cómo trabajamos →</a></div>
-      <ul class="lema" data-r><li>Libertad de las personas</li><li>Identidad de los territorios</li><li>Bienestar de todos</li></ul>
     </div>
     {form_necesidad('hero-form')}
   </div>
