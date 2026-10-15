@@ -1958,3 +1958,115 @@ details.nota p { color: var(--muted); font-size: .92rem; }
 .nav-actions .btn, .nav-actions a { white-space: nowrap; }
 #participa-form .head { margin-bottom: clamp(22px, 4vw, 38px) !important; }
 #participa-form .steps { margin-top: clamp(18px, 3vw, 28px); }
+
+/* ===== v8: movimiento, ritmo y profundidad ===== */
+html, body { overflow-x: clip; }
+@keyframes drift { to { transform: translate3d(8%, 10%, 0) scale(1.15); } }
+@keyframes spinslow { to { transform: rotate(360deg); } }
+@keyframes mq { to { transform: translateX(-50%); } }
+@keyframes ping { 0% { transform: scale(1); opacity: .7; } 70%, 100% { transform: scale(1.55); opacity: 0; } }
+@keyframes floaty { 0%, 100% { translate: 0 0; } 50% { translate: 0 -14px; } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+
+/* Hero: aurora viva + trébol girando + palabra que cambia */
+.hero > .wrap, .hero .hero-grid { position: relative; z-index: 2; }
+.aurora { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.aurora i { position: absolute; width: 50vmax; height: 50vmax; border-radius: 50%; filter: blur(64px); opacity: .5; mix-blend-mode: screen; animation: drift 18s ease-in-out infinite alternate; }
+.aurora i:nth-child(1) { left: -14%; top: -22%; background: radial-gradient(circle, #3ddc84 0, transparent 62%); }
+.aurora i:nth-child(2) { right: -18%; top: 6%; background: radial-gradient(circle, #1fa7a0 0, transparent 62%); animation-duration: 25s; animation-delay: -7s; }
+.aurora i:nth-child(3) { left: 24%; bottom: -34%; background: radial-gradient(circle, #c3ec5a 0, transparent 60%); opacity: .3; animation-duration: 31s; }
+.trefoil { position: absolute; left: -40px; bottom: -40px; width: clamp(160px, 28vw, 340px); color: rgba(255,255,255,.07); animation: spinslow 50s linear infinite; }
+.rota { margin: 0 0 4px; font-weight: 600; color: rgba(255,255,255,.92); font-size: 1.05rem; }
+.rot { display: inline-block; color: #86efac; border-bottom: 2px solid currentColor; transition: opacity .3s, transform .3s; }
+.rot.out { opacity: 0; transform: translateY(-10px); }
+
+/* Cinta de ámbitos */
+.marquee { overflow: hidden; padding: 16px 0; background: var(--surface); border-block: 1px solid var(--line); transform: rotate(-1.4deg) scale(1.04); margin-block: 6px; position: relative; z-index: 3; box-shadow: 0 18px 40px -22px rgba(0,0,0,.45); }
+.mq { display: flex; width: max-content; animation: mq 36s linear infinite; }
+.mq span { display: inline-flex; align-items: center; gap: clamp(26px, 5vw, 56px); padding-right: clamp(26px, 5vw, 56px); white-space: nowrap; font: 700 clamp(1.5rem, 5.6vw, 2.7rem)/1.1 var(--font-display); letter-spacing: -.02em; color: transparent; -webkit-text-stroke: 1.3px var(--accent); }
+.mq span:nth-child(even) { color: var(--fg); -webkit-text-stroke: 0; }
+.mq span::after { content: "✺"; font-size: .55em; color: var(--accent); -webkit-text-stroke: 0; }
+
+/* Cifras */
+.cifras { position: relative; overflow: hidden; padding-block: clamp(44px, 8vw, 88px); color: #fff; background: linear-gradient(130deg, #0c3322 0%, #0f6b46 58%, #1a9462 100%); }
+.cifras::before { content: ""; position: absolute; right: -16vmax; top: -22vmax; width: 56vmax; height: 56vmax; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.18), transparent 62%); animation: drift 22s ease-in-out infinite alternate; }
+.cifras ul { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 18px; }
+@media (min-width: 820px) { .cifras ul { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cifras li { padding: 4px 0 4px 16px; border-left: 2px solid rgba(255,255,255,.4); }
+.cifras b { display: block; font: 600 clamp(2.8rem, 11vw, 4.8rem)/1 var(--font-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.cifras span { display: block; margin-top: 8px; opacity: .88; font-size: .98rem; line-height: 1.3; }
+
+/* Secciones con fondo vivo */
+.section.alt { position: relative; overflow-x: clip; }
+.section.alt > .wrap { position: relative; z-index: 1; }
+.section.alt::before { content: ""; position: absolute; right: -14vmax; top: -10vmax; width: 38vmax; height: 38vmax; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 22%, transparent), transparent 65%); pointer-events: none; animation: drift 24s ease-in-out infinite alternate; }
+
+/* Aparición con variantes */
+.js [data-r][data-v] { transition-property: opacity, transform, filter; }
+.js [data-r][data-v="l"] { transform: translateX(-38px); }
+.js [data-r][data-v="r"] { transform: translateX(38px); }
+.js [data-r][data-v="z"] { transform: scale(.9) translateY(22px); }
+.js [data-r][data-v="b"] { filter: blur(10px); transform: translateY(18px); }
+.js [data-r][data-v].in { transform: none; filter: none; }
+
+/* Subrayado marcador que se dibuja */
+h2 em { background: linear-gradient(transparent 64%, color-mix(in srgb, var(--accent) 38%, transparent) 64%) no-repeat 0 0 / 0% 100%; transition: background-size 1.1s .5s cubic-bezier(.2,.7,.2,1); }
+.js h2.in em, h2:not([data-r]) em { background-size: 100% 100%; }
+
+/* Tarjetas: foco que sigue al dedo/ratón, iconos con pulso */
+.opt, .road li, .pasos li, .puntos li, .cifras li { position: relative; }
+.opt, .road li, .pasos li, .puntos li { overflow: hidden; }
+.opt::after, .road li::after, .pasos li::after, .puntos li::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .35s; background: radial-gradient(14rem circle at var(--mx, 50%) var(--my, 50%), color-mix(in srgb, var(--accent) 24%, transparent), transparent 65%); }
+.opt:hover::after, .road li:hover::after, .pasos li:hover::after, .puntos li:hover::after, .spot::after { opacity: 1; }
+.icoc { position: relative; background: linear-gradient(145deg, color-mix(in srgb, var(--accent) 24%, transparent), color-mix(in srgb, var(--accent) 6%, transparent)); box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--accent) 70%, transparent), inset 0 1px 0 rgba(255,255,255,.3); }
+.puntos li .icoc::after, .pasos li.on .icoc::after { content: ""; position: absolute; inset: -1px; border-radius: 50%; border: 1.5px solid var(--accent); animation: ping 2.8s ease-out infinite; }
+.puntos li:nth-child(2) .icoc::after { animation-delay: .9s; } .puntos li:nth-child(3) .icoc::after { animation-delay: 1.8s; }
+.puntos li:not(:last-child)::before { content: ""; position: absolute; left: 36px; bottom: -10px; width: 2px; height: 10px; background: var(--accent); opacity: .5; }
+
+/* Cómo trabajamos: línea de progreso + tarjetas que se apilan en móvil */
+.pasos { position: relative; --p: 0; }
+.pasos li.on .icoc { background: var(--accent); color: var(--on-accent); }
+.pasos li .icoc { transition: background .4s, color .4s; }
+@media (max-width: 899px) {
+  .pasos { gap: 14px; padding-bottom: 8px; }
+  .pasos li { position: sticky; top: calc(84px + var(--i, 0) * 12px); background: var(--surface) !important; box-shadow: 0 -8px 22px -10px rgba(0,0,0,.35), 0 10px 24px -14px rgba(0,0,0,.4); }
+}
+@media (min-width: 900px) {
+  .pasos::before, .pasos::after { content: ""; position: absolute; left: 6%; top: 44px; height: 3px; border-radius: 3px; }
+  .pasos::before { right: 6%; background: var(--line); }
+  .pasos::after { width: calc(var(--p) * 88%); background: linear-gradient(90deg, var(--accent), #86efac); box-shadow: 0 0 14px var(--accent); }
+  .pasos li { z-index: 1; }
+}
+
+/* Hoja de ruta: «Ahora» late */
+.road li:first-child { border-color: var(--accent) !important; }
+.road li:first-child h3::after { content: ""; display: inline-block; width: 9px; height: 9px; margin-left: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent); animation: blink 1.6s ease-in-out infinite; vertical-align: middle; }
+
+/* Trébol de la banda final flota */
+.joinband .big { animation: floaty 7s ease-in-out infinite; }
+.btn-primary, .hero .btn-light { box-shadow: 0 12px 26px -12px color-mix(in srgb, var(--accent-strong) 80%, transparent); }
+
+/* ===== Tema claro: profundidad ===== */
+:root[data-theme="light"] body { background-image: radial-gradient(60rem 38rem at 92% -4%, rgba(44,170,100,.16), transparent 62%), radial-gradient(48rem 36rem at -8% 34%, rgba(255,205,110,.2), transparent 62%), radial-gradient(50rem 40rem at 70% 78%, rgba(60,160,200,.1), transparent 62%); background-attachment: fixed; }
+:root[data-theme="light"] .section.alt { background: linear-gradient(180deg, rgba(31,90,58,.07), rgba(31,90,58,.015) 70%, transparent); }
+:root[data-theme="light"] .opt, :root[data-theme="light"] .road li, :root[data-theme="light"] .pasos li, :root[data-theme="light"] .puntos li, :root[data-theme="light"] .pcard, :root[data-theme="light"] .rowitem {
+  background: linear-gradient(160deg, #ffffff 0%, #f0f6ee 100%); border: 1px solid rgba(23,56,42,.08);
+  box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(20,60,35,.05), 0 14px 30px -12px rgba(20,60,35,.2), 0 34px 60px -34px rgba(20,60,35,.3);
+  transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s, border-color .35s;
+}
+:root[data-theme="light"] .opt:hover, :root[data-theme="light"] .road li:hover, :root[data-theme="light"] .pasos li:hover, :root[data-theme="light"] .puntos li:hover {
+  transform: translateY(-5px); border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  box-shadow: inset 0 1px 0 #fff, 0 4px 8px rgba(20,60,35,.06), 0 22px 40px -14px rgba(31,90,58,.38), 0 44px 70px -36px rgba(31,90,58,.45);
+}
+:root[data-theme="light"] .callout { background: linear-gradient(135deg, #e1f1e6, #f1f8ec); border: 1px solid rgba(31,90,58,.14); box-shadow: 0 16px 34px -20px rgba(31,90,58,.5); }
+:root[data-theme="light"] .marquee { background: #fff; box-shadow: 0 20px 40px -24px rgba(20,60,35,.45); }
+:root[data-theme="light"] .ph { box-shadow: 0 30px 60px -28px rgba(20,60,35,.55), 0 8px 18px -8px rgba(20,60,35,.25); }
+:root[data-theme="light"] .site-header .nav-pill { box-shadow: 0 10px 34px -14px rgba(20,60,35,.4), inset 0 1px 0 rgba(255,255,255,.8); }
+/* Tema oscuro: borde de luz en tarjetas */
+:root:not([data-theme="light"]) .opt, :root:not([data-theme="light"]) .road li, :root:not([data-theme="light"]) .puntos li, :root:not([data-theme="light"]) .pasos li { box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 18px 34px -20px rgba(0,0,0,.7); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora i, .trefoil, .mq, .icoc::after, .section.alt::before, .cifras::before, .joinband .big, .road li:first-child h3::after { animation: none !important; }
+  .js [data-r][data-v] { transform: none !important; filter: none !important; }
+  .pasos li { position: relative !important; top: auto !important; }
+}

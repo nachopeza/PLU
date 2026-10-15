@@ -146,6 +146,7 @@ def page(fname, title, body, hero=''):
 <script src="cms.js"></script>
 <script src="site.js"></script>
 <script src="comunidad.js"></script>
+<script src="fx.js"></script>
 </body>
 </html>
 '''
@@ -203,11 +204,13 @@ def form_necesidad(clase='', titulo='¿Qué te gustaría cambiar?'):
     </form>'''
 
 home_hero = f'''<section class="hero">{ph('walk', 1800)}
+  <div class="aurora" aria-hidden="true"><i></i><i></i><i></i><svg class="trefoil" viewBox="0 0 24 24"><path d="M12 12c-3-5-8-4-8 0s5 5 8 0zm0 0c5-3 4-8 0-8s-5 5 0 8zm0 0c3 5 8 4 8 0s-5-5-8 0zm0 0c-5 3-4 8 0 8s5-5 0-8z" fill="currentColor"/></svg></div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <span class="eyebrow" data-r>Un movimiento ciudadano</span>
       <h1><span class="split">Tu voz merece</span> <span class="split">llegar más lejos.</span> <span class="split"><em>Empecemos por escuchar.</em></span></h1>
       <p class="hero-p" data-r>Queremos conocer los problemas que afectan a tu vida y trabajar para que las buenas ideas se conviertan en cambios reales.</p>
+      <p class="rota" data-r>Hoy escuchamos sobre <b class="rot" data-words="vivienda|sanidad|educación|transporte|empleo|servicios públicos|instituciones">vivienda</b></p>
       <div class="cta-row" data-r><a class="btn btn-light magnet" href="#contar">Cuéntanos qué cambiarías</a><a class="btn btn-line-light magnet" href="#como-trabajamos">Cómo trabajamos →</a></div>
       <ul class="lema" data-r><li>Libertad de las personas</li><li>Identidad de los territorios</li><li>Bienestar de todos</li></ul>
     </div>
@@ -241,12 +244,13 @@ PASOS = [('speech', 'Escuchamos', 'Sin exigir ninguna ideología.', 'Recogemos e
  ('chart', 'Estudiamos', 'Con datos, experiencia y costes.', 'Contrastamos las ideas con datos, experiencia profesional, normativa, costes y posibles consecuencias.'),
  ('doc', 'Desarrollamos propuestas', 'Medidas concretas y viables.', 'Cuando una idea tiene fundamento y encaja con los principios del proyecto, trabajamos para definir medidas concretas y viables.'),
  ('eye', 'Damos cuenta', 'Qué avanza y qué sigue pendiente.', 'Comunicamos qué estamos estudiando, qué hemos aprendido, qué decisiones se han tomado y qué cuestiones siguen pendientes.')]
-pasos_html = ''.join(f'<li data-r>{ico(i)}<span><b>{t}</b><em>{c}</em></span></li>' for (i, t, c, d) in PASOS)
+pasos_html = ''.join(f'<li data-r style="--i:{n}">{ico(i)}<span><b>{t}</b><em>{c}</em></span></li>' for n, (i, t, c, d) in enumerate(PASOS))
 
 PRIN = [('Libertad individual','Tus decisiones, tus derechos.'),('Democracia real','Participa, decide, exige.'),('Igualdad de oportunidades','El origen no define tu futuro.'),('Estado de derecho','La ley protege a todos.'),('Economía de mercado','Más empleo, más innovación.'),('Servicios esenciales','Sanidad, educación, vivienda, transporte.'),('Competencias claras','Cada quién lo que le corresponde.'),('Profesionalización del gobierno','Mérito, transparencia, resultados.'),('Sostenibilidad','Hoy y para las próximas generaciones.'),('Transparencia','Qué se decide, cuánto cuesta, quién responde.')]
 prin_li = ''.join(f'<li data-r><b>{a}</b><span>{b}</span></li>' for a, b in PRIN)
 
 home = f'''
+<div class="marquee" aria-hidden="true"><div class="mq"><span>Vivienda</span><span>Sanidad</span><span>Educación</span><span>Transporte</span><span>Empleo</span><span>Servicios públicos</span><span>Instituciones</span><span>Vivienda</span><span>Sanidad</span><span>Educación</span><span>Transporte</span><span>Empleo</span><span>Servicios públicos</span><span>Instituciones</span></div></div>
 <section class="section strip"><div class="wrap"><p class="strip-t" data-r>No necesitas pertenecer a un partido ni tener todas las respuestas. <em>Solo tienes que saber qué te gustaría mejorar.</em></p></div></section>
 
 <section class="section" id="que-es">
@@ -286,6 +290,13 @@ home = f'''
     <p class="muted nota-corta" data-r>No son promesas de soluciones ya aprobadas: son ámbitos en los que queremos escuchar, investigar y desarrollar propuestas.</p>
   </div>
 </section>
+
+<section class="cifras" aria-label="PLU en cifras"><div class="wrap"><ul>
+  <li data-r><b><i data-count="0">0</i> €</b><span>de cuota para afiliarte</span></li>
+  <li data-r><b><i data-count="6">6</i></b><span>ámbitos de trabajo</span></li>
+  <li data-r><b><i data-count="10">10</i></b><span>principios de partida</span></li>
+  <li data-r><b><i data-count="1">1</i></b><span>voz que cuenta: la tuya</span></li>
+</ul></div></section>
 
 <section class="section alt" id="lo-que-cuenta">
   <div class="wrap">
